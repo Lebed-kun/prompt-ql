@@ -1,4 +1,4 @@
-package interpreter
+package interpretercore
 
 func isAlphaChar(ch byte) bool {
 	return ch == '_' ||

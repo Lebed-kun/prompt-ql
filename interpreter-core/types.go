@@ -1,4 +1,4 @@
-package interpreter
+package interpretercore
 
 type TFunctionArgumentsTable map[string]interface{}
 
