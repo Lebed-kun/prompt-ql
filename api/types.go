@@ -21,3 +21,8 @@ type TGptApiRequest struct {
 	Temperature float64    `json:"temperature"`
 	N           int        `json:"n"`
 }
+
+type TQueryHandle struct {
+	ResultChan chan *TGptApiResponse
+	ErrChan chan error
+}

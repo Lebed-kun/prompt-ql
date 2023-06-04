@@ -15,7 +15,7 @@ type TExecutionStackFrame struct {
 
 type TExecutionStack []*TExecutionStackFrame
 
-type TExecutedFunction func(staticArgs TFunctionArgumentsTable, inputs TFunctionInputChannelTable) interface{}
+type TExecutedFunction func(globalVars TGlobalVariablesTable, staticArgs TFunctionArgumentsTable, inputs TFunctionInputChannelTable) interface{}
 
 type TExecutedFunctionTable map[string]TExecutedFunction
 

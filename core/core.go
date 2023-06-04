@@ -73,21 +73,6 @@ func (self *PromptQLInterpreter) getError(errorDetails string) error {
 	)
 }
 
-func (self *PromptQLInterpreter) pushToCtxChannel(
-	channelName string,
-	data string,
-) {
-	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
-	_, hasChannel := topCtx.InputChannels[channelName]
-	if !hasChannel {
-		topCtx.InputChannels[channelName] = TFunctionInputChannel{}
-	}
-	topCtx.InputChannels[channelName] = append(
-		topCtx.InputChannels[channelName],
-		data,
-	)
-}
-
 func (self *PromptQLInterpreter) handlePlainText(program string) {
 	plainText := strings.Builder{}
 	escapeChar := false
@@ -109,7 +94,11 @@ func (self *PromptQLInterpreter) handlePlainText(program string) {
 		}
 	}
 
-	self.pushToCtxChannel("data", plainText.String())
+	topCtx := self.execCtxStack[len(self.execCtxStack) - 1]
+	self.dataSwitchFn(
+		topCtx,
+		fmt.Sprintf("!data %v", plainText.String()),
+	)
 }
 
 func (self *PromptQLInterpreter) resolveVariable(program string) (interface{}, error) {
@@ -381,6 +370,7 @@ func (self *PromptQLInterpreter) resolveTopCtx() {
 		return
 	}
 	result := cmd(
+		self.globals,
 		topCtx.ArgsTable,
 		topCtx.InputChannels,
 	)

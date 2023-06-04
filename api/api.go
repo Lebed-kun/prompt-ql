@@ -32,7 +32,6 @@ func New(
 func (self *GptApi) doQuery(
 	model string,
 	temperature float64,
-	n int,
 	prompts []TMessage,
 ) (*TGptApiResponse, error) {
 	client := &http.Client{}
@@ -41,7 +40,7 @@ func (self *GptApi) doQuery(
 		Model:       model,
 		Messages:    prompts,
 		Temperature: temperature,
-		N:           n,
+		N:           1,
 	}
 	requestBodyStr, _ := json.Marshal(requestBody)
 	requestBodyBytes := bytes.NewBuffer(requestBodyStr)
@@ -92,9 +91,8 @@ func (self *GptApi) doQuery(
 func (self *GptApi) OpenQuery(
 	model string,
 	temperature float64,
-	n int,
 	prompts []TMessage,
-) (chan *TGptApiResponse, chan error) {
+) *TQueryHandle {
 	resChan := make(chan *TGptApiResponse)
 	errChan := make(chan error)
 
@@ -102,7 +100,6 @@ func (self *GptApi) OpenQuery(
 		res, err := self.doQuery(
 			model,
 			temperature,
-			n,
 			prompts,
 		)
 
@@ -113,21 +110,23 @@ func (self *GptApi) OpenQuery(
 		}
 	}()
 
-	return resChan, errChan
+	return &TQueryHandle{
+		ResultChan: resChan,
+		ErrChan: errChan,
+	}
 }
 
 func (self *GptApi) ListenQuery(
-	resChan chan *TGptApiResponse,
-	errChan chan error,
+	queryHandle *TQueryHandle,
 ) (*TGptApiResponse, error) {
 	timer := time.NewTimer(
 		time.Second * time.Duration(ListenQueryTimeoutSec),
 	)
 
 	select {
-	case res := <-resChan:
+	case res := <-queryHandle.ResultChan:
 		return res, nil
-	case err := <-errChan:
+	case err := <-queryHandle.ErrChan:
 		return nil, err
 	case <-timer.C:
 		return nil, errorsutils.LogError(
