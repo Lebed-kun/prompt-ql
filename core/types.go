@@ -24,7 +24,7 @@ type TDataSwitchFunction func(topCtx *TExecutionStackFrame, rawData interface{})
 type TGlobalVariablesTable map[string]interface{}
 
 type TInterpreterResult struct {
-	Result   interface{}
+	Result TFunctionInputChannelTable
 	Error    error
 	Finished bool
 }

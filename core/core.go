@@ -51,7 +51,7 @@ func New(
 	}
 }
 
-func (self *PromptQLInterpreter) Reset() {
+func (self *PromptQLInterpreter) resetImpl() {
 	self.mode = InterpreterModePlainText
 	self.line = 0
 	self.charPos = 0
@@ -94,7 +94,7 @@ func (self *PromptQLInterpreter) handlePlainText(program string) {
 		}
 	}
 
-	topCtx := self.execCtxStack[len(self.execCtxStack) - 1]
+	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
 	self.dataSwitchFn(
 		topCtx,
 		fmt.Sprintf("!data %v", plainText.String()),
@@ -365,44 +365,40 @@ func (self *PromptQLInterpreter) resolveTopCtx() {
 	cmd, hasCmd := self.execFnTable[topCtx.FnName]
 	if !hasCmd {
 		self.criticalError = self.getError(
-			fmt.Sprintf("command with name \"%v\" doesn't exist in interpreter table"),
+			fmt.Sprintf(
+				"command with name \"%v\" doesn't exist in interpreter table",
+				topCtx.FnName,
+			),
 		)
 		return
 	}
-	result := cmd(
-		self.globals,
-		topCtx.ArgsTable,
-		topCtx.InputChannels,
-	)
-	self.dataSwitchFn(
-		self.execCtxStack[len(self.execCtxStack)-1],
-		result,
-	)
-}
 
-func (self *PromptQLInterpreter) mergeFinalResults() (string, error) {
-	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
+	if errChan, hasErrChan := topCtx.InputChannels["error"]; hasErrChan && len(errChan) > 0 {
+		_, hasTopErrChan := self.execCtxStack[len(self.execCtxStack)-1].InputChannels["error"]
 
-	result := strings.Builder{}
-	dataChan := topCtx.InputChannels["data"]
-
-	for _, res := range dataChan {
-		resStr, isResStr := res.(string)
-		if !isResStr {
-			return "", self.getError(
-				fmt.Sprintf(
-					"result in the root context is not string",
-				),
-			)
+		if !hasTopErrChan {
+			self.execCtxStack[len(self.execCtxStack)-1].InputChannels["error"] = make(TFunctionInputChannel, 0)
 		}
 
-		result.WriteString(resStr)
+		topErrChan := self.execCtxStack[len(self.execCtxStack)-1].InputChannels["error"]
+		self.execCtxStack[len(self.execCtxStack)-1].InputChannels["error"] = append(
+			topErrChan,
+			topCtx.InputChannels["error"]...
+		)
+	} else {
+		result := cmd(
+			self.globals,
+			topCtx.ArgsTable,
+			topCtx.InputChannels,
+		)
+		self.dataSwitchFn(
+			self.execCtxStack[len(self.execCtxStack)-1],
+			result,
+		)
 	}
-
-	return result.String(), nil
 }
 
-func (self *PromptQLInterpreter) Execute(program string) *TInterpreterResult {
+func (self *PromptQLInterpreter) executeImpl(program string) *TInterpreterResult {
 	self.isDirty = true
 
 	for self.strPos < len(program) {
@@ -430,20 +426,17 @@ func (self *PromptQLInterpreter) Execute(program string) *TInterpreterResult {
 		}
 	}
 
-	result := ""
-	finished := false
-	if self.criticalError == nil {
-		var err error
-		result, err = self.mergeFinalResults()
-		if err != nil {
-			self.criticalError = err
-		} else {
-			finished = true
-		}
-	}
+	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
+	finished := self.criticalError != nil ||
+		len(self.execCtxStack) == 1
 
+	topErrChan, hasTopErrChan := topCtx.InputChannels["error"]
+	if hasTopErrChan && len(topErrChan) > 0 {
+		finished = true
+	}
+	
 	return &TInterpreterResult{
-		Result:   result,
+		Result:   topCtx.InputChannels,
 		Error:    self.criticalError,
 		Finished: finished,
 	}
