@@ -19,7 +19,7 @@ type TExecutedFunction func(globalVars TGlobalVariablesTable, staticArgs TFuncti
 
 type TExecutedFunctionTable map[string]TExecutedFunction
 
-type TDataSwitchFunction func(ctx *TExecutionStackFrame, data interface{})
+type TDataSwitchFunction func(topCtx *TExecutionStackFrame, rawData interface{})
 
 type TGlobalVariablesTable map[string]interface{}
 

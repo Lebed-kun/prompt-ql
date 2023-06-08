@@ -17,8 +17,7 @@ func NewInterpreter(
 	execFnTable := makeCmdTable(apiInst)
 	interpreterInst := interpreter.New(
 		execFnTable,
-		// TODO: add switch fn according to specsc =^_^=
-		nil,
+		rootDataSwitch,
 	)
 	
 	return interpreterInst
