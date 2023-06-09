@@ -127,7 +127,8 @@ func (self *PromptQLInterpreter) resolveVariable(program string) (interface{}, e
 	currApplyCnt := 0
 
 	for currApplyCnt < applyCnt {
-		varValue, hasVar := self.globals[varName]
+		var hasVar bool
+		varValue, hasVar = self.globals[varName]
 		if !hasVar {
 			varValue = nil
 			break
@@ -257,6 +258,7 @@ func (self *PromptQLInterpreter) handleCommand(program string) {
 				self.criticalError = self.getError(
 					"argument name is not string",
 				)
+				continue
 			}
 
 			self.strPos++
@@ -321,15 +323,15 @@ func (self *PromptQLInterpreter) handleCommand(program string) {
 				if len(currArg) > 0 {
 					topCtx.ArgsTable[currArg] = true
 					currArg = ""
-				}
-
-				currLiteralStr, isCurrLiteralStr := currLiteral.(string)
-				if !isCurrLiteralStr {
-					self.criticalError = self.getError(
-						"argument name is not string",
-					)
 				} else {
-					currArg = currLiteralStr
+					currLiteralStr, isCurrLiteralStr := currLiteral.(string)
+					if !isCurrLiteralStr {
+						self.criticalError = self.getError(
+							"argument name is not string",
+						)
+					} else {
+						currArg = currLiteralStr
+					}
 				}
 			case StackFrameStateExpectVal:
 				if len(currArg) == 0 {
@@ -383,7 +385,7 @@ func (self *PromptQLInterpreter) resolveTopCtx() {
 		topErrChan := self.execCtxStack[len(self.execCtxStack)-1].InputChannels["error"]
 		self.execCtxStack[len(self.execCtxStack)-1].InputChannels["error"] = append(
 			topErrChan,
-			topCtx.InputChannels["error"]...
+			topCtx.InputChannels["error"]...,
 		)
 	} else {
 		result := cmd(
@@ -434,7 +436,7 @@ func (self *PromptQLInterpreter) executeImpl(program string) *TInterpreterResult
 	if hasTopErrChan && len(topErrChan) > 0 {
 		finished = true
 	}
-	
+
 	return &TInterpreterResult{
 		Result:   topCtx.InputChannels,
 		Error:    self.criticalError,
