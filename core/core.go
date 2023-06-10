@@ -443,3 +443,17 @@ func (self *PromptQLInterpreter) executeImpl(program string) *TInterpreterResult
 		Finished: finished,
 	}
 }
+
+func (self *PromptQLInterpreter) Execute(program string) *TInterpreterResult {
+	return self.executeImpl(program)
+}
+
+func (self *PromptQLInterpreter) ExecuteClean(program string) *TInterpreterResult {
+	res := self.executeImpl(program)
+	self.resetImpl()
+	return res
+}
+
+func (self *PromptQLInterpreter) Reset() {
+	self.resetImpl()
+}
