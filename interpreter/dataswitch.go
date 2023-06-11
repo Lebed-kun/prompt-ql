@@ -11,6 +11,7 @@ import (
 type TRootSwitchTable map[string]interpreter.TDataSwitchFunction
 
 var rootSwitchTable TRootSwitchTable = map[string]interpreter.TDataSwitchFunction{
+	"root": defaultswitch.DefaultSwitch,
 	"open_query": openqueryswitch.OpenQuerySwitch,
 	"call": defaultswitch.DefaultSwitch,
 	"set": defaultswitch.DefaultSwitch,

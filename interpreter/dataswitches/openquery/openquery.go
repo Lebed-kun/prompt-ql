@@ -36,7 +36,7 @@ func OpenQuerySwitch(
 		)
 	} else {
 		msgPrefix := promptmsg.GetPromptMsgPrefix(data)
-		if len(msgPrefix) == 0 {
+		if len(msgPrefix) == 0 || msgPrefix == "data" {
 			msgPrefix = "user"
 		}
 

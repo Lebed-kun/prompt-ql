@@ -30,13 +30,8 @@ func DefaultSwitch(
 			err,
 		)
 	} else {
-		msgPrefix := promptmsg.GetPromptMsgPrefix(data)
-		if len(msgPrefix) == 0 {
-			msgPrefix = "data"
-		}
-
-		topCtx.InputChannels[msgPrefix] = append(
-			topCtx.InputChannels[msgPrefix],
+		topCtx.InputChannels["data"] = append(
+			topCtx.InputChannels["data"],
 			promptmsg.ReplacePromptMsgPrefix(data, ""),
 		)
 	}
