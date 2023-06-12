@@ -10,12 +10,12 @@ func BasicQueryTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
-	interpreterInst := interpreter.NewInterpreter(
+	interpreterInst := interpreter.New(
 		openAiBaseUrl,
 		openAiKey,
 	)
 
-	result := interpreterInst.ExecuteClean(
+	result := interpreterInst.Execute(
 		`
 			{~open_query to="query1" model="gpt-4"}
 				{~system}
@@ -34,9 +34,15 @@ func BasicQueryTest(
 	}
 
 	fmt.Println("===================")
+	resultStr, _ := result.ResultDataStr()
+	errStr, _ := result.ResultErrorStr()
 	fmt.Printf(
-		"ChatGPT response:\n%v",
-		result.Result["data"],
+		"ChatGPT response:\n%v\n",
+		resultStr,
+	)
+	fmt.Printf(
+		"ChatGPT error:\n%v\n",
+		errStr,
 	)
 	fmt.Println("===================")
 }

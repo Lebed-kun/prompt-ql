@@ -5,10 +5,10 @@ import (
 	api "gitlab.com/jbyte777/prompt-ql/api"
 )
 
-func NewInterpreter(
+func New(
 	openAiBaseUrl string,
 	openAiKey string,
-) *interpreter.PromptQLInterpreter {
+) *interpreter.Interpreter {
 	apiInst := api.New(
 		openAiBaseUrl,
 		openAiKey,

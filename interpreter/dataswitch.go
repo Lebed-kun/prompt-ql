@@ -26,6 +26,10 @@ func rootDataSwitch(
 	topCtx *interpreter.TExecutionStackFrame,
 	rawData interface{},
 ) {
+	if rawData == nil {
+		return
+	}
+
 	switchFn, hasSwitchFn := rootSwitchTable[topCtx.FnName]
 	if !hasSwitchFn {
 		return

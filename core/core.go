@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type PromptQLInterpreter struct {
+type Interpreter struct {
 	mode          int
 	line          int
 	charPos       int
@@ -34,16 +34,18 @@ func makeRootStackFrame() *TExecutionStackFrame {
 func New(
 	execFnTable TExecutedFunctionTable,
 	dataSwitchFn TDataSwitchFunction,
-) *PromptQLInterpreter {
-	return &PromptQLInterpreter{
+) *Interpreter {
+	execCtxStack := []*TExecutionStackFrame{
+		makeRootStackFrame(),
+	}
+
+	return &Interpreter{
 		mode:    InterpreterModePlainText,
 		line:    0,
 		charPos: 0,
 		strPos:  0,
 		globals: make(TGlobalVariablesTable),
-		execCtxStack: []*TExecutionStackFrame{
-			makeRootStackFrame(),
-		},
+		execCtxStack: execCtxStack,
 		isDirty:       false,
 		criticalError: nil,
 		execFnTable:   execFnTable,
@@ -51,7 +53,7 @@ func New(
 	}
 }
 
-func (self *PromptQLInterpreter) resetImpl() {
+func (self *Interpreter) resetImpl() {
 	self.mode = InterpreterModePlainText
 	self.line = 0
 	self.charPos = 0
@@ -64,7 +66,7 @@ func (self *PromptQLInterpreter) resetImpl() {
 	self.criticalError = nil
 }
 
-func (self *PromptQLInterpreter) getError(errorDetails string) error {
+func (self *Interpreter) getError(errorDetails string) error {
 	return fmt.Errorf(
 		"ERROR (line=%v, charpos=%v): %v",
 		self.line,
@@ -73,7 +75,7 @@ func (self *PromptQLInterpreter) getError(errorDetails string) error {
 	)
 }
 
-func (self *PromptQLInterpreter) handlePlainText(program string) {
+func (self *Interpreter) handlePlainText(program []rune) {
 	plainText := strings.Builder{}
 	escapeChar := false
 
@@ -82,7 +84,7 @@ func (self *PromptQLInterpreter) handlePlainText(program string) {
 			escapeChar = true
 		} else {
 			escapeChar = false
-			plainText.WriteByte(program[self.strPos])
+			plainText.WriteRune(program[self.strPos])
 		}
 		self.strPos++
 
@@ -101,7 +103,7 @@ func (self *PromptQLInterpreter) handlePlainText(program string) {
 	)
 }
 
-func (self *PromptQLInterpreter) resolveVariable(program string) (interface{}, error) {
+func (self *Interpreter) resolveVariable(program []rune) (interface{}, error) {
 	applyCnt := 1
 
 	for self.strPos < len(program) && program[self.strPos] == '$' {
@@ -123,7 +125,7 @@ func (self *PromptQLInterpreter) resolveVariable(program string) (interface{}, e
 	}
 
 	var varValue interface{}
-	varName := program[begin:self.strPos]
+	varName := string(program[begin:self.strPos])
 	currApplyCnt := 0
 
 	for currApplyCnt < applyCnt {
@@ -151,7 +153,7 @@ func (self *PromptQLInterpreter) resolveVariable(program string) (interface{}, e
 	return varValue, nil
 }
 
-func (self *PromptQLInterpreter) resolveStrLiteral(program string) (string, error) {
+func (self *Interpreter) resolveStrLiteral(program []rune) (string, error) {
 	literal := strings.Builder{}
 	escapeChar := false
 
@@ -160,7 +162,7 @@ func (self *PromptQLInterpreter) resolveStrLiteral(program string) (string, erro
 			escapeChar = true
 		} else {
 			escapeChar = false
-			literal.WriteByte(program[self.strPos])
+			literal.WriteRune(program[self.strPos])
 		}
 		self.strPos++
 
@@ -178,10 +180,11 @@ func (self *PromptQLInterpreter) resolveStrLiteral(program string) (string, erro
 		)
 	}
 
+	self.strPos++
 	return literal.String(), nil
 }
 
-func (self *PromptQLInterpreter) skipWhitespaces(program string) {
+func (self *Interpreter) skipWhitespaces(program []rune) {
 	for self.strPos < len(program) && isWhitespace(program[self.strPos]) {
 		if program[self.strPos] == '\n' {
 			self.charPos = 0
@@ -194,11 +197,11 @@ func (self *PromptQLInterpreter) skipWhitespaces(program string) {
 	}
 }
 
-func (self *PromptQLInterpreter) resolveName(program string) string {
+func (self *Interpreter) resolveName(program []rune) string {
 	name := strings.Builder{}
 
 	for self.strPos < len(program) && isAlphaNumChar(program[self.strPos]) {
-		name.WriteByte(program[self.strPos])
+		name.WriteRune(program[self.strPos])
 		self.strPos++
 		self.charPos++
 	}
@@ -206,7 +209,7 @@ func (self *PromptQLInterpreter) resolveName(program string) string {
 	return name.String()
 }
 
-func (self *PromptQLInterpreter) handleCommand(program string) {
+func (self *Interpreter) handleCommand(program []rune) {
 	var currLiteral interface{} = nil
 	currArg := ""
 
@@ -356,7 +359,7 @@ func (self *PromptQLInterpreter) handleCommand(program string) {
 	}
 }
 
-func (self *PromptQLInterpreter) resolveTopCtx() {
+func (self *Interpreter) resolveTopCtx() {
 	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
 	if len(self.execCtxStack) < 2 || topCtx.State != StackFrameStateIsClosing {
 		return
@@ -400,7 +403,7 @@ func (self *PromptQLInterpreter) resolveTopCtx() {
 	}
 }
 
-func (self *PromptQLInterpreter) executeImpl(program string) *TInterpreterResult {
+func (self *Interpreter) executeImpl(program []rune) *TInterpreterResult {
 	self.isDirty = true
 
 	for self.strPos < len(program) {
@@ -444,16 +447,16 @@ func (self *PromptQLInterpreter) executeImpl(program string) *TInterpreterResult
 	}
 }
 
-func (self *PromptQLInterpreter) Execute(program string) *TInterpreterResult {
-	return self.executeImpl(program)
+func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult {
+	return self.executeImpl([]rune(program))
 }
 
-func (self *PromptQLInterpreter) ExecuteClean(program string) *TInterpreterResult {
-	res := self.executeImpl(program)
+func (self *Interpreter) Execute(program string) *TInterpreterResult {
+	res := self.executeImpl([]rune(program))
 	self.resetImpl()
 	return res
 }
 
-func (self *PromptQLInterpreter) Reset() {
+func (self *Interpreter) Reset() {
 	self.resetImpl()
 }
