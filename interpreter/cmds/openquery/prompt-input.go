@@ -5,50 +5,7 @@ import (
 
 	api "gitlab.com/jbyte777/prompt-ql/api"
 	interpreter "gitlab.com/jbyte777/prompt-ql/core"
-	parseutils "gitlab.com/jbyte777/prompt-ql/utils/parse"
-	cmdtypes "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/types"
-	mathutils "gitlab.com/jbyte777/prompt-ql/utils/math"
 )
-
-const maxMsgId int = 1_000
-
-func getPromptInfo(
-	inputs interpreter.TFunctionInputChannelTable,
-	msgRole string,
-	ptr int,
-	execInfo interpreter.TExecutionInfo,
-) *cmdtypes.TPromptInfo {
-	if msgChan, hasMsgChan := inputs[msgRole]; hasMsgChan {
-		if ptr < len(msgChan) {
-			rawMsg := msgChan[ptr].(string)
-			msgIdx, err, msgBegin := parseutils.ParseUintFromPrefix(rawMsg)
-			if err != nil {
-				return &cmdtypes.TPromptInfo{
-					MsgId: maxMsgId,
-					Err: fmt.Errorf(
-						"!error (line=%v, char=%v): %v",
-						execInfo.Line,
-						execInfo.CharPos,
-						err.Error(),
-					),
-					MsgBegin: -1,
-				}
-			}
-
-			return &cmdtypes.TPromptInfo{
-				MsgId: msgIdx,
-				Err: nil,
-				MsgBegin: msgBegin,
-			}
-		}
-	}
-
-	return &cmdtypes.TPromptInfo{
-		MsgId: maxMsgId,
-		Err: nil,
-		MsgBegin: -1,
-	}
-}
 
 func getPrompts(
 	inputs interpreter.TFunctionInputChannelTable,
@@ -56,69 +13,50 @@ func getPrompts(
 ) ([]api.TMessage, error) {
 	res := make([]api.TMessage, 0)
 
-	userPtr := 0
-	assistantPtr := 0
-	systemPtr := 0
+	userChan := inputs["user"]
+	assistantChan := inputs["assistant"]
+	systemChan := inputs["system"]
+
+	ptr := 0
 	for {
-		userPromptInfo := getPromptInfo(inputs, "user", userPtr, execInfo)
-		if userPromptInfo.Err != nil {
-			return nil, userPromptInfo.Err
-		}
+		var msg api.TMessage
+		userChanMsg := ""
+		assistantChanMsg := ""
+		systemChanMsg := ""
 
-		assistantPromptInfo := getPromptInfo(inputs, "assistant", assistantPtr, execInfo)
-		if assistantPromptInfo.Err != nil {
-			return nil, assistantPromptInfo.Err
-		}
-
-		systemPromptInfo := getPromptInfo(inputs, "system", systemPtr, execInfo)
-		if systemPromptInfo.Err != nil {
-			return nil, systemPromptInfo.Err
-		}
-
-		minId := mathutils.MinInt(
-			userPromptInfo.MsgId,
-			mathutils.MinInt(
-				assistantPromptInfo.MsgId,
-				systemPromptInfo.MsgId,
-			),
-		)
-
-		if minId == maxMsgId {
+		if ptr >= len(userChan) && ptr >= len(assistantChan) && ptr >= len(systemChan) {
 			break
 		}
+		
+		if ptr < len(userChan)  {
+			userChanMsg = userChan[ptr].(string)
+		}
+		if ptr < len(assistantChan) {
+			assistantChanMsg = assistantChan[ptr].(string)
+		}
+		if ptr < len(systemChan) {
+			systemChanMsg = systemChan[ptr].(string)
+		}
 
-		var msg api.TMessage
-		switch (minId) {
-		case userPromptInfo.MsgId:
-			rawMsg := inputs["user"][userPtr].(string) 
-			msgContent := rawMsg[userPromptInfo.MsgBegin + 1:]
-
+		if len(userChanMsg) > 0 {
 			msg = api.TMessage{
 				Role: "user",
-				Content: msgContent,
+				Content: userChanMsg,
 			}
-			userPtr++
-		case assistantPromptInfo.MsgId:
-			rawMsg := inputs["assistant"][assistantPtr].(string) 
-			msgContent := rawMsg[assistantPromptInfo.MsgBegin + 1:]
-
+		} else if len(assistantChanMsg) > 0 {
 			msg = api.TMessage{
 				Role: "assistant",
-				Content: msgContent,
+				Content: assistantChanMsg,
 			}
-			assistantPtr++
-		case systemPromptInfo.MsgId:
-			rawMsg := inputs["system"][systemPtr].(string) 
-			msgContent := rawMsg[systemPromptInfo.MsgBegin + 1:]
-
+		} else if len(systemChanMsg) > 0 {
 			msg = api.TMessage{
 				Role: "system",
-				Content: msgContent,
+				Content: systemChanMsg,
 			}
-			systemPtr++
 		}
 
 		res = append(res, msg)
+		ptr++
 	}
 
 	if len(res) == 0 {

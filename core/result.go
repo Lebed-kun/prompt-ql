@@ -9,7 +9,7 @@ import (
 type TInterpreterResult struct {
 	Result TFunctionInputChannelTable
 	Error    error
-	Finished bool
+	Complete bool
 }
 
 func (self *TInterpreterResult) ResultDataStr() (string, bool) {

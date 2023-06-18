@@ -40,12 +40,12 @@ func New(
 	}
 
 	return &Interpreter{
-		mode:    InterpreterModePlainText,
-		line:    0,
-		charPos: 0,
-		strPos:  0,
-		globals: make(TGlobalVariablesTable),
-		execCtxStack: execCtxStack,
+		mode:          InterpreterModePlainText,
+		line:          0,
+		charPos:       0,
+		strPos:        0,
+		globals:       make(TGlobalVariablesTable),
+		execCtxStack:  execCtxStack,
 		isDirty:       false,
 		criticalError: nil,
 		execFnTable:   execFnTable,
@@ -218,6 +218,11 @@ func (self *Interpreter) handleCommand(program []rune) {
 			break
 		}
 
+		topCtx := self.execCtxStack[len(self.execCtxStack)-1]
+		if len(currArg) > 0 {
+			topCtx.ArgsTable[currArg] = true
+		}
+
 		if isWhitespace(program[self.strPos]) {
 			self.skipWhitespaces(program)
 			continue
@@ -234,6 +239,8 @@ func (self *Interpreter) handleCommand(program []rune) {
 
 			self.strPos++
 			self.charPos++
+			currLiteral = nil
+			currArg = ""
 			continue
 		}
 
@@ -241,14 +248,13 @@ func (self *Interpreter) handleCommand(program []rune) {
 			self.strPos++
 			self.charPos++
 
-			topCtx := self.execCtxStack[len(self.execCtxStack)-1]
 			topCtx.State = StackFrameStateIsClosing
-
+			currLiteral = nil
+			currArg = ""
 			continue
 		}
 
 		if program[self.strPos] == '=' {
-			topCtx := self.execCtxStack[len(self.execCtxStack)-1]
 			if topCtx.State != StackFrameStateExpectArg {
 				self.criticalError = self.getError(
 					"expected argument before = ",
@@ -266,6 +272,7 @@ func (self *Interpreter) handleCommand(program []rune) {
 
 			self.strPos++
 			self.charPos++
+			currLiteral = nil
 			currArg = currLiteralStr
 			topCtx.State = StackFrameStateExpectVal
 			continue
@@ -310,7 +317,6 @@ func (self *Interpreter) handleCommand(program []rune) {
 
 	ctxFill:
 		{
-			topCtx := self.execCtxStack[len(self.execCtxStack)-1]
 			switch topCtx.State {
 			case StackFrameStateExpectCmd:
 				currLiteralStr, isCurrLiteralStr := currLiteral.(string)
@@ -324,17 +330,16 @@ func (self *Interpreter) handleCommand(program []rune) {
 				}
 			case StackFrameStateExpectArg:
 				if len(currArg) > 0 {
-					topCtx.ArgsTable[currArg] = true
 					currArg = ""
+				}
+
+				currLiteralStr, isCurrLiteralStr := currLiteral.(string)
+				if !isCurrLiteralStr {
+					self.criticalError = self.getError(
+						"argument name is not string",
+					)
 				} else {
-					currLiteralStr, isCurrLiteralStr := currLiteral.(string)
-					if !isCurrLiteralStr {
-						self.criticalError = self.getError(
-							"argument name is not string",
-						)
-					} else {
-						currArg = currLiteralStr
-					}
+					currArg = currLiteralStr
 				}
 			case StackFrameStateExpectVal:
 				if len(currArg) == 0 {
@@ -344,6 +349,7 @@ func (self *Interpreter) handleCommand(program []rune) {
 				} else {
 					topCtx.ArgsTable[currArg] = currLiteral
 					topCtx.State = StackFrameStateExpectArg
+					currArg = ""
 				}
 			}
 
@@ -353,9 +359,17 @@ func (self *Interpreter) handleCommand(program []rune) {
 	cmdParseError:
 		{
 			self.criticalError = self.getError(
-				"unknown character",
+				fmt.Sprintf(
+					"unknown character %v",
+					program[self.strPos],
+				),
 			)
 		}
+	}
+
+	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
+	if len(currArg) > 0 {
+		topCtx.ArgsTable[currArg] = true
 	}
 }
 
@@ -396,9 +410,9 @@ func (self *Interpreter) resolveTopCtx() {
 			topCtx.InputChannels,
 			self.globals,
 			TExecutionInfo{
-				StrPos: self.strPos,
+				StrPos:  self.strPos,
 				CharPos: self.charPos,
-				Line: self.line,
+				Line:    self.line,
 			},
 		)
 		self.dataSwitchFn(
@@ -437,18 +451,18 @@ func (self *Interpreter) executeImpl(program []rune) *TInterpreterResult {
 	}
 
 	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
-	finished := self.criticalError != nil ||
+	complete := self.criticalError != nil ||
 		len(self.execCtxStack) == 1
 
 	topErrChan, hasTopErrChan := topCtx.InputChannels["error"]
 	if hasTopErrChan && len(topErrChan) > 0 {
-		finished = true
+		complete = true
 	}
 
 	return &TInterpreterResult{
 		Result:   topCtx.InputChannels,
 		Error:    self.criticalError,
-		Finished: finished,
+		Complete: complete,
 	}
 }
 

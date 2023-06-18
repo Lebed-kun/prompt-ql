@@ -42,8 +42,8 @@ func (self *GptApi) doQuery(
 		Temperature: temperature,
 		N:           1,
 	}
-	requestBodyStr, _ := json.Marshal(requestBody)
-	requestBodyBytes := bytes.NewBuffer(requestBodyStr)
+	requestBodyBytes, _ := json.Marshal(requestBody)
+	requestBodyBuff := bytes.NewBuffer(requestBodyBytes)
 
 	reqUrl := fmt.Sprintf(
 		"%v/v1/chat/completions",
@@ -52,9 +52,10 @@ func (self *GptApi) doQuery(
 	request, _ := http.NewRequest(
 		"POST",
 		reqUrl,
-		requestBodyBytes,
+		requestBodyBuff,
 	)
 	request.Header.Add("Authorization", self.openAiKey)
+	request.Header.Add("Content-Type", "application/json")
 
 	response, err := client.Do(request)
 	if err != nil {

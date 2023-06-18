@@ -5,6 +5,7 @@ import (
 
 	interpreter "gitlab.com/jbyte777/prompt-ql/core"
 	promptmsg "gitlab.com/jbyte777/prompt-ql/utils/promptmsg"
+	stringsutils "gitlab.com/jbyte777/prompt-ql/utils/strings"
 )
 
 func OpenQuerySwitch(
@@ -40,13 +41,40 @@ func OpenQuerySwitch(
 			msgPrefix = "user"
 		}
 
-		_, hasMsgChan := topCtx.InputChannels[msgPrefix]
-		if !hasMsgChan {
-			topCtx.InputChannels[msgPrefix] = make(interpreter.TFunctionInputChannel, 0)
+		_, hasUserChan := topCtx.InputChannels["user"]
+		if !hasUserChan {
+			topCtx.InputChannels["user"] = make(interpreter.TFunctionInputChannel, 0)
 		}
-		topCtx.InputChannels[msgPrefix] = append(
-			topCtx.InputChannels[msgPrefix],
+
+		_, hasAssistantChan := topCtx.InputChannels["assistant"]
+		if !hasAssistantChan {
+			topCtx.InputChannels["assistant"] = make(interpreter.TFunctionInputChannel, 0)
+		}
+
+		_, hasSystemChan := topCtx.InputChannels["system"]
+		if !hasSystemChan {
+			topCtx.InputChannels["system"] = make(interpreter.TFunctionInputChannel, 0)
+		}
+
+		message := stringsutils.TrimWhitespace(
 			promptmsg.ReplacePromptMsgPrefix(data, ""),
 		)
+		if len(message) == 0 {
+			return
+		}
+
+		if msgPrefix == "user" {
+			topCtx.InputChannels["user"] = append(topCtx.InputChannels["user"], message)
+			topCtx.InputChannels["assistant"] = append(topCtx.InputChannels["assistant"], "")
+			topCtx.InputChannels["system"] = append(topCtx.InputChannels["system"], "")
+		} else if msgPrefix == "assistant" {
+			topCtx.InputChannels["user"] = append(topCtx.InputChannels["user"], "")
+			topCtx.InputChannels["assistant"] = append(topCtx.InputChannels["assistant"], message)
+			topCtx.InputChannels["system"] = append(topCtx.InputChannels["system"], "")
+		} else {
+			topCtx.InputChannels["user"] = append(topCtx.InputChannels["user"], "")
+			topCtx.InputChannels["assistant"] = append(topCtx.InputChannels["assistant"], "")
+			topCtx.InputChannels["system"] = append(topCtx.InputChannels["system"], message)
+		}
 	}
 }

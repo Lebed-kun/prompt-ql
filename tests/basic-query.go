@@ -17,7 +17,7 @@ func BasicQueryTest(
 
 	result := interpreterInst.Execute(
 		`
-			{~open_query to="query1" model="gpt-4"}
+			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
 				{~system}
 					You are a helpful and terse assistant.
 				{/system}
