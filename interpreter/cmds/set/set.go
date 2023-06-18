@@ -7,11 +7,12 @@ import (
 )
 
 func SetCmd(
-	globals interpreter.TGlobalVariablesTable,
 	staticArgs interpreter.TFunctionArgumentsTable,
 	inputs interpreter.TFunctionInputChannelTable,
+	globals interpreter.TGlobalVariablesTable,
+	execInfo interpreter.TExecutionInfo,
 ) interface{} {
-	toVar, err := getToVar(staticArgs)
+	toVar, err := getToVar(staticArgs, execInfo)
 	if err != nil {
 		return err
 	}
@@ -19,7 +20,9 @@ func SetCmd(
 	dataChan, hasDataChan := inputs["data"]
 	if !hasDataChan || len(dataChan) == 0 {
 		return fmt.Errorf(
-			"!error data is not provided for the \"%v\" variable",
+			"!error (line=%v, char=%v): data is not provided for the \"%v\" variable",
+			execInfo.Line,
+			execInfo.CharPos,
 			toVar,
 		)
 	}

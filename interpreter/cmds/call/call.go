@@ -7,11 +7,12 @@ import (
 )
 
 func CallCmd(
-	globals interpreter.TGlobalVariablesTable,
 	staticArgs interpreter.TFunctionArgumentsTable,
 	inputs interpreter.TFunctionInputChannelTable,
+	globals interpreter.TGlobalVariablesTable,
+	execInfo interpreter.TExecutionInfo,
 ) interface{} {
-	fnVar, err := getFnVar(staticArgs)
+	fnVar, err := getFnVar(staticArgs, execInfo)
 	if err != nil {
 		return err
 	}
@@ -19,7 +20,9 @@ func CallCmd(
 	rawFn, hasFn := globals[fnVar]
 	if !hasFn {
 		return fmt.Errorf(
-			"!error function with name \"%v\" doesn't exist",
+			"!error (line=%v, char=%v): function with name \"%v\" doesn't exist",
+			execInfo.Line,
+			execInfo.CharPos,
 			fnVar,
 		)
 	}
@@ -27,7 +30,9 @@ func CallCmd(
 	fn, isFn := rawFn.(TCmdCallableFunction)
 	if !isFn {
 		return fmt.Errorf(
-			"!error variable \"%v\" doesn't contain function",
+			"!error (line=%v, char=%v): variable \"%v\" doesn't contain function",
+			execInfo.Line,
+			execInfo.CharPos,
 			fnVar,
 		)
 	}

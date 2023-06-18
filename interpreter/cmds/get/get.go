@@ -5,11 +5,12 @@ import (
 )
 
 func GetCmd(
-	globals interpreter.TGlobalVariablesTable,
 	staticArgs interpreter.TFunctionArgumentsTable,
 	inputs interpreter.TFunctionInputChannelTable,
+	globals interpreter.TGlobalVariablesTable,
+	execInfo interpreter.TExecutionInfo,
 ) interface{} {
-	fromVar, err := getFromVar(staticArgs)
+	fromVar, err := getFromVar(staticArgs, execInfo)
 	if err != nil {
 		return err
 	}

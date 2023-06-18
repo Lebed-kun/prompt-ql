@@ -9,14 +9,17 @@ import (
 
 func MakeWrapperCmd(dataTag string) interpreter.TExecutedFunction {
 	return func(
-		globals interpreter.TGlobalVariablesTable,
 		staticArgs interpreter.TFunctionArgumentsTable,
 		inputs interpreter.TFunctionInputChannelTable,
+		globals interpreter.TGlobalVariablesTable,
+		execInfo interpreter.TExecutionInfo,
 	) interface{} {
 		dataChan, hasDataChan := inputs["data"]
 		if !hasDataChan || len(dataChan) == 0 {
 			return fmt.Errorf(
-				"!error data is not provided for the \"%v\" wrapper",
+				"!error (line=%v, char=%v): data is not provided for the \"%v\" wrapper",
+				execInfo.Line,
+				execInfo.CharPos,
 				dataTag,
 			)
 		}
@@ -25,7 +28,9 @@ func MakeWrapperCmd(dataTag string) interpreter.TExecutedFunction {
 		latestData, isLatestDataStr := rawLatestData.(string)
 		if !isLatestDataStr {
 			return fmt.Errorf(
-				"!error \"%v\" is not valid string for \"%v\" wrapper",
+				"!error (line=%v, char=%v): \"%v\" is not valid string for \"%v\" wrapper",
+				execInfo.Line,
+				execInfo.CharPos,
 				rawLatestData,
 				dataTag,
 			)

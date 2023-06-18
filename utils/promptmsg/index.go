@@ -19,7 +19,12 @@ func ReplacePromptMsgPrefix(promptMsg string, prefix string) string {
 func GetPromptMsgPrefix(promptMsg string) string {
 	msgPrefixRegex := regexp.MustCompile("![a-z]+")
 
-	return msgPrefixRegex.FindString(
+	res := msgPrefixRegex.FindString(
 		promptMsg,
-	)[1:]
+	)
+	if len(res) == 0 {
+		return ""
+	}
+
+	return res[1:]
 }

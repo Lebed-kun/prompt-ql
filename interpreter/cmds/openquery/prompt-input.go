@@ -16,6 +16,7 @@ func getPromptInfo(
 	inputs interpreter.TFunctionInputChannelTable,
 	msgRole string,
 	ptr int,
+	execInfo interpreter.TExecutionInfo,
 ) *cmdtypes.TPromptInfo {
 	if msgChan, hasMsgChan := inputs[msgRole]; hasMsgChan {
 		if ptr < len(msgChan) {
@@ -25,7 +26,9 @@ func getPromptInfo(
 				return &cmdtypes.TPromptInfo{
 					MsgId: maxMsgId,
 					Err: fmt.Errorf(
-						"!error %v",
+						"!error (line=%v, char=%v): %v",
+						execInfo.Line,
+						execInfo.CharPos,
 						err.Error(),
 					),
 					MsgBegin: -1,
@@ -49,6 +52,7 @@ func getPromptInfo(
 
 func getPrompts(
 	inputs interpreter.TFunctionInputChannelTable,
+	execInfo interpreter.TExecutionInfo,
 ) ([]api.TMessage, error) {
 	res := make([]api.TMessage, 0)
 
@@ -56,17 +60,17 @@ func getPrompts(
 	assistantPtr := 0
 	systemPtr := 0
 	for {
-		userPromptInfo := getPromptInfo(inputs, "user", userPtr)
+		userPromptInfo := getPromptInfo(inputs, "user", userPtr, execInfo)
 		if userPromptInfo.Err != nil {
 			return nil, userPromptInfo.Err
 		}
 
-		assistantPromptInfo := getPromptInfo(inputs, "assistant", assistantPtr)
+		assistantPromptInfo := getPromptInfo(inputs, "assistant", assistantPtr, execInfo)
 		if assistantPromptInfo.Err != nil {
 			return nil, assistantPromptInfo.Err
 		}
 
-		systemPromptInfo := getPromptInfo(inputs, "system", systemPtr)
+		systemPromptInfo := getPromptInfo(inputs, "system", systemPtr, execInfo)
 		if systemPromptInfo.Err != nil {
 			return nil, systemPromptInfo.Err
 		}
@@ -119,7 +123,9 @@ func getPrompts(
 
 	if len(res) == 0 {
 		return nil, fmt.Errorf(
-			"!error prompts are empty",
+			"!error (line=%v, char=%v): prompts are empty",
+			execInfo.Line,
+			execInfo.CharPos,
 		)
 	}
 

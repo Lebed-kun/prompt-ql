@@ -9,26 +9,27 @@ func MakeOpenQueryCmd(
 	gptApi *api.GptApi,
 ) interpreter.TExecutedFunction {
 	return func(
-		globals interpreter.TGlobalVariablesTable,
 		staticArgs interpreter.TFunctionArgumentsTable,
 		inputs interpreter.TFunctionInputChannelTable,
+		globals interpreter.TGlobalVariablesTable,
+		execInfo interpreter.TExecutionInfo,
 	) interface{} {
-		toVar, err := getToVar(staticArgs)
+		toVar, err := getToVar(staticArgs, execInfo)
 		if err != nil {
 			return err
 		}
 	
-		model, err := getModel(staticArgs)
+		model, err := getModel(staticArgs, execInfo)
 		if err != nil {
 			return err
 		}
 		
-		temperature, err := getTemperature(staticArgs)
+		temperature, err := getTemperature(staticArgs, execInfo)
 		if err != nil {
 			return err
 		}
 	
-		prompts, err := getPrompts(inputs)
+		prompts, err := getPrompts(inputs, execInfo)
 		if err != nil {
 			return err
 		}

@@ -3,26 +3,30 @@ package openquerycmd
 import (
 	"fmt"
 	"strconv"
-	"errors"
 
 	interpreter "gitlab.com/jbyte777/prompt-ql/core"
 )
 
 func getToVar(
 	staticArgs interpreter.TFunctionArgumentsTable,
+	execInfo interpreter.TExecutionInfo,
 ) (string, error) {
 	var toVar string
 	rawToVar, hasRawToVar := staticArgs["to"]
 	if !hasRawToVar {
-		return "", errors.New(
-			"!error \"to\" parameter is required",
+		return "", fmt.Errorf(
+			"!error (line=%v, char=%v): \"to\" parameter is required",
+			execInfo.Line,
+			execInfo.CharPos,
 		)
 	}
 	var isToVarStr bool
 	toVar, isToVarStr = rawToVar.(string)
 	if !isToVarStr {
 		return "", fmt.Errorf(
-			"!error \"to\" parameter is \"%v\" which is not string",
+			"!error (line=%v, char=%v): \"to\" parameter is \"%v\" which is not string",
+			execInfo.Line,
+			execInfo.CharPos,
 			rawToVar,
 		)
 	}
@@ -32,6 +36,7 @@ func getToVar(
 
 func getModel(
 	staticArgs interpreter.TFunctionArgumentsTable,
+	execInfo interpreter.TExecutionInfo,
 ) (string, error) {
 	var model string
 	rawModel, hasModel := staticArgs["model"]
@@ -42,7 +47,9 @@ func getModel(
 		model, isModelStr = rawModel.(string)
 		if !isModelStr {
 			return "", fmt.Errorf(
-				"!error \"%v\" is not valid model name",
+				"!error (line=%v, char=%v): \"%v\" is not valid model name",
+				execInfo.Line,
+				execInfo.CharPos,
 				rawModel,
 			)
 		}
@@ -53,6 +60,7 @@ func getModel(
 
 func getTemperature(
 	staticArgs interpreter.TFunctionArgumentsTable,
+	execInfo interpreter.TExecutionInfo,
 ) (float64, error) {
 	var temperature float64
 	rawTemperature, hasTemperature := staticArgs["temperature"]
@@ -63,7 +71,9 @@ func getTemperature(
 		temperatureStr, isTemperatureStr := rawTemperature.(string)
 		if !isTemperatureStr {
 			return 0.0, fmt.Errorf(
-				"!error \"%v\" is not valid temperature value",
+				"!error (line=%v, char=%v): \"%v\" is not valid temperature value",
+				execInfo.Line,
+				execInfo.CharPos,
 				rawTemperature,
 			)
 		}
@@ -72,7 +82,9 @@ func getTemperature(
 		temperature, err = strconv.ParseFloat(temperatureStr, 64)
 		if err != nil {
 			return 0.0, fmt.Errorf(
-				"!error %v",
+				"!error (line=%v, char=%v): %v",
+				execInfo.Line,
+				execInfo.CharPos,
 				err.Error(),
 			)
 		}

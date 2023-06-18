@@ -392,9 +392,14 @@ func (self *Interpreter) resolveTopCtx() {
 		)
 	} else {
 		result := cmd(
-			self.globals,
 			topCtx.ArgsTable,
 			topCtx.InputChannels,
+			self.globals,
+			TExecutionInfo{
+				StrPos: self.strPos,
+				CharPos: self.charPos,
+				Line: self.line,
+			},
 		)
 		self.dataSwitchFn(
 			self.execCtxStack[len(self.execCtxStack)-1],

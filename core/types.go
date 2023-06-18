@@ -15,10 +15,21 @@ type TExecutionStackFrame struct {
 
 type TExecutionStack []*TExecutionStackFrame
 
-type TExecutedFunction func(globalVars TGlobalVariablesTable, staticArgs TFunctionArgumentsTable, inputs TFunctionInputChannelTable) interface{}
+type TExecutedFunction func(
+	staticArgs TFunctionArgumentsTable,
+	inputs TFunctionInputChannelTable,
+	globalVars TGlobalVariablesTable,
+	execInfo TExecutionInfo,
+) interface{}
 
 type TExecutedFunctionTable map[string]TExecutedFunction
 
 type TDataSwitchFunction func(topCtx *TExecutionStackFrame, rawData interface{})
 
 type TGlobalVariablesTable map[string]interface{}
+
+type TExecutionInfo struct {
+	Line int
+	CharPos int
+	StrPos int
+}

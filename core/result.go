@@ -3,6 +3,7 @@ package interpretercore
 import (
 	"strings"
 	stringsutils "gitlab.com/jbyte777/prompt-ql/utils/strings"
+	promptmsgutils "gitlab.com/jbyte777/prompt-ql/utils/promptmsg"
 )
 
 type TInterpreterResult struct {
@@ -11,8 +12,8 @@ type TInterpreterResult struct {
 	Finished bool
 }
 
-func (self *TInterpreterResult) stringifyResultChan(chanName string) (string, bool) {
-	dataChan, hasDataChan := self.Result[chanName]
+func (self *TInterpreterResult) ResultDataStr() (string, bool) {
+	dataChan, hasDataChan := self.Result["data"]
 	if !hasDataChan {
 		return "", false
 	}
@@ -35,10 +36,47 @@ func (self *TInterpreterResult) stringifyResultChan(chanName string) (string, bo
 	), true
 }
 
-func (self *TInterpreterResult) ResultDataStr() (string, bool) {
-	return self.stringifyResultChan("data")
-}
-
 func (self *TInterpreterResult) ResultErrorStr() (string, bool) {
-	return self.stringifyResultChan("error")
+	errChan, hasErrChan := self.Result["error"]
+	if !hasErrChan {
+		return "", false
+	}
+
+	for _, arg := range errChan {
+		_, isArgStr := arg.(string)
+		_, isArgErr := arg.(error)
+
+		if !isArgStr && !isArgErr {
+			return "", false
+		}
+	}
+
+	result := strings.Builder{}
+	for _, arg := range errChan {
+		result.WriteString("ERROR: ")
+
+		argStr, isArgStr := arg.(string)
+		if isArgStr {
+			result.WriteString(
+				promptmsgutils.ReplacePromptMsgPrefix(
+					argStr,
+					"",
+				),
+			)
+		} else {
+			argErr := arg.(error)
+			result.WriteString(
+				promptmsgutils.ReplacePromptMsgPrefix(
+					argErr.Error(),
+					"",
+				),
+			)
+		}
+
+		result.WriteString(";\n")
+	}
+
+	return stringsutils.TrimWhitespace(
+		result.String(),
+	), true
 }
