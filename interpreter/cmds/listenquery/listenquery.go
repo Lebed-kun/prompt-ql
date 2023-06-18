@@ -42,14 +42,18 @@ func MakeListenQueryCmd(
 		rawQueryHandle, hasQueryHandle := globals[fromVar]
 		if !hasQueryHandle {
 			return fmt.Errorf(
-				"!error query handle by name \"%v\" doesn't exist",
+				"!error (line=%v, char=%v): query handle by name \"%v\" doesn't exist",
+				execInfo.Line,
+				execInfo.CharPos,
 				fromVar,
 			)
 		}
 		queryHandle, isQueryHandleValid := rawQueryHandle.(*api.TQueryHandle)
 		if !isQueryHandleValid {
 			return fmt.Errorf(
-				"!error query handle by name \"%v\" is not valid as it's %v",
+				"!error (line=%v, char=%v): query handle by name \"%v\" is not valid as it's %v",
+				execInfo.Line,
+				execInfo.CharPos,
 				fromVar,
 				queryHandle,
 			)
@@ -58,7 +62,9 @@ func MakeListenQueryCmd(
 		gptResponse, err := gptApi.ListenQuery(queryHandle)
 		if err != nil {
 			return fmt.Errorf(
-				"!error %v",
+				"!error (line=%v, char=%v): %v",
+				execInfo.Line,
+				execInfo.CharPos,
 				err.Error(),
 			)
 		}
