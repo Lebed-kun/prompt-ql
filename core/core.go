@@ -265,17 +265,9 @@ func (self *Interpreter) handleCommand(program []rune) {
 		}
 
 		if program[self.strPos] == '=' {
-			if topCtx.State != StackFrameStateExpectArg {
+			if topCtx.State != StackFrameStateExpectArg || len(currArg) == 0 {
 				self.criticalError = self.getError(
 					"expected argument before = ",
-				)
-				continue
-			}
-
-			currLiteralStr, isCurrLiteralStr := currLiteral.(string)
-			if !isCurrLiteralStr {
-				self.criticalError = self.getError(
-					"argument name is not string",
 				)
 				continue
 			}
@@ -283,7 +275,6 @@ func (self *Interpreter) handleCommand(program []rune) {
 			self.strPos++
 			self.charPos++
 			currLiteral = nil
-			currArg = currLiteralStr
 			topCtx.State = StackFrameStateExpectVal
 			continue
 		}

@@ -7,7 +7,7 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works!
+// Works!!
 func QueryWithPostprocessFunctionTest(
 	openAiBaseUrl string,
 	openAiKey string,

@@ -6,8 +6,8 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works!!
-func BasicProgramTest(
+// Works!
+func InterpreterErrorTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
@@ -18,8 +18,8 @@ func BasicProgramTest(
 
 	result := interpreterInst.Execute(
 		`
-			{~set to="X"}Example text{/set}
-			{~get from="X" /}
+			{~set ="X"}Example text{/set}
+			{~get ="X" /}
 			Hello world!
 		`,
 		nil,
