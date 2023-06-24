@@ -22,8 +22,7 @@ func BasicQueryTest(
 					You are a helpful and terse assistant.
 				{/system}
 				I want a response to the following question:
-				Name 3 world-class experts (past or present) who would be great at answering this?
-				Don't answer the question yet.
+				Write a comprehensive guide to machine learning
 			{/open_query}
 			{~listen_query from="query1" /}
 		`,
