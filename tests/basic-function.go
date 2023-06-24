@@ -7,7 +7,7 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-func QueryWithPostprocessFunctionTest(
+func BasicFunctionTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
@@ -18,19 +18,14 @@ func QueryWithPostprocessFunctionTest(
 
 	result := interpreterInst.Execute(
 		`
-			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
-				{~system}
-					You are a helpful and terse assistant.
-				{/system}
-				I want a response to the following question:
-				Write a comprehensive guide to machine learning step by step
-			{/open_query}
 			{~set to="queryres"}
-				{~listen_query from="query1" /}
+				1. Make a dish
+				2. Eat it
+				3. ...
 			{/set}
 			Raw result is:
 			{~get from="queryres" /}
-
+			==========++++++==========
 			JSON result is:
 			{~call fn="postprocess"}
 				{~get from="queryres" /}
