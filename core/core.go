@@ -55,16 +55,20 @@ func New(
 }
 
 func (self *Interpreter) resetImpl() {
+	self.resetPosition()
 	self.mode = InterpreterModePlainText
-	self.line = 0
-	self.charPos = 0
-	self.strPos = 0
 	self.globals = make(TGlobalVariablesTable)
 	self.execCtxStack = []*TExecutionStackFrame{
 		makeRootStackFrame(),
 	}
 	self.isDirty = false
 	self.criticalError = nil
+}
+
+func (self *Interpreter) resetPosition() {
+	self.line = 0
+	self.charPos = 0
+	self.strPos = 0
 }
 
 func (self *Interpreter) getError(errorDetails string) error {
@@ -489,7 +493,9 @@ func (self *Interpreter) ExecutePartial(
 	globalVars TGlobalVariablesTable,
 ) *TInterpreterResult {
 	self.mergeGlobals(globalVars)
-	return self.executeImpl([]rune(program))
+	res := self.executeImpl([]rune(program))
+	self.resetPosition()
+	return res
 }
 
 func (self *Interpreter) Execute(
@@ -505,4 +511,8 @@ func (self *Interpreter) Execute(
 
 func (self *Interpreter) Reset() {
 	self.resetImpl()
+}
+
+func (self *Interpreter) IsDirty() bool {
+	return self.isDirty
 }
