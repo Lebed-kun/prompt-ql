@@ -6,8 +6,6 @@ type TFunctionInputChannel []interface{}
 
 type TFunctionInputChannelTable map[string]TFunctionInputChannel
 
-type TFunctionHiddenState map[string]interface{}
-
 type TExecutionStackFrame struct {
 	State         int
 	FnName        string

@@ -2,6 +2,7 @@ package interpretercore
 
 import (
 	"fmt"
+	stringsutils "gitlab.com/jbyte777/prompt-ql/utils/strings"
 	"strings"
 )
 
@@ -96,11 +97,16 @@ func (self *Interpreter) handlePlainText(program []rune) {
 		}
 	}
 
-	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
-	self.dataSwitchFn(
-		topCtx,
-		fmt.Sprintf("!data %v", plainText.String()),
-	)
+	rawText := plainText.String()
+	cleanText := stringsutils.TrimWhitespace(rawText)
+
+	if len(cleanText) > 0 {
+		topCtx := self.execCtxStack[len(self.execCtxStack)-1]
+		self.dataSwitchFn(
+			topCtx,
+			fmt.Sprintf("!data %v", cleanText),
+		)
+	}
 }
 
 func (self *Interpreter) resolveVariable(program []rune) (interface{}, error) {
@@ -466,11 +472,32 @@ func (self *Interpreter) executeImpl(program []rune) *TInterpreterResult {
 	}
 }
 
-func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult {
+func (self *Interpreter) mergeGlobals(
+	globalVars TGlobalVariablesTable,
+) {
+	if globalVars == nil {
+		return
+	}
+
+	for name, val := range globalVars {
+		self.globals[name] = val
+	}
+}
+
+func (self *Interpreter) ExecutePartial(
+	program string,
+	globalVars TGlobalVariablesTable,
+) *TInterpreterResult {
+	self.mergeGlobals(globalVars)
 	return self.executeImpl([]rune(program))
 }
 
-func (self *Interpreter) Execute(program string) *TInterpreterResult {
+func (self *Interpreter) Execute(
+	program string,
+	globalVars TGlobalVariablesTable,
+) *TInterpreterResult {
+	self.mergeGlobals(globalVars)
+
 	res := self.executeImpl([]rune(program))
 	self.resetImpl()
 	return res

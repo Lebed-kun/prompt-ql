@@ -27,7 +27,7 @@ func CallCmd(
 		)
 	}
 
-	fn, isFn := rawFn.(TCmdCallableFunction)
+	fn, isFn := rawFn.(func([]interface{}) interface{})
 	if !isFn {
 		return fmt.Errorf(
 			"!error (line=%v, char=%v): variable \"%v\" doesn't contain function",
@@ -36,7 +36,7 @@ func CallCmd(
 			fnVar,
 		)
 	}
-
+	
 	fnInputs, hasFnInputs := inputs["data"]
 	if !hasFnInputs {
 		fnInputs = make(interpreter.TFunctionInputChannel, 0)

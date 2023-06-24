@@ -11,6 +11,10 @@ func TrimWhitespace(s string) string {
 	sRune := []rune(s)
 
 	ptr := 0
+	if ptr < len(sRune) && isWhitespace(sRune[ptr]) {
+		res.WriteRune(sRune[ptr])
+		ptr++
+	}
 	for ptr < len(sRune) && isWhitespace(sRune[ptr]) {
 		ptr++
 	}

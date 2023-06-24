@@ -22,6 +22,7 @@ func BasicProgramTest(
 			{~get from="X" /}
 			Hello world!
 		`,
+		nil,
 	)
 
 	if result.Error != nil {

@@ -6,6 +6,7 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
+// Works!
 func BasicQueryTest(
 	openAiBaseUrl string,
 	openAiKey string,
@@ -26,6 +27,7 @@ func BasicQueryTest(
 			{/open_query}
 			{~listen_query from="query1" /}
 		`,
+		nil,
 	)
 
 	if result.Error != nil {

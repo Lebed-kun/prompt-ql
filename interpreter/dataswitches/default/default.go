@@ -3,6 +3,7 @@ package defaultswicth
 import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/core"
 	promptmsg "gitlab.com/jbyte777/prompt-ql/utils/promptmsg"
+	stringsutils "gitlab.com/jbyte777/prompt-ql/utils/strings"
 )
 
 func DefaultSwitch(
@@ -30,9 +31,15 @@ func DefaultSwitch(
 			err,
 		)
 	} else {
-		topCtx.InputChannels["data"] = append(
-			topCtx.InputChannels["data"],
+		text := stringsutils.TrimWhitespace(
 			promptmsg.ReplacePromptMsgPrefix(data, ""),
 		)
+
+		if len(text) > 0 && text != " " {
+			topCtx.InputChannels["data"] = append(
+				topCtx.InputChannels["data"],
+				text,
+			)
+		}
 	}
 }
