@@ -7,7 +7,7 @@ import (
 )
 
 // Works!!
-func InterpreterErrorTest(
+func ExecutionErrorTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
@@ -18,9 +18,7 @@ func InterpreterErrorTest(
 
 	result := interpreterInst.Execute(
 		`
-			{~set ="X"}Example text{/set}
-			{~get ="X" /}
-			Hello world!
+			{~call fn="nonexistentfn"}Example text{/call}
 		`,
 		nil,
 	)
@@ -31,9 +29,14 @@ func InterpreterErrorTest(
 
 	fmt.Println("===================")
 	resultStr, _ := result.ResultDataStr()
+	errStr, _ := result.ResultErrorStr()
 	fmt.Printf(
 		"ChatGPT response:\n%v",
 		resultStr,
+	)
+	fmt.Printf(
+		"ChatGPT error:\n%v\n",
+		errStr,
 	)
 	fmt.Println("===================")
 }
