@@ -235,8 +235,8 @@ They receive all input data in the `DATA` channel;
 
 ## Interpreter API
 
- - `func (self *Interpreter) Execute(program string, globalVars TGlobalVariablesTable *TInterpreterResult` - executes query as a complete chunk. I.e. the state of interpreter is completely reset after execution. `globalVars` are additional variables for the query;
- - `func (self *Interpreter) ExecutePartial(program string, globalVars TGlobalVariablesTable)*TInterpreterResult` - executes query as an uncomplete chunk. Only interpreter cursor is reset. `globalVars` are additional variables for the query;
+ - `func (self *Interpreter) Execute(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as a complete chunk. I.e. the state of interpreter is completely reset after execution. `globalVars` are additional variables for the query;
+ - `func (self *Interpreter) ExecutePartial(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as an uncomplete chunk. Only interpreter cursor is reset. `globalVars` are additional variables for the query;
  - `func (self *Interpreter) Reset()` - for manually resetting all interpreter state. It can be combined with partial execution;
  - `func (self *Interpreter) IsDirty() bool` - determines if interpreter is in progress of execution query chunks. It's `false` after execution of `Execute` and `Reset` methods;
 
