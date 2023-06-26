@@ -233,6 +233,12 @@ func PartialExecutionTest(
 ```
 They receive all input data in the `DATA` channel;
 
+## Additional features
+ - References to entries in global variables table (or "wildcards") are supported. You can use them by prefixing a name with the `$` sign like:
+```
+{~$command $arg=$val /}
+```
+
 ## Interpreter API
 
  - `func (self *Interpreter) Execute(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as a complete chunk. I.e. the state of interpreter is completely reset after execution. `globalVars` are additional variables for the query;

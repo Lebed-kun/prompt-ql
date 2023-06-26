@@ -17,7 +17,7 @@ type GptApi struct {
 	openAiKey     string
 }
 
-const ListenQueryTimeoutSec int = 15
+const ListenQueryTimeoutSec int = 25
 
 func New(
 	openAiBaseUrl string,
