@@ -195,6 +195,30 @@ func PartialExecutionTest(
 }
 ```
 
+## Use wildcards in your commands
+
+Wildcards are names of variables in interpreter table. They are prefixed with `$` sign. You can use them for non-string values, variadic commands etc.
+
+```
+result := interpreterInst.Execute(
+		`
+			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
+				{~system}
+					You are a helpful and terse assistant.
+				{/system}
+				I want a response to the following question:
+				Write a comprehensive guide to machine learning
+			{/open_query}
+			{~$cmd $cmdarg=$cmdval /}
+		`,
+		interpretercore.TGlobalVariablesTable{
+			"cmd": "listen_query",
+			"cmdarg": "from",
+			"cmdval": "query1",
+		},
+	)
+```
+
 ## Supported PromptQL commands v1.0
 
  - `{~open_query to="X" model="Y" temperature="Z"}<execution_text>{/open_query}` - sends prompt request for given LLM that's defined by `<execution_text>` . It doesn't block execution of query. The command doesn't return any data. `<execution_text>` defines an input data for the command as follows:
