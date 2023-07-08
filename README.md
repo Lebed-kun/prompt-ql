@@ -338,6 +338,7 @@ They receive all input data in the `DATA` channel;
  - `func (self *Interpreter) Reset()` - for manually resetting all interpreter state. It can be combined with partial execution;
  - `func (self *Interpreter) IsDirty() bool` - determines if interpreter is in progress of execution query chunks. It's `false` after execution of `Execute` and `Reset` methods;
 
+
 ## Architecture
 
 Interpreter has simple stack-based architecture like this:
