@@ -1,32 +1,49 @@
-package tests
+package basicfunctionalitytests
 
 import (
 	"fmt"
+	"time"
 
 	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works!!
-func BasicFunctionTest(
+// Works +++
+func PartialExecutionTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
 	interpreterInst := interpreter.New(
 		openAiBaseUrl,
 		openAiKey,
+		0,
 	)
 
-	result := interpreterInst.Execute(
+	result := interpreterInst.ExecutePartial(
 		`
+			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
+				{~system}
+					You are a helpful and terse assistant.
+				{/system}
+				I want a response to the following question:
+				Write a comprehensive guide to machine learning step by step
+		`,
+		interpretercore.TGlobalVariablesTable{
+			"postprocess": postProcessFunctionTest,
+		},
+	)
+
+	time.Sleep(3 * time.Second)
+
+	result = interpreterInst.ExecutePartial(
+		`
+			{/open_query}
 			{~set to="queryres"}
-				1. Make a dish
-				2. Eat it
-				3. ...
+				{~listen_query from="query1" /}
 			{/set}
 			Raw result is:
 			{~get from="queryres" /}
-			==========++++++==========
+
 			JSON result is:
 			{~call fn="postprocess"}
 				{~get from="queryres" /}
