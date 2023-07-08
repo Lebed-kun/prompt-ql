@@ -51,6 +51,7 @@ func SimpleDialogTest(
 				{~system}
 					You are a good actor. Your name is Bob.
 				{/system}
+				{~get from="reply1" /}
 				{~assistant}
 					{~get from="reply2" /}
 				{/assistant}
@@ -68,6 +69,7 @@ func SimpleDialogTest(
 				{~assistant}
 					{~get from="reply1" /}
 				{/assistant}
+				{~get from="reply2" /}
 				{~assistant}
 					{~get from="reply3" /}
 				{/assistant}
