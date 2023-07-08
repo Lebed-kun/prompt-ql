@@ -307,6 +307,14 @@ They receive all input data in the `DATA` channel;
 
 
 ## Interpreter API
+ - `func New(openAiBaseUrl string, openAiKey string, listenQueryTimeoutSec uint) *interpreter.Interpreter` - creates an instance of PromptQL interpreter. 
+
+ The function receives parameters:
+ ```
+  - "openAiBaseUrl" - is an URL to OpenAI API. For example, "https://api.openai.com". It's a required parameter;
+ 	- "openAiKey" - is your OpenAI API key. You can set up it on "https://platform.openai.com/account/api-keys". It's a required parameter;
+	- "listenQueryTimeoutSec" - is a timeout for listening prompting query. Default value is 30 seconds;
+ ```
 
  - `func (self *Interpreter) Execute(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as a complete chunk. I.e. the state of interpreter is completely reset after execution.
  
