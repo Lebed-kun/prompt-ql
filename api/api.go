@@ -18,7 +18,7 @@ type GptApi struct {
 	listenQueryTimeoutSec uint
 }
 
-const defaultListenQueryTimeoutSec uint = 25
+const defaultListenQueryTimeoutSec uint = 30
 
 func New(
 	openAiBaseUrl string,

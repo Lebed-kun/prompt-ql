@@ -43,7 +43,7 @@ func PartialExecutionTest(
 			{/set}
 			Raw result is:
 			{~get from="queryres" /}
-
+			==========================
 			JSON result is:
 			{~call fn="postprocess"}
 				{~get from="queryres" /}
