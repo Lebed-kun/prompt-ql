@@ -244,12 +244,14 @@ Static arguments for the command are:
  - "model" - is a name of chosen LLM. Default value is "gpt-3.5-turbo";
  - "temperature" - is a temperature of chosen LLM. Default value is 1.0;
 ```
+
  - `{~listen_query from="X" /}` - waits for OpenAI LLM query from "X" variable to complete. It doesn't receive any additional inputs. It returns a text with the `!assistant` tag if succeed, otherwise it returns an error with the `!error` tag;
  
 Static arguments for the command are:
 ```
  - "from" - is a name of variable from which result is fetched. It's a required parameter;
 ```
+
  - `{~call fn="F"}<execution_text>{/call}` - calls function from `fn` variable. Command returns error if `fn` variable doesn't exist or the variable doesn't contain function with the type `func([]interface{}) interface{}` . Otherwise the command returns a data from the execution of `fn`. `<execution_text>` defines an input data for the command as follows:
 ```
  - "!user <text>", "!assistant <text>", "!system <text>", "!data <text>" -> DATA channel;
@@ -264,12 +266,14 @@ Static arguments for the command are:
 ```
  - "fn" - is a name of variable where called function is stored. It's a required parameter;
 ```
+
  - `{~get from="X" /}` - gets data from the `from` variable. The command doesn't receive any additional data;
 
 Static arguments for the command are:
 ```
  - "from" - is a name of variable from which data is retrieved. It's a required parameter;
 ```
+
  - `{~set to="X"}<execution_text>{/set}` -  stores data defined by `<execution_text>` in the `X` variable. The command doesn't return any value. `<execution_text>` defines an input data for the command as follows:
 ```
  - "!user <text>", "!assistant <text>", "!system <text>", "!data <text>" -> DATA channel;
@@ -283,6 +287,7 @@ Static arguments for the command are:
 ```
  - "to" - is a name of variable to which data is stored. It's a required parameter;
 ```
+
  - Wrapper commands. They wrap a text with corresponding prompt tag: `!user`, `!assistant`, `!system`, `!data` or `!error`. This is useful for separating roles of LLM query texts, for specific error handling etc. They are defined like this:
 ```
 {~user}<execution_text>{/user}
@@ -303,8 +308,33 @@ They receive all input data in the `DATA` channel;
 
 ## Interpreter API
 
- - `func (self *Interpreter) Execute(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as a complete chunk. I.e. the state of interpreter is completely reset after execution. `globalVars` are additional variables for the query;
+ - `func (self *Interpreter) Execute(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as a complete chunk. I.e. the state of interpreter is completely reset after execution.
+ 
+ The method receives parameters:
+ ```
+  - "program" - is an executed PromptQL program;
+ 	- "globalVars" - are additional variables for the query;
+ ```
+
+ The method returns `*TInterpreterResult` which consists of:
+ ```
+ - "Result" - is a collection of input channels for root context (which represents a final result). It contains "data" and "error" channels;
+ - "Error" - is a parsing error;
+ - "Complete" - is a flag for completeness of execution of PromptQL program. Execution of PromptQL chunk is complete in 3 cases:
+	1. When parsing error occurs (i.e. `*TInterpreterResult.Error != nil`);
+	2. When all PromptQL commands are executed in current chunk. Only root context is left;
+	3. When runtime/execution error occurs (i.e. when `*TInterpreterResult.Result` contains `error` data);
+ ```
+ For nice formatting of `Result`, you can use methods `func (self *TInterpreterResult) ResultDataStr() (string, bool)` and `func (self *TInterpreterResult) ResultErrorStr() (string, bool)`
+
  - `func (self *Interpreter) ExecutePartial(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as an uncomplete chunk. Only interpreter cursor is reset. `globalVars` are additional variables for the query;
+
+ The method receives parameters:
+ ```
+  - "program" - is an executed PromptQL program;
+ 	- "globalVars" - are additional variables for the query;
+ ```
+
  - `func (self *Interpreter) Reset()` - for manually resetting all interpreter state. It can be combined with partial execution;
  - `func (self *Interpreter) IsDirty() bool` - determines if interpreter is in progress of execution query chunks. It's `false` after execution of `Execute` and `Reset` methods;
 
