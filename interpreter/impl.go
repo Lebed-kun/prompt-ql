@@ -8,10 +8,12 @@ import (
 func New(
 	openAiBaseUrl string,
 	openAiKey string,
+	listenQueryTimeoutSec uint,
 ) *interpreter.Interpreter {
 	apiInst := api.New(
 		openAiBaseUrl,
 		openAiKey,
+		listenQueryTimeoutSec,
 	)
 
 	execFnTable := makeCmdTable(apiInst)

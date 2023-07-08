@@ -1,4 +1,4 @@
-package tests
+package basicfunctionalitytests
 
 import (
 	"fmt"
@@ -6,19 +6,22 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works!!
-func ExecutionErrorTest(
+// Works +++
+func InterpreterErrorTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
 	interpreterInst := interpreter.New(
 		openAiBaseUrl,
 		openAiKey,
+		0,
 	)
 
 	result := interpreterInst.Execute(
 		`
-			{~call fn="nonexistentfn"}Example text{/call}
+			{~set ="X"}Example text{/set}
+			{~get ="X" /}
+			Hello world!
 		`,
 		nil,
 	)
@@ -29,14 +32,9 @@ func ExecutionErrorTest(
 
 	fmt.Println("===================")
 	resultStr, _ := result.ResultDataStr()
-	errStr, _ := result.ResultErrorStr()
 	fmt.Printf(
 		"ChatGPT response:\n%v",
 		resultStr,
-	)
-	fmt.Printf(
-		"ChatGPT error:\n%v\n",
-		errStr,
 	)
 	fmt.Println("===================")
 }

@@ -1,4 +1,4 @@
-package tests
+package basicfunctionalitytests
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works!!
+// Works +++
 func QueryWithPostprocessFunctionTest(
 	openAiBaseUrl string,
 	openAiKey string,
@@ -15,6 +15,7 @@ func QueryWithPostprocessFunctionTest(
 	interpreterInst := interpreter.New(
 		openAiBaseUrl,
 		openAiKey,
+		0,
 	)
 
 	result := interpreterInst.Execute(

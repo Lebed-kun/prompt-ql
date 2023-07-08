@@ -2,7 +2,7 @@ package interpretercore
 
 import (
 	"fmt"
-	stringsutils "gitlab.com/jbyte777/prompt-ql/utils/strings"
+	// stringsutils "gitlab.com/jbyte777/prompt-ql/utils/strings"
 	"strings"
 )
 
@@ -102,15 +102,11 @@ func (self *Interpreter) handlePlainText(program []rune) {
 	}
 
 	rawText := plainText.String()
-	cleanText := stringsutils.TrimWhitespace(rawText)
-
-	if len(cleanText) > 0 {
-		topCtx := self.execCtxStack[len(self.execCtxStack)-1]
-		self.dataSwitchFn(
-			topCtx,
-			fmt.Sprintf("!data %v", cleanText),
-		)
-	}
+	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
+	self.dataSwitchFn(
+		topCtx,
+		fmt.Sprintf("!data %v", rawText),
+	)
 }
 
 func (self *Interpreter) resolveVariable(program []rune) (interface{}, error) {

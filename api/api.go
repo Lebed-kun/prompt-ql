@@ -15,17 +15,24 @@ import (
 type GptApi struct {
 	openAiBaseUrl string
 	openAiKey     string
+	listenQueryTimeoutSec uint
 }
 
-const ListenQueryTimeoutSec int = 25
+const defaultListenQueryTimeoutSec uint = 30
 
 func New(
 	openAiBaseUrl string,
 	openAiKey string,
+	listenQueryTimeoutSec uint,
 ) *GptApi {
+	if listenQueryTimeoutSec == 0 {
+		listenQueryTimeoutSec = defaultListenQueryTimeoutSec
+	}
+	
 	return &GptApi{
 		openAiBaseUrl: openAiBaseUrl,
 		openAiKey:     fmt.Sprintf("Bearer %v", openAiKey),
+		listenQueryTimeoutSec: listenQueryTimeoutSec,
 	}
 }
 
@@ -121,7 +128,7 @@ func (self *GptApi) ListenQuery(
 	queryHandle *TQueryHandle,
 ) (*TGptApiResponse, error) {
 	timer := time.NewTimer(
-		time.Second * time.Duration(ListenQueryTimeoutSec),
+		time.Second * time.Duration(self.listenQueryTimeoutSec),
 	)
 
 	select {

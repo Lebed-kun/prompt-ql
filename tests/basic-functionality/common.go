@@ -1,4 +1,4 @@
-package tests
+package basicfunctionalitytests
 
 import (
 	"encoding/json"

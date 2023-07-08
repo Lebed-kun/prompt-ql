@@ -6,12 +6,13 @@ import (
 	openqueryswitch "gitlab.com/jbyte777/prompt-ql/interpreter/dataswitches/openquery"
 	defaultswitch "gitlab.com/jbyte777/prompt-ql/interpreter/dataswitches/default"
 	wrapperswitch "gitlab.com/jbyte777/prompt-ql/interpreter/dataswitches/wrapper"
+	rootswitch "gitlab.com/jbyte777/prompt-ql/interpreter/dataswitches/root"
 )
 
 type TRootSwitchTable map[string]interpreter.TDataSwitchFunction
 
 var rootSwitchTable TRootSwitchTable = map[string]interpreter.TDataSwitchFunction{
-	"root": defaultswitch.DefaultSwitch,
+	"root": rootswitch.RootSwitch,
 	"open_query": openqueryswitch.OpenQuerySwitch,
 	"call": defaultswitch.DefaultSwitch,
 	"set": defaultswitch.DefaultSwitch,

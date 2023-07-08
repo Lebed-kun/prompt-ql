@@ -1,19 +1,21 @@
-package tests
+package basicfunctionalitytests
 
 import (
 	"fmt"
 
+	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works!!
-func BasicQueryTest(
+// Works +++
+func QueryWithWildcardsTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
 	interpreterInst := interpreter.New(
 		openAiBaseUrl,
 		openAiKey,
+		0,
 	)
 
 	result := interpreterInst.Execute(
@@ -25,9 +27,13 @@ func BasicQueryTest(
 				I want a response to the following question:
 				Write a comprehensive guide to machine learning
 			{/open_query}
-			{~listen_query from="query1" /}
+			{~$cmd $cmdarg=$cmdval /}
 		`,
-		nil,
+		interpretercore.TGlobalVariablesTable{
+			"cmd": "listen_query",
+			"cmdarg": "from",
+			"cmdval": "query1",
+		},
 	)
 
 	if result.Error != nil {
