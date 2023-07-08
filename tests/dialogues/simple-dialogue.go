@@ -28,21 +28,21 @@ func SimpleDialogTest(
 				{/system}
 				{~get from="reply1" /}
 			{/open_query}
-
+			===============
 			{~set to="reply2"}
 				{~listen_query from="reply2" /}
 			{/set}
 			Bob: {~get from="reply2" /}
 			{~open_query to="reply3" model="gpt-3.5-turbo-16k"}
 				{~system}
-					You are a good actor. Your name is Alice.
+					You are a good actress. Your name is Alice.
 				{/system}
 				{~assistant}
 					{~get from="reply1" /}
 				{/assistant}
 				{~get from="reply2" /}
 			{/open_query}
-
+			===============
 			{~set to="reply3"}
 				{~listen_query from="reply3" /}
 			{/set}
@@ -56,14 +56,14 @@ func SimpleDialogTest(
 				{/assistant}
 				{~get from="reply3" /}
 			{/open_query}
-
+			===============
 			{~set to="reply4"}
 				{~listen_query from="reply4" /}
 			{/set}
 			Bob: {~get from="reply4" /}
 			{~open_query to="reply5" model="gpt-3.5-turbo-16k"}
 				{~system}
-					You are a good actor. Your name is Alice.
+					You are a good actress. Your name is Alice.
 				{/system}
 				{~assistant}
 					{~get from="reply1" /}
@@ -73,7 +73,7 @@ func SimpleDialogTest(
 				{/assistant}
 				{~get from="reply4" /}
 			{/open_query}
-
+			===============
 			{~set to="reply5"}
 				{~listen_query from="reply5" /}
 			{/set}
