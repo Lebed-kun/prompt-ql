@@ -1,6 +1,11 @@
 ﻿# PromptQL: Simple and flexible query language for large language models
-It's a zero-dependencies library for making queries for LLM models like `gpt3.5-turbo` . It's based on the OpenAI API: https://platform.openai.com/docs/api-reference . Full list of supported models is here: https://platform.openai.com/docs/models/model-endpoint-compatibility
 
+<img src="./readme-content/simple-dialog.png" />
+<img src="./readme-content/simple-dialog2.png" />
+<img src="./readme-content/simple-dialog3.png" />
+<img src="./readme-content/simple-dialog4.png" />
+
+It's a zero-dependencies library for making queries for LLM models like `gpt3.5-turbo` . It's based on the OpenAI API: https://platform.openai.com/docs/api-reference . Full list of supported models is here: https://platform.openai.com/docs/models/model-endpoint-compatibility 
 
 ## Getting started
 ```
@@ -48,6 +53,7 @@ Then you can extract its result like this:
 resultStr, _ := result.ResultDataStr()
 errStr, _ := result.ResultErrorStr()
 ```
+
 
 ## Post-process answer from LLM with user defined functions
 You can define your own functions for query program. This allows you to prettify LLM output for example:
@@ -113,11 +119,12 @@ func QueryWithPostprocessFunctionTest(
 
 ```
 This gives you this output for example:
-<img src="./query-with-fn1.jpg" />
+<img src="./readme-content/query-with-fn1.jpg" />
 
-<img src="./query-with-fn2.jpg" />
+<img src="./readme-content/query-with-fn2.jpg" />
 
-<img src="./query-with-fn3.jpg" />
+<img src="./readme-content/query-with-fn3.jpg" />
+
 
 ## Execute non-complete queries
 
@@ -195,6 +202,7 @@ func PartialExecutionTest(
 }
 ```
 
+
 ## Use wildcards in your commands
 
 Wildcards are names of variables in interpreter table. They are prefixed with `$` sign. You can use them for non-string values, variadic commands etc.
@@ -219,6 +227,7 @@ result := interpreterInst.Execute(
 	)
 ```
 
+
 ## Supported PromptQL commands v1.0
 
  - `{~open_query to="X" model="Y" temperature="Z"}<execution_text>{/open_query}` - sends prompt request for given LLM that's defined by `<execution_text>` . It doesn't block execution of query. The command doesn't return any data. `<execution_text>` defines an input data for the command as follows:
@@ -228,7 +237,19 @@ result := interpreterInst.Execute(
  - "!system <text>" -> SYSTEM input channel;
  - "!error <text>" -> ERROR input channel;
 ```
+
+Static arguments for the command are:
+```
+ - "to" - is a name of variable to store a query handle. It's a required parameter;
+ - "model" - is a name of chosen LLM. Default value is "gpt-3.5-turbo";
+ - "temperature" - is a temperature of chosen LLM. Default value is 1.0;
+```
  - `{~listen_query from="X" /}` - waits for OpenAI LLM query from "X" variable to complete. It doesn't receive any additional inputs. It returns a text with the `!assistant` tag if succeed, otherwise it returns an error with the `!error` tag;
+ 
+Static arguments for the command are:
+```
+ - "from" - is a name of variable from which result is fetched. It's a required parameter;
+```
  - `{~call fn="F"}<execution_text>{/call}` - calls function from `fn` variable. Command returns error if `fn` variable doesn't exist or the variable doesn't contain function with the type `func([]interface{}) interface{}` . Otherwise the command returns a data from the execution of `fn`. `<execution_text>` defines an input data for the command as follows:
 ```
  - "!user <text>", "!assistant <text>", "!system <text>", "!data <text>" -> DATA channel;
@@ -238,7 +259,17 @@ result := interpreterInst.Execute(
  - any non-string and non-error value -> DATA channel;
 ```
 `DATA` channel contains array of arguments for function
+
+Static arguments for the command are:
+```
+ - "fn" - is a name of variable where called function is stored. It's a required parameter;
+```
  - `{~get from="X" /}` - gets data from the `from` variable. The command doesn't receive any additional data;
+
+Static arguments for the command are:
+```
+ - "from" - is a name of variable from which data is retrieved. It's a required parameter;
+```
  - `{~set to="X"}<execution_text>{/set}` -  stores data defined by `<execution_text>` in the `X` variable. The command doesn't return any value. `<execution_text>` defines an input data for the command as follows:
 ```
  - "!user <text>", "!assistant <text>", "!system <text>", "!data <text>" -> DATA channel;
@@ -246,6 +277,11 @@ result := interpreterInst.Execute(
  - error -> ERROR channel;
  - text without a tag -> DATA channel;
  - any non-string and non-error value -> DATA channel;
+```
+
+Static arguments for the command are:
+```
+ - "to" - is a name of variable to which data is stored. It's a required parameter;
 ```
  - Wrapper commands. They wrap a text with corresponding prompt tag: `!user`, `!assistant`, `!system`, `!data` or `!error`. This is useful for separating roles of LLM query texts, for specific error handling etc. They are defined like this:
 ```
@@ -257,11 +293,13 @@ result := interpreterInst.Execute(
 ```
 They receive all input data in the `DATA` channel;
 
+
 ## Additional features
  - References to entries in global variables table (or "wildcards") are supported. You can use them by prefixing a name with the `$` sign like:
 ```
 {~$command $arg=$val /}
 ```
+
 
 ## Interpreter API
 
@@ -273,9 +311,9 @@ They receive all input data in the `DATA` channel;
 ## Architecture
 
 Interpreter has simple stack-based architecture like this:
-<img src="./prompt-ql-exec-context-architecture.png" />
+<img src="./readme-content/prompt-ql-exec-context-architecture.png" />
 
-<img src="./prompt-ql-interpreter-state-diagram.png" />
+<img src="./readme-content/prompt-ql-interpreter-state-diagram.png" />
 
 Each stack entry consists of **execution context**. It defines executed command with static arguments (defined with `<arg>=<val>`) and input channels (this data is propagated with previously executed command). A context can also be in 4 states:
 
