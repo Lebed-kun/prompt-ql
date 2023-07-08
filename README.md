@@ -311,17 +311,17 @@ They receive all input data in the `DATA` channel;
 
  The function receives parameters:
  ```
-  - "openAiBaseUrl" - is an URL to OpenAI API. For example, "https://api.openai.com". It's a required parameter;
- 	- "openAiKey" - is your OpenAI API key. You can set up it on "https://platform.openai.com/account/api-keys". It's a required parameter;
-	- "listenQueryTimeoutSec" - is a timeout for listening prompting query. Default value is 30 seconds;
+ - "openAiBaseUrl" - is an URL to OpenAI API. For example, "https://api.openai.com". It's a required parameter;
+ - "openAiKey" - is your OpenAI API key. You can set up it on "https://platform.openai.com/account/api-keys". It's a required parameter;
+ - "listenQueryTimeoutSec" - is a timeout for listening prompting query. Default value is 30 seconds;
  ```
 
  - `func (self *Interpreter) Execute(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as a complete chunk. I.e. the state of interpreter is completely reset after execution.
  
  The method receives parameters:
  ```
-  - "program" - is an executed PromptQL program;
- 	- "globalVars" - are additional variables for the query;
+ - "program" - is an executed PromptQL program;
+ - "globalVars" - are additional variables for the query;
  ```
 
  The method returns `*TInterpreterResult` which consists of:
@@ -339,8 +339,8 @@ They receive all input data in the `DATA` channel;
 
  The method receives parameters:
  ```
-  - "program" - is an executed PromptQL program;
- 	- "globalVars" - are additional variables for the query;
+ - "program" - is an executed PromptQL program;
+ - "globalVars" - are additional variables for the query;
  ```
 
  - `func (self *Interpreter) Reset()` - for manually resetting all interpreter state. It can be combined with partial execution;
