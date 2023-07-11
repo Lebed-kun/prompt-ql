@@ -27,7 +27,7 @@ func logTimeForProgram(args []interface{}) interface{} {
 	return ""
 }
 
-// Works
+// Works +++
 func NonBlockingQueriesTest(
 	openAiBaseUrl string,
 	openAiKey string,

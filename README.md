@@ -55,6 +55,84 @@ errStr, _ := result.ResultErrorStr()
 ```
 
 
+## Opening a query doesn't block execution of code
+
+You can easily batch multiple queries without waiting for completion of previously sent query:
+
+```
+func logTimeForProgram(args []interface{}) interface{} {
+	if len(args) < 1 {
+		return ""
+	}
+
+	log, isLogStr := args[0].(string)
+	if !isLogStr {
+		return ""
+	}
+
+	fmt.Printf(
+		"[%v] %v",
+		timeutils.NowTimestamp(),
+		log,
+	)
+
+	return ""
+}
+
+func NonBlockingQueriesTest(
+	openAiBaseUrl string,
+	openAiKey string,
+) {
+	// ...
+
+	result := interpreterInst.Execute(
+		`
+			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
+				{~system}
+					You are a helpful and terse assistant.
+				{/system}
+				I want a response to the following question:
+				Write a comprehensive guide to learn statistics step by step.
+			{/open_query}
+			{~call fn="logtime"}
+				open query1
+			{/call}
+			=======================
+			{~open_query to="query2" model="gpt-3.5-turbo-16k"}
+				{~system}
+					You are a helpful and terse assistant.
+				{/system}
+				I want a response to the following question:
+				Write a comprehensive guide to make a solar panel step by step.
+			{/open_query}
+			{~call fn="logtime"}
+				open query2
+			{/call}
+			=======================
+			Answer1: {~listen_query from="query1" /}
+			{~call fn="logtime"}
+				listen query1
+			{/call}
+			=======================
+			Answer2: {~listen_query from="query2" /}
+			{~call fn="logtime"}
+				listen query2
+			{/call}
+			=======================
+		`,
+		interpretercore.TGlobalVariablesTable{
+			"logtime": logTimeForProgram,
+		},
+	)
+
+	// ...
+}
+```
+
+This prints a log with timestamp after execution of each PromptQL command (remember that user-defined function can do anything):
+<img src="./readme-content/non-blocking-requests/logs.png" />
+
+
 ## Post-process answer from LLM with user defined functions
 You can define your own functions for query program. This allows you to prettify LLM output for example:
 ```
