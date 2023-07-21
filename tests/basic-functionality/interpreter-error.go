@@ -6,7 +6,7 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works +++
+// Works ++++
 func InterpreterErrorTest(
 	openAiBaseUrl string,
 	openAiKey string,
@@ -15,9 +15,10 @@ func InterpreterErrorTest(
 		openAiBaseUrl,
 		openAiKey,
 		0,
+		0,
 	)
 
-	result := interpreterInst.Execute(
+	result := interpreterInst.Instance.Execute(
 		`
 			{~set ="X"}Example text{/set}
 			{~get ="X" /}

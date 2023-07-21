@@ -7,7 +7,7 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works +++
+// Works ++++
 func QueryWithWildcardsTest(
 	openAiBaseUrl string,
 	openAiKey string,
@@ -16,9 +16,10 @@ func QueryWithWildcardsTest(
 		openAiBaseUrl,
 		openAiKey,
 		0,
+		0,
 	)
 
-	result := interpreterInst.Execute(
+	result := interpreterInst.Instance.Execute(
 		`
 			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
 				{~system}

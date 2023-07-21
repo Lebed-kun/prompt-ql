@@ -6,6 +6,7 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
+// Works ++++
 func SimpleDialogTest(
 	openAiBaseUrl string,
 	openAiKey string,
@@ -14,9 +15,10 @@ func SimpleDialogTest(
 		openAiBaseUrl,
 		openAiKey,
 		40,
+		0,
 	)
 
-	result := interpreterInst.Execute(
+	result := interpreterInst.Instance.Execute(
 		`
 			{~set to="reply1"}
 				Hi, Bob! How are you?

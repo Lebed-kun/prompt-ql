@@ -27,7 +27,7 @@ func logTimeForProgram(args []interface{}) interface{} {
 	return ""
 }
 
-// Works +++
+// Works ++++
 func NonBlockingQueriesTest(
 	openAiBaseUrl string,
 	openAiKey string,
@@ -36,9 +36,10 @@ func NonBlockingQueriesTest(
 		openAiBaseUrl,
 		openAiKey,
 		0,
+		0,
 	)
 
-	result := interpreterInst.Execute(
+	result := interpreterInst.Instance.Execute(
 		`
 			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
 				{~system}

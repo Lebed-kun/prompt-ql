@@ -6,6 +6,7 @@ import (
 
 	api "gitlab.com/jbyte777/prompt-ql/api"
 	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
 )
 
 func mergeChoices(choices []api.TGptApiResponseChoice) string {
@@ -27,7 +28,42 @@ func mergeChoices(choices []api.TGptApiResponseChoice) string {
 
 func MakeListenQueryCmd(
 	gptApi *api.GptApi,
+	customApis *customapis.CustomLLMApis,
 ) interpreter.TExecutedFunction {
+	standardListenQuery := func(
+		queryHandle *api.TQueryHandle,
+		execInfo interpreter.TExecutionInfo,
+	) interface{} {
+		gptResponse, err := gptApi.ListenQuery(queryHandle)
+		if err != nil {
+			return fmt.Errorf(
+				"!error (line=%v, char=%v): %v",
+				execInfo.Line,
+				execInfo.CharPos,
+				err.Error(),
+			)
+		}
+
+		return mergeChoices(gptResponse.Choices)
+	}
+
+	userListenQuery := func(
+		queryHandle *customapis.TCustomQueryHandle,
+		execInfo interpreter.TExecutionInfo,
+	) interface{} {
+		llmResponse, err := customApis.ListenQuery(queryHandle)
+		if err != nil {
+			return fmt.Errorf(
+				"!error (line=%v, char=%v): %v",
+				execInfo.Line,
+				execInfo.CharPos,
+				err.Error(),
+			)
+		}
+
+		return fmt.Sprintf("!assistant %v", llmResponse)
+	}
+
 	return func(
 		staticArgs interpreter.TFunctionArgumentsTable,
 		inputs interpreter.TFunctionInputChannelTable,
@@ -48,6 +84,12 @@ func MakeListenQueryCmd(
 				fromVar,
 			)
 		}
+
+		customQueryHandle, isCustomQueryHandle := rawQueryHandle.(*customapis.TCustomQueryHandle)
+		if isCustomQueryHandle {
+			return userListenQuery(customQueryHandle, execInfo)
+		}
+
 		queryHandle, isQueryHandleValid := rawQueryHandle.(*api.TQueryHandle)
 		if !isQueryHandleValid {
 			return fmt.Errorf(
@@ -58,17 +100,6 @@ func MakeListenQueryCmd(
 				queryHandle,
 			)
 		}
-
-		gptResponse, err := gptApi.ListenQuery(queryHandle)
-		if err != nil {
-			return fmt.Errorf(
-				"!error (line=%v, char=%v): %v",
-				execInfo.Line,
-				execInfo.CharPos,
-				err.Error(),
-			)
-		}
-
-		return mergeChoices(gptResponse.Choices)
+		return standardListenQuery(queryHandle, execInfo)
 	}
 }
