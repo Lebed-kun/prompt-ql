@@ -6,6 +6,7 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
+// Works ++++
 func SimpleDialogTest(
 	openAiBaseUrl string,
 	openAiKey string,
