@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	errorsutils "gitlab.com/jbyte777/prompt-ql/utils/errors"
 	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	errorsutils "gitlab.com/jbyte777/prompt-ql/utils/errors"
 )
 
 type CustomLLMApis struct {
-	llms TDoQueryFuncTable
+	llms                  TDoQueryFuncTable
 	listenQueryTimeoutSec uint
 }
 
@@ -20,9 +20,9 @@ func New(listenQueryTimeoutSec uint) *CustomLLMApis {
 	if listenQueryTimeoutSec == 0 {
 		listenQueryTimeoutSec = defaultListenQueryTimeoutSec
 	}
-	
+
 	return &CustomLLMApis{
-		llms: TDoQueryFuncTable{},
+		llms:                  TDoQueryFuncTable{},
 		listenQueryTimeoutSec: listenQueryTimeoutSec,
 	}
 }
@@ -39,21 +39,20 @@ func (self *CustomLLMApis) OpenQuery(
 	temperature float64,
 	inputs interpreter.TFunctionInputChannelTable,
 	execInfo interpreter.TExecutionInfo,
-) *TCustomQueryHandle {
-	resChan := make(chan []byte)
+) (*TCustomQueryHandle, error) {
+	doQuery, hasDoQuery := self.llms[model]
+	if !hasDoQuery {
+		return nil, fmt.Errorf(
+			"!error (line=%v, char=%v): prompts are empty",
+			execInfo.Line,
+			execInfo.CharPos,
+		)
+	}
+
+	resChan := make(chan string)
 	errChan := make(chan error)
 
 	go func() {
-		doQuery, hasDoQuery := self.llms[model]
-		if !hasDoQuery {
-			errChan <- fmt.Errorf(
-				"!error (line=%v, char=%v): prompts are empty",
-				execInfo.Line,
-				execInfo.CharPos,
-			)
-			return
-		}
-
 		res, err := doQuery(
 			model,
 			temperature,
@@ -69,15 +68,15 @@ func (self *CustomLLMApis) OpenQuery(
 	}()
 
 	return &TCustomQueryHandle{
-		IsCustom: true,
+		IsCustom:   true,
 		ResultChan: resChan,
-		ErrChan: errChan,
-	}
+		ErrChan:    errChan,
+	}, nil
 }
 
 func (self *CustomLLMApis) ListenQuery(
 	queryHandle *TCustomQueryHandle,
-) ([]byte, error) {
+) (string, error) {
 	timer := time.NewTimer(
 		time.Second * time.Duration(self.listenQueryTimeoutSec),
 	)
@@ -86,9 +85,9 @@ func (self *CustomLLMApis) ListenQuery(
 	case res := <-queryHandle.ResultChan:
 		return res, nil
 	case err := <-queryHandle.ErrChan:
-		return nil, err
+		return "", err
 	case <-timer.C:
-		return nil, errorsutils.LogError(
+		return "", errorsutils.LogError(
 			"CustomLLMApis",
 			"ListenQuery",
 			errors.New("Timeout for listening query"),

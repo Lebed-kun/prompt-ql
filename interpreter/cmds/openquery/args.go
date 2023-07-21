@@ -92,3 +92,10 @@ func getTemperature(
 
 	return temperature, nil
 }
+
+func getUserFlag(
+	staticArgs interpreter.TFunctionArgumentsTable,
+) bool {
+	_, hasUser := staticArgs["user"]
+	return hasUser
+}

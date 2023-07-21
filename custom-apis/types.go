@@ -11,10 +11,10 @@ type TDoQueryFunc func(
 	temperature float64,
 	inputs interpreter.TFunctionInputChannelTable,
 	execInfo interpreter.TExecutionInfo,
-) ([]byte, error)
+) (string, error)
 
 type TCustomQueryHandle struct {
 	IsCustom bool
-	ResultChan chan []byte
+	ResultChan chan string
 	ErrChan chan error
 }
