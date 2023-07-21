@@ -428,15 +428,12 @@ They receive all input data in the `DATA` channel;
 
 
 ## Interpreter API
- - 
- ```
- func New(
+ - `func New(
 	openAiBaseUrl string,
 	openAiKey string,
 	openAiListenQueryTimeoutSec uint,
 	customApisListenQueryTimeoutSec uint,
- ) *TPromptQL
- ``` - creates an instance of PromptQL. 
+ ) *TPromptQL` - creates an instance of PromptQL. 
 
  The function receives parameters:
  ```
@@ -487,6 +484,7 @@ They receive all input data in the `DATA` channel;
 	  execInfo interpreter.TExecutionInfo,
   ) (string, error)
 	```
+
 	This function should block if it contains some blocking requests to IO, DB, network etc. As it executes in separate goroutine that pushes result to query handle;
 
 
