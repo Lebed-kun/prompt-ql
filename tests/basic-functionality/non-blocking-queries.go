@@ -36,6 +36,7 @@ func NonBlockingQueriesTest(
 		openAiBaseUrl,
 		openAiKey,
 		0,
+		0,
 	)
 
 	result := interpreterInst.Instance.Execute(

@@ -15,6 +15,7 @@ func ExecutionErrorTest(
 		openAiBaseUrl,
 		openAiKey,
 		0,
+		0,
 	)
 
 	result := interpreterInst.Instance.Execute(

@@ -61,7 +61,7 @@ func MakeListenQueryCmd(
 			)
 		}
 
-		return llmResponse
+		return fmt.Sprintf("!assistant %v", llmResponse)
 	}
 
 	return func(

@@ -14,14 +14,15 @@ type TPromptQL struct {
 func New(
 	openAiBaseUrl string,
 	openAiKey string,
-	listenQueryTimeoutSec uint,
+	openAiListenQueryTimeoutSec uint,
+	customApisListenQueryTimeoutSec uint,
 ) *TPromptQL {
 	apiInst := api.New(
 		openAiBaseUrl,
 		openAiKey,
-		listenQueryTimeoutSec,
+		openAiListenQueryTimeoutSec,
 	)
-	customLLMApis := customapis.New(listenQueryTimeoutSec)
+	customLLMApis := customapis.New(customApisListenQueryTimeoutSec)
 
 	execFnTable := makeCmdTable(apiInst, customLLMApis)
 	interpreterInst := interpreter.New(

@@ -17,6 +17,7 @@ func PartialExecutionTest(
 		openAiBaseUrl,
 		openAiKey,
 		0,
+		0,
 	)
 
 	result := interpreterInst.Instance.ExecutePartial(

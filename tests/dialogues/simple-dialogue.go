@@ -15,6 +15,7 @@ func SimpleDialogTest(
 		openAiBaseUrl,
 		openAiKey,
 		40,
+		0,
 	)
 
 	result := interpreterInst.Instance.Execute(
