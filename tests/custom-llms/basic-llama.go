@@ -91,6 +91,7 @@ func makeLlamaDoQuery(
 	}
 }
 
+// Works ++++
 func BasicLlamaTest(
 	pathToLlamaCommand string,
 	pathToLlamaModel string,
