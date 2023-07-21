@@ -3,10 +3,12 @@ package openquerycmd
 import (
 	api "gitlab.com/jbyte777/prompt-ql/api"
 	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
 )
 
 func MakeOpenQueryCmd(
 	gptApi *api.GptApi,
+	customApis *customapis.CustomLLMApis,
 ) interpreter.TExecutedFunction {
 	return func(
 		staticArgs interpreter.TFunctionArgumentsTable,

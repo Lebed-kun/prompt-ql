@@ -17,7 +17,7 @@ func InterpreterErrorTest(
 		0,
 	)
 
-	result := interpreterInst.Execute(
+	result := interpreterInst.Instance.Execute(
 		`
 			{~set ="X"}Example text{/set}
 			{~get ="X" /}

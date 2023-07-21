@@ -17,7 +17,7 @@ func ExecutionErrorTest(
 		0,
 	)
 
-	result := interpreterInst.Execute(
+	result := interpreterInst.Instance.Execute(
 		`
 			{~call fn="nonexistentfn"}Example text{/call}
 		`,

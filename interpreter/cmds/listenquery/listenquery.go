@@ -6,6 +6,7 @@ import (
 
 	api "gitlab.com/jbyte777/prompt-ql/api"
 	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
 )
 
 func mergeChoices(choices []api.TGptApiResponseChoice) string {
@@ -27,6 +28,7 @@ func mergeChoices(choices []api.TGptApiResponseChoice) string {
 
 func MakeListenQueryCmd(
 	gptApi *api.GptApi,
+	customApis *customapis.CustomLLMApis,
 ) interpreter.TExecutedFunction {
 	return func(
 		staticArgs interpreter.TFunctionArgumentsTable,

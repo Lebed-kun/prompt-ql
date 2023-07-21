@@ -17,7 +17,7 @@ func BasicProgramTest(
 		0,
 	)
 
-	result := interpreterInst.Execute(
+	result := interpreterInst.Instance.Execute(
 		`
 			{~set to="X"}Example text{/set}
 			{~get from="X" /}

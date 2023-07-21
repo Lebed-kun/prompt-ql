@@ -16,7 +16,7 @@ func SimpleDialogTest(
 		40,
 	)
 
-	result := interpreterInst.Execute(
+	result := interpreterInst.Instance.Execute(
 		`
 			{~set to="reply1"}
 				Hi, Bob! How are you?

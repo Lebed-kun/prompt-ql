@@ -2,6 +2,7 @@ package interpreterimpl
 
 import (
 	api "gitlab.com/jbyte777/prompt-ql/api"
+	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
 	interpreter "gitlab.com/jbyte777/prompt-ql/core"
 
 	callcmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/call"
@@ -14,10 +15,11 @@ import (
 
 func makeCmdTable(
 	gptApi *api.GptApi,
+	customApis *customapis.CustomLLMApis,
 ) interpreter.TExecutedFunctionTable {
 	return interpreter.TExecutedFunctionTable{
-		"open_query": openquerycmd.MakeOpenQueryCmd(gptApi),
-		"listen_query": listenquerycmd.MakeListenQueryCmd(gptApi),
+		"open_query": openquerycmd.MakeOpenQueryCmd(gptApi, customApis),
+		"listen_query": listenquerycmd.MakeListenQueryCmd(gptApi, customApis),
 		"call": callcmd.CallCmd,
 		"get": getcmd.GetCmd,
 		"set": setcmd.SetCmd,

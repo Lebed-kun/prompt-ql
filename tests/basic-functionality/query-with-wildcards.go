@@ -18,7 +18,7 @@ func QueryWithWildcardsTest(
 		0,
 	)
 
-	result := interpreterInst.Execute(
+	result := interpreterInst.Instance.Execute(
 		`
 			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
 				{~system}

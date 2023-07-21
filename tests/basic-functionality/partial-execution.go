@@ -19,7 +19,7 @@ func PartialExecutionTest(
 		0,
 	)
 
-	result := interpreterInst.ExecutePartial(
+	result := interpreterInst.Instance.ExecutePartial(
 		`
 			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
 				{~system}
@@ -35,7 +35,7 @@ func PartialExecutionTest(
 
 	time.Sleep(3 * time.Second)
 
-	result = interpreterInst.ExecutePartial(
+	result = interpreterInst.Instance.ExecutePartial(
 		`
 			{/open_query}
 			{~set to="queryres"}

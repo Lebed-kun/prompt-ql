@@ -18,7 +18,7 @@ func BasicFunctionTest(
 		0,
 	)
 
-	result := interpreterInst.Execute(
+	result := interpreterInst.Instance.Execute(
 		`
 			{~set to="queryres"}
 				1. Make a dish
