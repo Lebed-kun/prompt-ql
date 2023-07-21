@@ -444,7 +444,8 @@ They receive all input data in the `DATA` channel;
  ```
 
  - PromptQL.Instance methods:
-   - `func (self *PromptQL) Instance.Execute(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as a complete chunk. I.e. the state of interpreter is completely reset after execution.
+
+  - `func (self *PromptQL) Instance.Execute(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as a complete chunk. I.e. the state of interpreter is completely reset after execution.
  
   The method receives parameters:
   ```
@@ -463,7 +464,7 @@ They receive all input data in the `DATA` channel;
   ```
   For nice formatting of `Result`, you can use methods `func (self *TInterpreterResult) ResultDataStr() (string, bool)` and `func (self *TInterpreterResult) ResultErrorStr() (string, bool)`
 
-    - `func (self *PromptQL) Instance.ExecutePartial(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as an uncomplete chunk. Only interpreter cursor is reset. `globalVars` are additional variables for the query;
+  - `func (self *PromptQL) Instance.ExecutePartial(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as an uncomplete chunk. Only interpreter cursor is reset. `globalVars` are additional variables for the query;
 
   The method receives parameters:
   ```
@@ -471,11 +472,12 @@ They receive all input data in the `DATA` channel;
   - "globalVars" - are additional variables for the query;
   ```
 
-    - `func (self *PromptQL) Instance.Reset()` - for manually resetting all interpreter state. It can be combined with partial execution;
-    - `func (self *PromptQL) Instance.IsDirty() bool` - determines if interpreter is in progress of execution query chunks. It's `false` after execution of `Execute` and `Reset` methods;
+  - `func (self *PromptQL) Instance.Reset()` - for manually resetting all interpreter state. It can be combined with partial execution;
+  - `func (self *PromptQL) Instance.IsDirty() bool` - determines if interpreter is in progress of execution query chunks. It's `false` after execution of `Execute` and `Reset` methods;
 
  - PromptQL.CustomApis methods:
-   - `func (self *PromptQL) CustomApis.RegisterLLMApi(name string, doQuery TDoQueryFunc)` - define LLM API with its own unique name and function for processing queries. This function is defined by this convention:
+
+ - `func (self *PromptQL) CustomApis.RegisterLLMApi(name string, doQuery TDoQueryFunc)` - define LLM API with its own unique name and function for processing queries. This function is defined by this convention:
 
 	```
 	  func(
