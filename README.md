@@ -359,8 +359,9 @@ result := interpreterInst.Execute(
 
 Static arguments for the command are:
 ```
- - "user" - is an optional flag that indicates user-defined LLM model (i.e. with `RegisterLLMApi` method). Not OpenAI model which is the default option;
- - "to" - is a name of variable to store a query handle. It's a required parameter;
+ - "user" - is a flag. If it's set, it **forces** a `model` to match user-defined model. If it's not set, then `model` is assumed as an OpenAI model **by default**. In this case if `model` is not supported by OpenAI, then `model` is assumed as a user-defined model;
+ - "sync" - is a flag. If it's set, then query is executed in a blocking manner and returns a text response like the `listen_query` command do. If it's not set, then query is executed in parallel and result is stored in the `to` handle;
+ - "to" - is a name of variable to store a query handle. It's a required parameter if query is **asynchronous** (i.e. no `sync` flag). It's not required if query is **synchronous** (i.e. `sync` flag is set);
  - "model" - is a name of chosen LLM. Default value is "gpt-3.5-turbo";
  - "temperature" - is a temperature of chosen LLM. Default value is 1.0;
 ```

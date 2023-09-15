@@ -1,15 +1,15 @@
-package basicfunctionalitytests
+package syncqueriestests
 
 import (
 	"fmt"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 	testutils "gitlab.com/jbyte777/prompt-ql/tests/utils"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
 )
 
-// Works +++++
-func NonBlockingQueriesTest(
+// Works +
+func BasicSyncQueryTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
@@ -22,38 +22,35 @@ func NonBlockingQueriesTest(
 
 	result := interpreterInst.Instance.Execute(
 		`
-			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
+			=========^^^^^==========
+			{~call fn="logtime"}
+				begin first query
+			{/call}
+			{~open_query sync model="gpt-3.5-turbo-16k"}
 				{~system}
 					You are a helpful and terse assistant.
 				{/system}
 				I want a response to the following question:
-				Write a comprehensive guide to learn statistics step by step.
+				Write a comprehensive guide to write an article for Medium
 			{/open_query}
+			=========+++++==========
 			{~call fn="logtime"}
-				open query1
+				end first query
 			{/call}
-			=======================
-			{~open_query to="query2" model="gpt-3.5-turbo-16k"}
+			{~call fn="logtime"}
+				begin second query
+			{/call}
+			{~open_query sync model="gpt-3.5-turbo-16k"}
 				{~system}
 					You are a helpful and terse assistant.
 				{/system}
 				I want a response to the following question:
-				Write a comprehensive guide to make a solar panel step by step.
+				Write a comprehensive guide to write an order email
 			{/open_query}
 			{~call fn="logtime"}
-				open query2
+				end second query
 			{/call}
-			=======================
-			Answer1: {~listen_query from="query1" /}
-			{~call fn="logtime"}
-				listen query1
-			{/call}
-			=======================
-			Answer2: {~listen_query from="query2" /}
-			{~call fn="logtime"}
-				listen query2
-			{/call}
-			=======================
+			=========^^^^^==========
 		`,
 		interpretercore.TGlobalVariablesTable{
 			"logtime": testutils.LogTimeForProgram,

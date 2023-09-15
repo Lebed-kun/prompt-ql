@@ -10,9 +10,13 @@ import (
 func getToVar(
 	staticArgs interpreter.TFunctionArgumentsTable,
 	execInfo interpreter.TExecutionInfo,
+	isSyncQuery bool,
 ) (string, error) {
 	var toVar string
 	rawToVar, hasRawToVar := staticArgs["to"]
+	if !hasRawToVar && isSyncQuery {
+		return "", nil
+	}
 	if !hasRawToVar {
 		return "", fmt.Errorf(
 			"!error (line=%v, char=%v): \"to\" parameter is required",
@@ -98,4 +102,11 @@ func getUserFlag(
 ) bool {
 	_, hasUser := staticArgs["user"]
 	return hasUser
+}
+
+func getSyncFlag(
+	staticArgs interpreter.TFunctionArgumentsTable,
+) bool {
+	_, hasSync := staticArgs["sync"]
+	return hasSync
 }

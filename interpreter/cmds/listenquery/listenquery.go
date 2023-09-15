@@ -2,29 +2,11 @@ package listenquerycmd
 
 import (
 	"fmt"
-	"strings"
-
 	api "gitlab.com/jbyte777/prompt-ql/api"
 	interpreter "gitlab.com/jbyte777/prompt-ql/core"
 	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
+	utils "gitlab.com/jbyte777/prompt-ql/interpreter/utils"
 )
-
-func mergeChoices(choices []api.TGptApiResponseChoice) string {
-	strChoices := make([]string, 0)
-	for _, choice := range choices {
-		if choice.Message.Role != "assistant" {
-			continue
-		}
-
-		strChoices = append(strChoices, choice.Message.Content)
-	}
-
-	result := fmt.Sprintf(
-		"!assistant %v",
-		strings.Join(strChoices, "\n=====\n"),
-	)
-	return result
-}
 
 func MakeListenQueryCmd(
 	gptApi *api.GptApi,
@@ -44,7 +26,7 @@ func MakeListenQueryCmd(
 			)
 		}
 
-		return mergeChoices(gptResponse.Choices)
+		return utils.MergeGptApiChoices(gptResponse.Choices)
 	}
 
 	userListenQuery := func(
