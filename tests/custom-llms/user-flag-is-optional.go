@@ -5,8 +5,8 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works +++++
-func BasicLlamaTest(
+// Works ?
+func UserFlagIsOptionalTest(
 	pathToLlamaCommand string,
 	pathToLlamaModel string,
 ) {
@@ -24,12 +24,12 @@ func BasicLlamaTest(
 
 	result := interpreterInst.Instance.Execute(
 		`
-			{~open_query user to="query1" model="llama"}
+			{~open_query to="query1" model="llama"}
 				{~system}
 					You are a helpful assistant.
 				{/system}
 				I want a response to the following question:
-				Write a guide to cook pasta
+				Tell me what is the Fourier Series
 			{/open_query}
 			{~listen_query from="query1" /}
 		`,

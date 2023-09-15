@@ -100,7 +100,15 @@ func (self *GptApi) OpenQuery(
 	model string,
 	temperature float64,
 	prompts []TMessage,
-) *TQueryHandle {
+) (*TQueryHandle, error) {
+	_, isModelSupported := supportedOpenAiModels[model]
+	if !isModelSupported {
+		return nil, fmt.Errorf(
+			"model \"%v\" is not supported by OpenAI",
+			model,
+		)
+	}
+
 	resChan := make(chan *TGptApiResponse)
 	errChan := make(chan error)
 
@@ -121,7 +129,7 @@ func (self *GptApi) OpenQuery(
 	return &TQueryHandle{
 		ResultChan: resChan,
 		ErrChan:    errChan,
-	}
+	}, nil
 }
 
 func (self *GptApi) ListenQuery(
@@ -143,4 +151,9 @@ func (self *GptApi) ListenQuery(
 			errors.New("Timeout for listening query"),
 		)
 	}
+}
+
+func (self *GptApi) IsModelSupported(model string) bool {
+	_, isModelSupported := supportedOpenAiModels[model]
+	return isModelSupported
 }

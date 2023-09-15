@@ -25,11 +25,14 @@ func MakeOpenQueryCmd(
 		}
 
 		if isSync {
-			handle := gptApi.OpenQuery(
+			handle, err := gptApi.OpenQuery(
 				model,
 				temperature,
 				prompts,
 			)
+			if err != nil {
+				return nil, err
+			}
 			response, err := gptApi.ListenQuery(handle)
 			if err != nil {
 				return nil, err
@@ -40,7 +43,7 @@ func MakeOpenQueryCmd(
 				model,
 				temperature,
 				prompts,
-			), nil
+			)
 		}
 	}
 
@@ -101,7 +104,8 @@ func MakeOpenQueryCmd(
 			return err
 		}
 
-		if userFlag {
+		isOpenAIModelSupported := gptApi.IsModelSupported(model)
+		if userFlag || !isOpenAIModelSupported {
 			queryHandleOrResponse, err := userOpenQuery(
 				model,
 				temperature,
