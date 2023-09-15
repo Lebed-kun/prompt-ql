@@ -5,7 +5,7 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works ?
+// Works +
 func UserFlagIsOptionalTest(
 	pathToLlamaCommand string,
 	pathToLlamaModel string,
