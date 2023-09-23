@@ -6,8 +6,8 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works ++++++
-func InterpreterErrorTest(
+// Works ++
+func MismatchCommandEmptyTagErrorTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
@@ -20,9 +20,9 @@ func InterpreterErrorTest(
 
 	result := interpreterInst.Instance.Execute(
 		`
-			{~set ="X"}Example text{/set}
-			{~get ="X" /}
-			Hello world!
+			{~data}
+				{~user}Example text{/user}
+			{/}
 		`,
 		nil,
 	)

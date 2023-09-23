@@ -254,7 +254,12 @@ func (self *Interpreter) handleCommand(program []rune) {
 			self.strPos++
 			self.charPos++
 
-			topCtx.State = StackFrameStateIsClosing
+			if topCtx.State == StackFrameStateFullfilled {
+				topCtx.State = StackFrameStateExpectCmdAfterFullfill
+			} else {
+				topCtx.State = StackFrameStateIsClosing
+			}
+
 			currLiteral = nil
 			currArg = ""
 			continue
@@ -348,6 +353,23 @@ func (self *Interpreter) handleCommand(program []rune) {
 					topCtx.State = StackFrameStateExpectArg
 					currArg = ""
 				}
+			case StackFrameStateExpectCmdAfterFullfill:
+				currLiteralStr, isCurrLiteralStr := currLiteral.(string)
+				if !isCurrLiteralStr {
+					self.criticalError = self.getError(
+						"command name is not string",
+					)
+				} else if currLiteralStr != topCtx.FnName {
+					self.criticalError = self.getError(
+						fmt.Sprintf(
+							"command \"%v\" does not match the command \"%v\" on the closest context",
+							currLiteralStr,
+							topCtx.FnName,
+						),
+					)
+				} else {
+					topCtx.State = StackFrameStateIsClosing
+				}
 			}
 
 			continue
@@ -364,7 +386,24 @@ func (self *Interpreter) handleCommand(program []rune) {
 		}
 	}
 
+	if self.criticalError != nil {
+		return
+	}
+
 	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
+	if topCtx.State == StackFrameStateExpectCmdAfterFullfill {
+		self.criticalError = self.getError(
+			fmt.Sprintf(
+				"closing command is empty while command on the closest context is \"%v\"",
+				topCtx.FnName,
+			),
+		)
+		return
+	}
+	
+	if topCtx.State != StackFrameStateIsClosing {
+		topCtx.State = StackFrameStateFullfilled
+	}
 	if len(currArg) > 0 {
 		topCtx.ArgsTable[currArg] = true
 	}
