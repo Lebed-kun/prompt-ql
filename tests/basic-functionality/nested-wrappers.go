@@ -6,8 +6,8 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// Works ++++++?
-func BasicQueryTest(
+// Works +++
+func NestedWrappersTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
@@ -20,14 +20,9 @@ func BasicQueryTest(
 
 	result := interpreterInst.Instance.Execute(
 		`
-			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
-				{~system}
-					You are a helpful and terse assistant.
-				{/system}
-				I want a response to the following question:
-				Write a comprehensive guide to machine learning
-			{/open_query}
-			{~listen_query from="query1" /}
+			{~data}
+				{~user}Example text{/user}
+			{/data}
 		`,
 		nil,
 	)
@@ -38,14 +33,9 @@ func BasicQueryTest(
 
 	fmt.Println("===================")
 	resultStr, _ := result.ResultDataStr()
-	errStr, _ := result.ResultErrorStr()
 	fmt.Printf(
-		"ChatGPT response:\n%v\n",
+		"ChatGPT response:\n%v",
 		resultStr,
-	)
-	fmt.Printf(
-		"ChatGPT error:\n%v\n",
-		errStr,
 	)
 	fmt.Println("===================")
 }
