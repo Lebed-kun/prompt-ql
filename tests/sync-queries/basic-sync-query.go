@@ -33,10 +33,10 @@ func BasicSyncQueryTest(
 				I want a response to the following question:
 				Write a comprehensive guide to write an article for Medium
 			{/open_query}
-			=========+++++==========
 			{~call fn="logtime"}
 				end first query
 			{/call}
+			=========+++++==========
 			{~call fn="logtime"}
 				begin second query
 			{/call}
