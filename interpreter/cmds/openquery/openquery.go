@@ -83,7 +83,8 @@ func MakeOpenQueryCmd(
 	return func(
 		staticArgs interpreter.TFunctionArgumentsTable,
 		inputs interpreter.TFunctionInputChannelTable,
-		globals interpreter.TGlobalVariablesTable,
+		internalGlobals interpreter.TGlobalVariablesTable,
+		externalGlobals interpreter.TGlobalVariablesTable,
 		execInfo interpreter.TExecutionInfo,
 	) interface{} {
 		userFlag := getUserFlag(staticArgs)
@@ -124,7 +125,7 @@ func MakeOpenQueryCmd(
 			}
 			
 			if !syncFlag {
-				globals[toVar] = queryHandleOrResponse
+				internalGlobals[toVar] = queryHandleOrResponse
 			} else {
 				return queryHandleOrResponse
 			}
@@ -147,7 +148,7 @@ func MakeOpenQueryCmd(
 			}
 
 			if !syncFlag {
-				globals[toVar] = queryHandleOrResponse
+				internalGlobals[toVar] = queryHandleOrResponse
 			} else {
 				return queryHandleOrResponse
 			}

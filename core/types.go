@@ -18,7 +18,8 @@ type TExecutionStack []*TExecutionStackFrame
 type TExecutedFunction func(
 	staticArgs TFunctionArgumentsTable,
 	inputs TFunctionInputChannelTable,
-	globalVars TGlobalVariablesTable,
+	internalGlobals TGlobalVariablesTable,
+	externalGlobals TGlobalVariablesTable,
 	execInfo TExecutionInfo,
 ) interface{}
 

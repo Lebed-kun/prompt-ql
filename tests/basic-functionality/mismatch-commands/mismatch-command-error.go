@@ -7,15 +7,9 @@ import (
 )
 
 // Works +++
-func MismatchCommandErrorTest(
-	openAiBaseUrl string,
-	openAiKey string,
-) {
+func MismatchCommandErrorTest() {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -24,7 +18,6 @@ func MismatchCommandErrorTest(
 				{~user}Example text{/user}
 			{/call}
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

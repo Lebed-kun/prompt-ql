@@ -7,15 +7,9 @@ import (
 )
 
 // Works ++
-func MismatchCommandEmptyTagErrorTest(
-	openAiBaseUrl string,
-	openAiKey string,
-) {
+func MismatchCommandEmptyTagErrorTest() {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -24,7 +18,6 @@ func MismatchCommandEmptyTagErrorTest(
 				{~user}Example text{/user}
 			{/}
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

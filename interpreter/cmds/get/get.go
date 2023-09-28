@@ -1,22 +1,38 @@
 package getcmd
 
 import (
+	"fmt"
 	interpreter "gitlab.com/jbyte777/prompt-ql/core"
 )
 
 func GetCmd(
 	staticArgs interpreter.TFunctionArgumentsTable,
 	inputs interpreter.TFunctionInputChannelTable,
-	globals interpreter.TGlobalVariablesTable,
+	internalGlobals interpreter.TGlobalVariablesTable,
+	externalGlobals interpreter.TGlobalVariablesTable,
 	execInfo interpreter.TExecutionInfo,
 ) interface{} {
-	fromVar, err := getFromVar(staticArgs, execInfo)
+	fromVar, isExternal, err := getFromVar(staticArgs, execInfo)
 	if err != nil {
 		return err
 	}
 
-	rawVar, hasVar := globals[fromVar]
+	varTable := internalGlobals
+	if isExternal {
+		varTable = externalGlobals
+	}
+
+	rawVar, hasVar := varTable[fromVar]
 	if !hasVar {
+		if isExternal {
+			return fmt.Errorf(
+				"!error (line=%v, char=%v): external variable with name \"%v\" is not defined",
+				execInfo.Line,
+				execInfo.CharPos,
+				fromVar,
+			)
+		}
+		
 		return nil
 	}
 	return rawVar

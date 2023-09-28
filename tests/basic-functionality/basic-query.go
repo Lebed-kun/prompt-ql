@@ -12,10 +12,10 @@ func BasicQueryTest(
 	openAiKey string,
 ) {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+		},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -29,7 +29,6 @@ func BasicQueryTest(
 			{/open_query}
 			{~listen_query from="query1" /}
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

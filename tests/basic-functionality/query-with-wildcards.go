@@ -2,8 +2,6 @@ package basicfunctionalitytests
 
 import (
 	"fmt"
-
-	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
@@ -13,28 +11,27 @@ func QueryWithWildcardsTest(
 	openAiKey string,
 ) {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+		},
 	)
 
 	result := interpreterInst.Instance.Execute(
 		`
-			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
+			{~set to="cmd"}listen_query{/set}
+			{~set to="cmdarg"}from{/set}
+			{~set to="queryvar"}query1{/set}
+
+			{~open_query to=$queryvar model="gpt-3.5-turbo-16k"}
 				{~system}
 					You are a helpful and terse assistant.
 				{/system}
 				I want a response to the following question:
 				Write a comprehensive guide to machine learning
 			{/open_query}
-			{~$cmd $cmdarg=$cmdval /}
+			{~$cmd $cmdarg=$queryvar /}
 		`,
-		interpretercore.TGlobalVariablesTable{
-			"cmd": "listen_query",
-			"cmdarg": "from",
-			"cmdval": "query1",
-		},
 	)
 
 	if result.Error != nil {

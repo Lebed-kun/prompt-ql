@@ -8,15 +8,14 @@ import (
 )
 
 // Works ++++++
-func BasicFunctionTest(
-	openAiBaseUrl string,
-	openAiKey string,
-) {
+func BasicFunctionTest() {
+	defaultGlobals := interpretercore.TGlobalVariablesTable{
+		"postprocess": postProcessFunctionTest,
+	}
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{
+			DefaultExternalGlobals: defaultGlobals,
+		},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -30,13 +29,10 @@ func BasicFunctionTest(
 			{~get from="queryres" /}
 			==========++++++==========
 			JSON result is:
-			{~call fn="postprocess"}
+			{~call fn=@postprocess }
 				{~get from="queryres" /}
 			{/call}
 		`,
-		interpretercore.TGlobalVariablesTable{
-			"postprocess": postProcessFunctionTest,
-		},
 	)
 
 	if result.Error != nil {

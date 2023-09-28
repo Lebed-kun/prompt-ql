@@ -12,10 +12,11 @@ func SimpleDialogTest(
 	openAiKey string,
 ) {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		40,
-		0,
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+			OpenAiListenQueryTimeoutSec: 40,
+		},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -83,7 +84,6 @@ func SimpleDialogTest(
 			{/set}
 			Alice: {~get from="reply5" /}
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

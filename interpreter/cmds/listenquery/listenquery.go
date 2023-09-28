@@ -49,7 +49,8 @@ func MakeListenQueryCmd(
 	return func(
 		staticArgs interpreter.TFunctionArgumentsTable,
 		inputs interpreter.TFunctionInputChannelTable,
-		globals interpreter.TGlobalVariablesTable,
+		internalGlobals interpreter.TGlobalVariablesTable,
+		externalGlobals interpreter.TGlobalVariablesTable,
 		execInfo interpreter.TExecutionInfo,
 	) interface{} {
 		fromVar, err := getFromVar(staticArgs, execInfo)
@@ -57,10 +58,10 @@ func MakeListenQueryCmd(
 			return err
 		}
 
-		rawQueryHandle, hasQueryHandle := globals[fromVar]
+		rawQueryHandle, hasQueryHandle := internalGlobals[fromVar]
 		if !hasQueryHandle {
 			return fmt.Errorf(
-				"!error (line=%v, char=%v): query handle by name \"%v\" doesn't exist",
+				"!error (line=%v, char=%v): query handle by name \"%v\" doesn't exist in internal variables",
 				execInfo.Line,
 				execInfo.CharPos,
 				fromVar,

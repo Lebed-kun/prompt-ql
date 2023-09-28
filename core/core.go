@@ -7,57 +7,60 @@ import (
 )
 
 type Interpreter struct {
+	// Settings
+	execFnTable   TExecutedFunctionTable
+	dataSwitchFn  TDataSwitchFunction
+	defaultExternalGlobals TGlobalVariablesTable
+
+	// Internal interpreter state
 	mode          int
 	line          int
 	charPos       int
 	strPos        int
-	globals       TGlobalVariablesTable
-	execCtxStack  TExecutionStack
 	isDirty       bool
 	criticalError error
-	execFnTable   TExecutedFunctionTable
-	dataSwitchFn  TDataSwitchFunction
-}
-
-func makeRootStackFrame() *TExecutionStackFrame {
-	inputChannels := make(TFunctionInputChannelTable)
-	inputChannels["data"] = make(TFunctionInputChannel, 0)
-	inputChannels["error"] = make(TFunctionInputChannel, 0)
-
-	return &TExecutionStackFrame{
-		State:         StackFrameStateExpectCmd,
-		FnName:        "root",
-		ArgsTable:     make(TFunctionArgumentsTable),
-		InputChannels: inputChannels,
-	}
+	execCtxStack  TExecutionStack
+	
+	// Current globals
+	internalGlobals       TGlobalVariablesTable
+	externalGlobals TGlobalVariablesTable
 }
 
 func New(
 	execFnTable TExecutedFunctionTable,
 	dataSwitchFn TDataSwitchFunction,
+	defaultExternalVars TGlobalVariablesTable,
 ) *Interpreter {
 	execCtxStack := []*TExecutionStackFrame{
 		makeRootStackFrame(),
 	}
 
 	return &Interpreter{
+		// Settings
+		execFnTable:   execFnTable,
+		dataSwitchFn:  dataSwitchFn,
+		defaultExternalGlobals: defaultExternalVars,
+
+		// Internal interpreter state
 		mode:          InterpreterModePlainText,
 		line:          0,
 		charPos:       0,
 		strPos:        0,
-		globals:       make(TGlobalVariablesTable),
 		execCtxStack:  execCtxStack,
 		isDirty:       false,
 		criticalError: nil,
-		execFnTable:   execFnTable,
-		dataSwitchFn:  dataSwitchFn,
+
+		// Current globals
+		internalGlobals:       make(TGlobalVariablesTable),
+		externalGlobals: initializeExternalGlobals(defaultExternalVars),
 	}
 }
 
 func (self *Interpreter) resetImpl() {
 	self.resetPosition()
 	self.mode = InterpreterModePlainText
-	self.globals = make(TGlobalVariablesTable)
+	self.internalGlobals = make(TGlobalVariablesTable)
+	self.externalGlobals = initializeExternalGlobals(self.defaultExternalGlobals)
 	self.execCtxStack = []*TExecutionStackFrame{
 		makeRootStackFrame(),
 	}
@@ -109,7 +112,7 @@ func (self *Interpreter) handlePlainText(program []rune) {
 	)
 }
 
-func (self *Interpreter) resolveVariable(program []rune) (interface{}, error) {
+func (self *Interpreter) resolveReference(program []rune) (interface{}, error) {
 	applyCnt := 1
 
 	for self.strPos < len(program) && program[self.strPos] == '$' {
@@ -118,9 +121,22 @@ func (self *Interpreter) resolveVariable(program []rune) (interface{}, error) {
 		self.charPos++
 	}
 
+	if self.strPos >= len(program) || (!isAlphaNumChar(program[self.strPos]) && program[self.strPos] != '@') {
+		return nil, self.getError(
+			"expected reference name in lating letters, digits, _ or @ after $",
+		)
+	}
+
+	isReferenceExternal := false
+	if program[self.strPos] == '@' {
+		isReferenceExternal = true
+		self.strPos++
+		self.charPos++
+	}
+
 	if self.strPos >= len(program) || !isAlphaNumChar(program[self.strPos]) {
 		return nil, self.getError(
-			"expected variable name in lating letters, digits or _ after $",
+			"expected reference name in lating letters, digits, or _ after $[@]",
 		)
 	}
 
@@ -134,17 +150,31 @@ func (self *Interpreter) resolveVariable(program []rune) (interface{}, error) {
 	varName := string(program[begin:self.strPos])
 	currApplyCnt := 0
 
+	varTable := self.internalGlobals
+	if isReferenceExternal {
+		varTable = self.externalGlobals
+	}
+
 	for currApplyCnt < applyCnt {
 		var hasVar bool
-		varValue, hasVar = self.globals[varName]
+		varValue, hasVar = varTable[varName]
 		if !hasVar {
+			if isReferenceExternal {
+				return nil, self.getError(
+					fmt.Sprintf(
+						"external variable with name \"%v\" is not defined",
+						varName,
+					),
+				)
+			}
+
 			varValue = nil
 			break
 		}
 
 		currApplyCnt++
 		nextVarName, isNextVarNameStr := varValue.(string)
-		if !isNextVarNameStr {
+		if !isNextVarNameStr || len(nextVarName) == 0 {
 			break
 		}
 		varName = nextVarName
@@ -152,7 +182,7 @@ func (self *Interpreter) resolveVariable(program []rune) (interface{}, error) {
 
 	if varValue != nil && currApplyCnt != applyCnt {
 		return nil, self.getError(
-			"variable name is not string",
+			"reference name is a not string",
 		)
 	}
 
@@ -205,6 +235,12 @@ func (self *Interpreter) skipWhitespaces(program []rune) {
 
 func (self *Interpreter) resolveName(program []rune) string {
 	name := strings.Builder{}
+
+	if self.strPos < len(program) && program[self.strPos] == '@' {
+		name.WriteRune(program[self.strPos])
+		self.strPos++
+		self.charPos++
+	}
 
 	for self.strPos < len(program) && isAlphaNumChar(program[self.strPos]) {
 		name.WriteRune(program[self.strPos])
@@ -285,7 +321,7 @@ func (self *Interpreter) handleCommand(program []rune) {
 			self.charPos++
 
 			var err error
-			currLiteral, err = self.resolveVariable(program)
+			currLiteral, err = self.resolveReference(program)
 
 			if err != nil {
 				self.criticalError = err
@@ -310,7 +346,7 @@ func (self *Interpreter) handleCommand(program []rune) {
 			goto ctxFill
 		}
 
-		if isAlphaChar(program[self.strPos]) {
+		if isAlphaChar(program[self.strPos]) || program[self.strPos] == '@' {
 			currLiteral = self.resolveName(program)
 			goto ctxFill
 		}
@@ -444,7 +480,8 @@ func (self *Interpreter) resolveTopCtx() {
 		result := cmd(
 			topCtx.ArgsTable,
 			topCtx.InputChannels,
-			self.globals,
+			self.internalGlobals,
+			self.externalGlobals,
 			TExecutionInfo{
 				StrPos:  self.strPos,
 				CharPos: self.charPos,
@@ -502,34 +539,13 @@ func (self *Interpreter) executeImpl(program []rune) *TInterpreterResult {
 	}
 }
 
-func (self *Interpreter) mergeGlobals(
-	globalVars TGlobalVariablesTable,
-) {
-	if globalVars == nil {
-		return
-	}
-
-	for name, val := range globalVars {
-		self.globals[name] = val
-	}
-}
-
-func (self *Interpreter) ExecutePartial(
-	program string,
-	globalVars TGlobalVariablesTable,
-) *TInterpreterResult {
-	self.mergeGlobals(globalVars)
+func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult {
 	res := self.executeImpl([]rune(program))
 	self.resetPosition()
 	return res
 }
 
-func (self *Interpreter) Execute(
-	program string,
-	globalVars TGlobalVariablesTable,
-) *TInterpreterResult {
-	self.mergeGlobals(globalVars)
-
+func (self *Interpreter) Execute(program string) *TInterpreterResult {
 	res := self.executeImpl([]rune(program))
 	self.resetImpl()
 	return res
@@ -541,4 +557,9 @@ func (self *Interpreter) Reset() {
 
 func (self *Interpreter) IsDirty() bool {
 	return self.isDirty
+}
+
+func (self *Interpreter) SetExternalGlobals(globals TGlobalVariablesTable) {
+	self.defaultExternalGlobals = globals
+	self.externalGlobals = initializeExternalGlobals(self.defaultExternalGlobals)
 }

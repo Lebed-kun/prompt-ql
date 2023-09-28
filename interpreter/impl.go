@@ -11,23 +11,27 @@ type TPromptQL struct {
 	CustomApis *customapis.CustomLLMApis
 }
 
-func New(
-	openAiBaseUrl string,
-	openAiKey string,
-	openAiListenQueryTimeoutSec uint,
-	customApisListenQueryTimeoutSec uint,
-) *TPromptQL {
+type TPromptQLOptions struct {
+	OpenAiBaseUrl string
+	OpenAiKey string
+	OpenAiListenQueryTimeoutSec uint
+	CustomApisListenQueryTimeoutSec uint
+	DefaultExternalGlobals interpreter.TGlobalVariablesTable
+}
+
+func New(options TPromptQLOptions) *TPromptQL {
 	apiInst := api.New(
-		openAiBaseUrl,
-		openAiKey,
-		openAiListenQueryTimeoutSec,
+		options.OpenAiBaseUrl,
+		options.OpenAiKey,
+		options.OpenAiListenQueryTimeoutSec,
 	)
-	customLLMApis := customapis.New(customApisListenQueryTimeoutSec)
+	customLLMApis := customapis.New(options.CustomApisListenQueryTimeoutSec)
 
 	execFnTable := makeCmdTable(apiInst, customLLMApis)
 	interpreterInst := interpreter.New(
 		execFnTable,
 		rootDataSwitch,
+		options.DefaultExternalGlobals,
 	)
 	
 	return &TPromptQL{

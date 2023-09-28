@@ -9,11 +9,11 @@ import (
 func getFnVar(
 	staticArgs interpreter.TFunctionArgumentsTable,
 	execInfo interpreter.TExecutionInfo,
-) (string, error) {
+) (string, bool, error) {
 	var fnVar string
 	rawFnVar, hasRawFnVar := staticArgs["fn"]
 	if !hasRawFnVar {
-		return "", fmt.Errorf(
+		return "", false, fmt.Errorf(
 			"!error (line=%v, char=%v): \"fn\" parameter is required",
 			execInfo.Line,
 			execInfo.CharPos,
@@ -21,14 +21,29 @@ func getFnVar(
 	}
 	var isFnVarStr bool
 	fnVar, isFnVarStr = rawFnVar.(string)
-	if !isFnVarStr {
-		return "", fmt.Errorf(
-			"!error (line=%v, char=%v): \"fn\" parameter is \"%v\" which is not string",
+	if !isFnVarStr || len(fnVar) == 0 {
+		return "", false, fmt.Errorf(
+			"!error (line=%v, char=%v): \"fn\" parameter is \"%v\" which is not a valid string",
 			execInfo.Line,
 			execInfo.CharPos,
 			rawFnVar,
 		)
 	}
 
-	return fnVar, nil
+	isExternal := false
+	if fnVar[0] == '@' {
+		isExternal = true
+		fnVar = fnVar[1:]
+	}
+
+	if len(fnVar) == 0 {
+		return "", false, fmt.Errorf(
+			"!error (line=%v, char=%v): \"fn\" parameter is \"%v\" which is not a valid string",
+			execInfo.Line,
+			execInfo.CharPos,
+			rawFnVar,
+		)
+	}
+
+	return fnVar, isExternal, nil
 }

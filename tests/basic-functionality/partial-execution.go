@@ -13,11 +13,15 @@ func PartialExecutionTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
+	defaultGlobals := interpretercore.TGlobalVariablesTable{
+		"postprocess": postProcessFunctionTest,
+	}
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+			DefaultExternalGlobals: defaultGlobals,
+		},
 	)
 
 	result := interpreterInst.Instance.ExecutePartial(
@@ -29,9 +33,6 @@ func PartialExecutionTest(
 				I want a response to the following question:
 				Write a comprehensive guide to machine learning step by step
 		`,
-		interpretercore.TGlobalVariablesTable{
-			"postprocess": postProcessFunctionTest,
-		},
 	)
 
 	time.Sleep(3 * time.Second)
@@ -46,13 +47,10 @@ func PartialExecutionTest(
 			{~get from="queryres" /}
 			==========================
 			JSON result is:
-			{~call fn="postprocess"}
+			{~call fn=@postprocess }
 				{~get from="queryres" /}
 			{/call}
 		`,
-		interpretercore.TGlobalVariablesTable{
-			"postprocess": postProcessFunctionTest,
-		},
 	)
 
 	if result.Error != nil {

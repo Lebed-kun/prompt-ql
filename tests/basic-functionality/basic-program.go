@@ -7,15 +7,9 @@ import (
 )
 
 // Works ++++++
-func BasicProgramTest(
-	openAiBaseUrl string,
-	openAiKey string,
-) {
+func BasicProgramTest() {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -24,7 +18,6 @@ func BasicProgramTest(
 			{~get from="X" /}
 			Hello world!
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

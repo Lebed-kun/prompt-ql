@@ -11,7 +11,8 @@ func MakeWrapperCmd(dataTag string) interpreter.TExecutedFunction {
 	return func(
 		staticArgs interpreter.TFunctionArgumentsTable,
 		inputs interpreter.TFunctionInputChannelTable,
-		globals interpreter.TGlobalVariablesTable,
+		internalGlobals interpreter.TGlobalVariablesTable,
+		externalGlobals interpreter.TGlobalVariablesTable,
 		execInfo interpreter.TExecutionInfo,
 	) interface{} {
 		dataChan, hasDataChan := inputs["data"]

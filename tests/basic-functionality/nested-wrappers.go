@@ -7,15 +7,9 @@ import (
 )
 
 // Works +++
-func NestedWrappersTest(
-	openAiBaseUrl string,
-	openAiKey string,
-) {
+func NestedWrappersTest() {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -24,7 +18,6 @@ func NestedWrappersTest(
 				{~user}Example text{/user}
 			{/data}
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

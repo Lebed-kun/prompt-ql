@@ -9,7 +9,8 @@ import (
 func SetCmd(
 	staticArgs interpreter.TFunctionArgumentsTable,
 	inputs interpreter.TFunctionInputChannelTable,
-	globals interpreter.TGlobalVariablesTable,
+	internalGlobals interpreter.TGlobalVariablesTable,
+	externalGlobals interpreter.TGlobalVariablesTable,
 	execInfo interpreter.TExecutionInfo,
 ) interface{} {
 	toVar, err := getToVar(staticArgs, execInfo)
@@ -28,6 +29,6 @@ func SetCmd(
 	}
 
 	latestData := dataChan[len(dataChan) - 1]
-	globals[toVar] = latestData
+	internalGlobals[toVar] = latestData
 	return nil
 }

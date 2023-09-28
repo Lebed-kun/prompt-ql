@@ -7,22 +7,15 @@ import (
 )
 
 // Works ++++++
-func ExecutionErrorTest(
-	openAiBaseUrl string,
-	openAiKey string,
-) {
+func ExecutionErrorTest() {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
 		`
 			{~call fn="nonexistentfn"}Example text{/call}
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

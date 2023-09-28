@@ -11,10 +11,9 @@ func BasicLlamaTest(
 	pathToLlamaModel string,
 ) {
 	interpreterInst := interpreter.New(
-		"",
-		"",
-		0,
-		400,
+		interpreter.TPromptQLOptions{
+			CustomApisListenQueryTimeoutSec: 400,
+		},
 	)
 	llamaDoQuery := makeLlamaDoQuery(pathToLlamaCommand, pathToLlamaModel)
 	interpreterInst.CustomApis.RegisterLLMApi(
@@ -33,7 +32,6 @@ func BasicLlamaTest(
 			{/open_query}
 			{~listen_query from="query1" /}
 		`,
-		nil,
 	)
 
 	if result.Error != nil {
