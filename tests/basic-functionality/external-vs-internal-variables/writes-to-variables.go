@@ -8,15 +8,15 @@ import (
 )
 
 // 28-09-2023: Works +++
-func InternalUndeclaredVariableTest() {
+func WriteToInternalVariableTest() {
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
 		`
-			{~set to="myVar222"}Hello, PromptQL!{/set}
-			My internal undeclared variable contains:
+			{~set to="myVar"}Hello, PromptQL!{/set}
+			My internal variable contains:
 			{~get from="myVar" /}
 		`,
 	)
@@ -40,9 +40,9 @@ func InternalUndeclaredVariableTest() {
 }
 
 // 28-09-2023: Works +++
-func ExternalUndeclaredVariableTest() {
+func WriteToExternalVariableTest() {
 	defaultGlobals := interpretercore.TGlobalVariablesTable{
-		"myVar222": "Hello, PromptQL!",
+		"myVar": "!",
 	}
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{
@@ -52,7 +52,8 @@ func ExternalUndeclaredVariableTest() {
 
 	result := interpreterInst.Instance.Execute(
 		`
-			My external undeclared variable contains:
+			{~set to=@myVar}Hello, PromptQL!{/set}
+			My external variable contains:
 			{~get from=@myVar /}
 		`,
 	)
