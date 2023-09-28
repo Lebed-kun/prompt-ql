@@ -8,6 +8,7 @@ import (
 )
 
 // Works ++++++
+// 28-09-2023: Works on total regress +++
 func BasicFunctionTest() {
 	defaultGlobals := interpretercore.TGlobalVariablesTable{
 		"postprocess": postProcessFunctionTest,

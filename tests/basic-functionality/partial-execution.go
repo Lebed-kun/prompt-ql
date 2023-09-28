@@ -9,6 +9,7 @@ import (
 )
 
 // Works ++++++
+// 28-09-2023: Works on total regress +++
 func PartialExecutionTest(
 	openAiBaseUrl string,
 	openAiKey string,
@@ -24,6 +25,7 @@ func PartialExecutionTest(
 		},
 	)
 
+	fmt.Println("First chunk of PromptQL code received")
 	result := interpreterInst.Instance.ExecutePartial(
 		`
 			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
@@ -37,6 +39,7 @@ func PartialExecutionTest(
 
 	time.Sleep(3 * time.Second)
 
+	fmt.Println("Second chunk of PromptQL code received")
 	result = interpreterInst.Instance.ExecutePartial(
 		`
 			{/open_query}

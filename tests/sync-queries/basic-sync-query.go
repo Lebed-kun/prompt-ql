@@ -9,6 +9,7 @@ import (
 )
 
 // Works +
+// 28-09-2023: Works on total regress +++
 func BasicSyncQueryTest(
 	openAiBaseUrl string,
 	openAiKey string,

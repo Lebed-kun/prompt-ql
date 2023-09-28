@@ -6,6 +6,7 @@ import (
 )
 
 // Works ++++++
+// 28-09-2023: Works on total regress +++
 func QueryWithWildcardsTest(
 	openAiBaseUrl string,
 	openAiKey string,
