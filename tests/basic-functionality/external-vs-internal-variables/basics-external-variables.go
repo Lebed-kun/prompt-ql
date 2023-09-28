@@ -34,11 +34,11 @@ func ExternalVariableDereferenceTest() {
 	resultStr, _ := result.ResultDataStr()
 	errStr, _ := result.ResultErrorStr()
 	fmt.Printf(
-		"ChatGPT response:\n%v\n",
+		"GPT response:\n%v\n",
 		resultStr,
 	)
 	fmt.Printf(
-		"ChatGPT error:\n%v\n",
+		"FP error:\n%v\n",
 		errStr,
 	)
 	fmt.Println("===================")
@@ -71,11 +71,11 @@ func ExternalEmptyVariableDereferenceErrorTest() {
 	resultStr, _ := result.ResultDataStr()
 	errStr, _ := result.ResultErrorStr()
 	fmt.Printf(
-		"ChatGPT response:\n%v\n",
+		"GPT response:\n%v\n",
 		resultStr,
 	)
 	fmt.Printf(
-		"ChatGPT error:\n%v\n",
+		"GPT error:\n%v\n",
 		errStr,
 	)
 	fmt.Println("===================")
@@ -120,11 +120,11 @@ func ExternalVariableAtCharIsPartOfStringLiteralTest() {
 	resultStr, _ := result.ResultDataStr()
 	errStr, _ := result.ResultErrorStr()
 	fmt.Printf(
-		"ChatGPT response:\n%v\n",
+		"GPT response:\n%v\n",
 		resultStr,
 	)
 	fmt.Printf(
-		"ChatGPT error:\n%v\n",
+		"GPT error:\n%v\n",
 		errStr,
 	)
 	fmt.Println("===================")
@@ -159,11 +159,11 @@ func ExternalVariableSameLiteralRepresentationTest() {
 	resultStr, _ := result.ResultDataStr()
 	errStr, _ := result.ResultErrorStr()
 	fmt.Printf(
-		"ChatGPT response:\n%v\n",
+		"GPT response:\n%v\n",
 		resultStr,
 	)
 	fmt.Printf(
-		"ChatGPT error:\n%v\n",
+		"GPT error:\n%v\n",
 		errStr,
 	)
 	fmt.Println("===================")
