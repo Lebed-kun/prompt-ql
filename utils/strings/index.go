@@ -44,12 +44,12 @@ func TrimWhitespace(s string) string {
 		ptr++
 	}
 
-	// [BEGIN] TODO: include this in patch v1.2.2
+	// [BEGIN] DONE: include this in patch v1.2.2
 	resStr := res.String()
 	if len(resStr) > 1 && resStr[0] == ' ' {
 		return resStr[1:]
 	}
-	// [END] TODO: include this in patch v1.2.2
 
 	return resStr
+	// [END] DONE: include this in patch v1.2.2
 }

@@ -42,14 +42,14 @@ func (self *CustomLLMApis) OpenQuery(
 ) (*TCustomQueryHandle, error) {
 	doQuery, hasDoQuery := self.llms[model]
 	if !hasDoQuery {
-		// [BEGIN] TODO: include this error text fix in patch v1.2.2
+		// [BEGIN] DONE: include this error text fix in patch v1.2.2
 		return nil, fmt.Errorf(
 			"!error (line=%v, char=%v): custom model named \"%v\" doesn't exist",
 			execInfo.Line,
 			execInfo.CharPos,
 			model,
 		)
-		// [END] TODO: include this error text fix in patch v1.2.2
+		// [END] DONE: include this error text fix in patch v1.2.2
 	}
 
 	resChan := make(chan string)
