@@ -43,9 +43,10 @@ func (self *CustomLLMApis) OpenQuery(
 	doQuery, hasDoQuery := self.llms[model]
 	if !hasDoQuery {
 		return nil, fmt.Errorf(
-			"!error (line=%v, char=%v): prompts are empty",
+			"!error (line=%v, char=%v): custom model named \"%v\" doesn't exist",
 			execInfo.Line,
 			execInfo.CharPos,
+			model,
 		)
 	}
 
