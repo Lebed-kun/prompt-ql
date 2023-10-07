@@ -7,7 +7,7 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
 )
 
-// 28-09-2023: Works +++
+// 07-10-2023: Works +++
 func HelloCommandTest() {
 	defaultGlobals := interpretercore.TGlobalVariablesTable{
 		"myRef": "@myVar",

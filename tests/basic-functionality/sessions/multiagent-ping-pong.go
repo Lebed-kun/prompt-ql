@@ -1,8 +1,9 @@
-package hellocommandtests
+package sessionstests
 
 import (
 	"fmt"
 	"sync"
+	"time"
 
 	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
 	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
@@ -64,7 +65,7 @@ func setupSecondAgent() *interpreter.TPromptQL {
 }
 
 // 07-10-2023: Works +++
-func MultiagentPingPongTest() {
+func MultiagentSessionPingPongTest() {
 	agent1 := setupFirstAgent()
 	agent2 := setupSecondAgent()
 	agent1CmdBox := make(chan string)
@@ -76,60 +77,103 @@ func MultiagentPingPongTest() {
 
 	// Alice agent goroutine
 	go func() {
-		agent2CmdBox <- `
-		  Bob's agent layout is:
-			{~hello /}
-		`
-		cmdForAgent1 := <-agent1CmdBox
-		result := agent1.Instance.Execute(cmdForAgent1)
+		sessCount := 0
 
-		if result.Error != nil {
-			waitGroup.Done()
-			panic(result.Result)
+		if agent1.Instance.IsSessionClosed() {
+			agent1.Instance.Execute(
+				`{~session_begin /}`,
+			)
 		}
+		
+		agent2CmdBox <- `
+			{~session_begin /}
+			From Alice
+		`
 
-		fmt.Println("===================")
-		resultStr, _ := result.ResultDataStr()
-		errStr, _ := result.ResultErrorStr()
-		fmt.Printf(
-			"Alice response:\n%v\n",
-			resultStr,
-		)
-		fmt.Printf(
-			"Alice error:\n%v\n",
-			errStr,
-		)
-		fmt.Println("===================")
+		for cmd := range agent1CmdBox {
+			time.Sleep(time.Second)
+			result := agent1.Instance.Execute(cmd)
+			resultStr, _ := result.ResultDataStr()
+
+			fmt.Printf(
+				`
+				  ==== Alice =====
+				  Alice: %v
+				`,
+				resultStr,
+			)
+
+			if sessCount >= 5 {
+				agent2CmdBox <- fmt.Sprintf(
+					`
+						{~get from="myVar" /}
+						{~set to="myVar"}%v{/set}
+						{~session_end /}
+					`,
+					fmt.Sprintf(
+						"Bob_%v",
+						sessCount,
+					),
+				)
+
+				if !agent1.Instance.IsSessionClosed() {
+					agent1.Instance.Execute(
+						`{~session_end /}`,
+					)
+				}
+
+				break
+			} else {
+				agent2CmdBox <- fmt.Sprintf(
+					`
+						{~get from="myVar" /}
+						{~set to="myVar"}%v{/set}
+					`,
+					fmt.Sprintf(
+						"Bob_%v",
+						sessCount,
+					),
+				)
+			}
+			sessCount++
+		}
 
 		waitGroup.Done()
 	}()
 
 	// Bob agent goroutine
 	go func() {
-		cmdForAgent2 := <-agent2CmdBox
-		agent1CmdBox <- `
-			Alice's agent layout is:
-			{~hello /}
-		`
-		result := agent2.Instance.Execute(cmdForAgent2)
+		sessCount := 0
 
-		if result.Error != nil {
-			waitGroup.Done()
-			panic(result.Result)
+		for cmd := range agent2CmdBox {
+			time.Sleep(time.Second)
+			result := agent2.Instance.Execute(cmd)
+			resultStr, _ := result.ResultDataStr()
+
+			fmt.Printf(
+				`
+				  ==== Bob =====
+				  Bob: %v
+				`,
+				resultStr,
+			)
+
+			if agent2.Instance.IsSessionClosed() {
+				break
+			}
+
+			agent1CmdBox <- fmt.Sprintf(
+				`
+					{~get from="myVar" /}
+					{~set to="myVar"}%v{/set}
+				`,
+				fmt.Sprintf(
+					"Alice_%v",
+					sessCount,
+				),
+			)
+			sessCount++
 		}
-
-		fmt.Println("===================")
-		resultStr, _ := result.ResultDataStr()
-		errStr, _ := result.ResultErrorStr()
-		fmt.Printf(
-			"Bob response:\n%v\n",
-			resultStr,
-		)
-		fmt.Printf(
-			"Bob error:\n%v\n",
-			errStr,
-		)
-		fmt.Println("===================")
 
 		waitGroup.Done()
 	}()

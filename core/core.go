@@ -14,6 +14,7 @@ type Interpreter struct {
 	isDirty       bool
 	criticalError error
 	execCtxStack  TExecutionStack
+	sessionClosed bool
 	
 	// Current globals
 	internalGlobals       TGlobalVariablesTable
@@ -43,6 +44,7 @@ func New(
 		execCtxStack:  execCtxStack,
 		isDirty:       false,
 		criticalError: nil,
+		sessionClosed: true,
 
 		// Current globals
 		internalGlobals:       make(TGlobalVariablesTable),
@@ -58,7 +60,11 @@ func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult {
 
 func (self *Interpreter) Execute(program string) *TInterpreterResult {
 	res := self.executeImpl([]rune(program))
-	self.resetImpl()
+	if self.sessionClosed {
+		self.resetImpl()
+	} else {
+		self.resetPosition()
+	}
 	return res
 }
 
@@ -93,4 +99,16 @@ func (self *Interpreter) GetExternalGlobalsList() map[string]bool {
 	}
 
 	return res
+}
+
+func (self *Interpreter) OpenSession() {
+	self.sessionClosed = false
+}
+
+func (self *Interpreter) CloseSession() {
+	self.sessionClosed = true
+}
+
+func (self *Interpreter) IsSessionClosed() bool {
+	return self.sessionClosed
 }
