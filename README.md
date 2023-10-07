@@ -5,7 +5,7 @@
 <img src="./readme-content/simple-dialog3.png" />
 <img src="./readme-content/simple-dialog4.png" />
 
-It's a zero-dependencies library for making queries for LLM models like `gpt3.5-turbo` . It's based on the OpenAI API: https://platform.openai.com/docs/api-reference . Full list of supported models is here: https://platform.openai.com/docs/models/model-endpoint-compatibility 
+It's a zero-dependencies library for orchestrating agents based on ML models like `gpt3.5-turbo` . The default ML model API is based on the OpenAI API: https://platform.openai.com/docs/api-reference . Full list of supported models is here: https://platform.openai.com/docs/models/model-endpoint-compatibility 
 
 ## Getting started
 ```
@@ -136,9 +136,9 @@ This prints a log with timestamp after execution of each PromptQL command (remem
 <img src="./readme-content/non-blocking-requests/logs.png" />
 
 
-## You can define your own LLM APIs
+## You can define your own ML models APIs
 
-This allows to extend default LLM set of PromptQL beyond OpenAI capabilities. For example, you can define an API to your local Llama model like this:
+This allows to extend default set of PromptQL models beyond OpenAI capabilities. For example, you can define an API to your local Llama model like this:
 
 ```
 func makeLlamaDoQuery(
@@ -183,7 +183,7 @@ Then bind it to PromptQL:
 
 ```
 llamaDoQuery := makeLlamaDoQuery(pathToLlamaCommand, pathToLlamaModel)
-interpreterInst.CustomApis.RegisterLLMApi(
+interpreterInst.CustomApis.RegisterModelApi(
 	"llama",
 	llamaDoQuery,
 )
@@ -210,8 +210,8 @@ result := interpreterInst.Instance.Execute(
 <img src="./readme-content/custom-llama-model/result.png" />
 
 
-## Post-process answer from LLM with user defined functions
-You can define your own functions for query program. This allows you to prettify LLM output for example:
+## Post-process answer from ML agent with user defined functions
+You can define your own functions for query program. This allows you to prettify ML agent output for example:
 ```
 import (
 	"fmt"
@@ -349,7 +349,7 @@ result := interpreterInst.Execute(
 
 ## Supported PromptQL commands v1.0
 
- - `{~open_query user to="X" model="Y" temperature="Z"}<execution_text>{/open_query}` - sends prompt request for given LLM that's defined by `<execution_text>` . It doesn't block execution of query. The command doesn't return any data. `<execution_text>` defines an input data for the command as follows:
+ - `{~open_query user to="X" model="Y" temperature="Z"}<execution_text>{/open_query}` - sends prompt request for given ML model that's defined by `<execution_text>` . It doesn't block execution of query. The command doesn't return any data. `<execution_text>` defines an input data for the command as follows:
 ```
  - "!user <text>", "!data <text>" -> USER input channel;
  - "!assistant <text>" -> ASSISTANT input channel;
@@ -362,11 +362,11 @@ Static arguments for the command are:
  - "user" - is a flag. If it's set, it **forces** a `model` to match user-defined model. If it's not set, then `model` is assumed as an OpenAI model **by default**. In this case if `model` is not supported by OpenAI, then `model` is assumed as a user-defined model;
  - "sync" - is a flag. If it's set, then query is executed in a blocking manner and returns a text response like the `listen_query` command do. If it's not set, then query is executed in parallel and result is stored in the `to` handle;
  - "to" - is a name of variable to store a query handle. It's a required parameter if query is **asynchronous** (i.e. no `sync` flag). It's not required if query is **synchronous** (i.e. `sync` flag is set);
- - "model" - is a name of chosen LLM. Default value is "gpt-3.5-turbo";
- - "temperature" - is a temperature of chosen LLM. Default value is 1.0;
+ - "model" - is a name of chosen ML model. Default value is "gpt-3.5-turbo";
+ - "temperature" - is a temperature of chosen ML model. Default value is 1.0;
 ```
 
- - `{~listen_query from="X" /}` - waits for OpenAI LLM query from "X" variable to complete. It doesn't receive any additional inputs. It returns a text with the `!assistant` tag if succeed, otherwise it returns an error with the `!error` tag;
+ - `{~listen_query from="X" /}` - waits for OpenAI ML model query from "X" variable to complete. It doesn't receive any additional inputs. It returns a text with the `!assistant` tag if succeed, otherwise it returns an error with the `!error` tag;
  
 Static arguments for the command are:
 ```
@@ -409,7 +409,7 @@ Static arguments for the command are:
  - "to" - is a name of variable to which data is stored. It's a required parameter;
 ```
 
- - Wrapper commands. They wrap a text with corresponding prompt tag: `!user`, `!assistant`, `!system`, `!data` or `!error`. This is useful for separating roles of LLM query texts, for specific error handling etc. They are defined like this:
+ - Wrapper commands. They wrap a text with corresponding prompt tag: `!user`, `!assistant`, `!system`, `!data` or `!error`. This is useful for separating roles of ML model query texts, for specific error handling etc. They are defined like this:
 ```
 {~user}<execution_text>{/user}
 {~assistant}<execution_text>{/assistant}
@@ -425,7 +425,7 @@ They receive all input data in the `DATA` channel;
 ```
 {~$command $arg=$val /}
 ```
- - Defining custom LLM APIs. It can be obtained with the `RegisterLLMApi` method (see below)
+ - Defining custom ML model APIs. It can be obtained with the `RegisterModelApi` method (see below)
 
 
 ## Interpreter API
@@ -440,8 +440,8 @@ They receive all input data in the `DATA` channel;
  ```
  - "openAiBaseUrl" - is an URL to OpenAI API. For example, "https://api.openai.com". It's a required parameter;
  - "openAiKey" - is your OpenAI API key. You can set up it on "https://platform.openai.com/account/api-keys". It's a required parameter;
- - "listenQueryTimeoutSec" - is a timeout for listening OpenAI (sic!) prompting query. Default value is 30 seconds;
- - "customApisListenQueryTimeoutSec" - is a timeout for listening user-defined LLMs (sic!) prompting query. Default value is 30 seconds;
+ - "listenQueryTimeoutSec" - is a timeout for listening prompting query from OpenAI model (sic!) . Default value is 30 seconds;
+ - "customApisListenQueryTimeoutSec" - is a timeout for listening prompting query from user-defined ML model (sic!) . Default value is 30 seconds;
  ```
 
  - PromptQL.Instance methods:
@@ -478,7 +478,7 @@ They receive all input data in the `DATA` channel;
 
  - PromptQL.CustomApis methods:
 
- - `func (self *PromptQL) CustomApis.RegisterLLMApi(name string, doQuery TDoQueryFunc)` - define LLM API with its own unique name and function for processing queries. This function is defined by this convention:
+ - `func (self *PromptQL) CustomApis.RegisterModelApi(name string, doQuery TDoQueryFunc)` - define ML model API with its own unique name and function for processing queries. This function is defined by this convention:
 
 	```
 	  func(

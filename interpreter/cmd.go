@@ -18,7 +18,7 @@ import (
 
 func makeCmdTable(
 	gptApi *api.GptApi,
-	customApis *customapis.CustomLLMApis,
+	customApis *customapis.CustomModelsApis,
 ) interpreter.TExecutedFunctionTable {
 	return interpreter.TExecutedFunctionTable{
 		"open_query": openquerycmd.MakeOpenQueryCmd(gptApi, customApis),

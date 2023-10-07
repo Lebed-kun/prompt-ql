@@ -17,7 +17,7 @@ func UserFlagIsOptionalTest(
 		},
 	)
 	llamaDoQuery := makeLlamaDoQuery(pathToLlamaCommand, pathToLlamaModel)
-	interpreterInst.CustomApis.RegisterLLMApi(
+	interpreterInst.CustomApis.RegisterModelApi(
 		"llama",
 		llamaDoQuery,
 	)

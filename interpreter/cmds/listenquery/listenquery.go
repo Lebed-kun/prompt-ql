@@ -10,7 +10,7 @@ import (
 
 func MakeListenQueryCmd(
 	gptApi *api.GptApi,
-	customApis *customapis.CustomLLMApis,
+	customApis *customapis.CustomModelsApis,
 ) interpreter.TExecutedFunction {
 	standardListenQuery := func(
 		queryHandle *api.TQueryHandle,

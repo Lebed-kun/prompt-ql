@@ -10,7 +10,7 @@ import (
 
 func MakeOpenQueryCmd(
 	gptApi *api.GptApi,
-	customApis *customapis.CustomLLMApis,
+	customApis *customapis.CustomModelsApis,
 ) interpreter.TExecutedFunction {
 	standardOpenQuery := func(
 		model string,

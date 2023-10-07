@@ -22,7 +22,7 @@ func HelloCommandTest() {
 		},
 	)
 
-	interpreterInst.CustomApis.RegisterLLMApi(
+	interpreterInst.CustomApis.RegisterModelApi(
 		"myMlModel111",
 		func(
 			model string,
@@ -33,7 +33,7 @@ func HelloCommandTest() {
 			return "", nil
 		},
 	)
-	interpreterInst.CustomApis.RegisterLLMApi(
+	interpreterInst.CustomApis.RegisterModelApi(
 		"myMlModel222",
 		func(
 			model string,

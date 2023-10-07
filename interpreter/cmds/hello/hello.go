@@ -10,7 +10,7 @@ import (
 
 func MakeHelloCmd(
 	gptApi *api.GptApi,
-	customApis *customapis.CustomLLMApis,
+	customApis *customapis.CustomModelsApis,
 ) interpreter.TExecutedFunction {
 	return func(
 		_staticArgs interpreter.TFunctionArgumentsTable,

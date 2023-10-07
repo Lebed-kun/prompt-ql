@@ -8,7 +8,7 @@ import (
 
 type TPromptQL struct {
 	Instance *interpreter.Interpreter
-	CustomApis *customapis.CustomLLMApis
+	CustomApis *customapis.CustomModelsApis
 }
 
 type TPromptQLOptions struct {
@@ -25,9 +25,9 @@ func New(options TPromptQLOptions) *TPromptQL {
 		options.OpenAiKey,
 		options.OpenAiListenQueryTimeoutSec,
 	)
-	customLLMApis := customapis.New(options.CustomApisListenQueryTimeoutSec)
+	customModelsApis := customapis.New(options.CustomApisListenQueryTimeoutSec)
 
-	execFnTable := makeCmdTable(apiInst, customLLMApis)
+	execFnTable := makeCmdTable(apiInst, customModelsApis)
 	interpreterInst := interpreter.New(
 		execFnTable,
 		rootDataSwitch,
@@ -36,6 +36,6 @@ func New(options TPromptQLOptions) *TPromptQL {
 	
 	return &TPromptQL{
 		Instance: interpreterInst,
-		CustomApis: customLLMApis,
+		CustomApis: customModelsApis,
 	}
 }

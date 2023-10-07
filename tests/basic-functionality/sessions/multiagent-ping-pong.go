@@ -22,7 +22,7 @@ func setupFirstAgent() *interpreter.TPromptQL {
 			DefaultExternalGlobals: defaultGlobals,
 		},
 	)
-	agent.CustomApis.RegisterLLMApi(
+	agent.CustomApis.RegisterModelApi(
 		"myMlModel111",
 		func(
 			model string,
@@ -49,7 +49,7 @@ func setupSecondAgent() *interpreter.TPromptQL {
 			DefaultExternalGlobals: defaultGlobals,
 		},
 	)
-	agent.CustomApis.RegisterLLMApi(
+	agent.CustomApis.RegisterModelApi(
 		"myMlModel222",
 		func(
 			model string,
