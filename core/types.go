@@ -21,6 +21,7 @@ type TExecutedFunction func(
 	internalGlobals TGlobalVariablesTable,
 	externalGlobals TGlobalVariablesTable,
 	execInfo TExecutionInfo,
+	interpreter *Interpreter,
 ) interface{}
 
 type TExecutedFunctionTable map[string]TExecutedFunction

@@ -436,6 +436,7 @@ func (self *Interpreter) resolveTopCtx() {
 				CharPos: self.charPos,
 				Line:    self.line,
 			},
+			self,
 		)
 		self.dataSwitchFn(
 			self.execCtxStack[len(self.execCtxStack)-1],

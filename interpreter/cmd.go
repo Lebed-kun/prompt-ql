@@ -11,6 +11,7 @@ import (
 	openquerycmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/openquery"
 	setcmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/set"
 	wrappercmds "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/wrapper-cmds"
+	hellocmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/hello"
 )
 
 func makeCmdTable(
@@ -28,5 +29,6 @@ func makeCmdTable(
 		"system": wrappercmds.MakeWrapperCmd("system"),
 		"data": wrappercmds.MakeWrapperCmd("data"),
 		"error": wrappercmds.MakeWrapperCmd("error"),
+		"hello": hellocmd.MakeHelloCmd(gptApi, customApis),
 	}
 }

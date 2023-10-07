@@ -157,3 +157,13 @@ func (self *GptApi) IsModelSupported(model string) bool {
 	_, isModelSupported := supportedOpenAiModels[model]
 	return isModelSupported
 }
+
+func (self *GptApi) GetAllModelsList() map[string]bool {
+	res := make(map[string]bool, 0)
+
+	for k := range supportedOpenAiModels {
+		res[k] = true
+	}
+
+	return res
+}

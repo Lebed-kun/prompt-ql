@@ -10,8 +10,9 @@ func SetCmd(
 	staticArgs interpreter.TFunctionArgumentsTable,
 	inputs interpreter.TFunctionInputChannelTable,
 	internalGlobals interpreter.TGlobalVariablesTable,
-	externalGlobals interpreter.TGlobalVariablesTable,
+	_externalGlobals interpreter.TGlobalVariablesTable,
 	execInfo interpreter.TExecutionInfo,
+	_interpreter *interpreter.Interpreter,
 ) interface{} {
 	toVar, err := getToVar(staticArgs, execInfo)
 	if err != nil {

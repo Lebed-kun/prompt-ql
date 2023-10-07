@@ -9,11 +9,12 @@ import (
 
 func MakeWrapperCmd(dataTag string) interpreter.TExecutedFunction {
 	return func(
-		staticArgs interpreter.TFunctionArgumentsTable,
+		_staticArgs interpreter.TFunctionArgumentsTable,
 		inputs interpreter.TFunctionInputChannelTable,
-		internalGlobals interpreter.TGlobalVariablesTable,
-		externalGlobals interpreter.TGlobalVariablesTable,
+		_internalGlobals interpreter.TGlobalVariablesTable,
+		_externalGlobals interpreter.TGlobalVariablesTable,
 		execInfo interpreter.TExecutionInfo,
+		_interpreter *interpreter.Interpreter,
 	) interface{} {
 		dataChan, hasDataChan := inputs["data"]
 		if !hasDataChan || len(dataChan) == 0 {

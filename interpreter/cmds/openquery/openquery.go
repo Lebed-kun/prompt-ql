@@ -84,8 +84,9 @@ func MakeOpenQueryCmd(
 		staticArgs interpreter.TFunctionArgumentsTable,
 		inputs interpreter.TFunctionInputChannelTable,
 		internalGlobals interpreter.TGlobalVariablesTable,
-		externalGlobals interpreter.TGlobalVariablesTable,
+		_externalGlobals interpreter.TGlobalVariablesTable,
 		execInfo interpreter.TExecutionInfo,
+		_interpreter *interpreter.Interpreter,
 	) interface{} {
 		userFlag := getUserFlag(staticArgs)
 		syncFlag := getSyncFlag(staticArgs)

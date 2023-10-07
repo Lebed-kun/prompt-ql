@@ -12,6 +12,7 @@ func CallCmd(
 	internalGlobals interpreter.TGlobalVariablesTable,
 	externalGlobals interpreter.TGlobalVariablesTable,
 	execInfo interpreter.TExecutionInfo,
+	_interpreter *interpreter.Interpreter,
 ) interface{} {
 	fnVar, isExternal, err := getFnVar(staticArgs, execInfo)
 	if err != nil {

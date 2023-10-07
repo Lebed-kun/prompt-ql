@@ -84,3 +84,13 @@ func (self *Interpreter) SetExternalGlobalVar(name string, val interface{}) {
 	self.defaultExternalGlobals[name] = val
 	self.externalGlobals[name] = val
 }
+
+func (self *Interpreter) GetExternalGlobalsList() map[string]bool {
+	res := make(map[string]bool, 0)
+
+	for k := range self.defaultExternalGlobals {
+		res[k] = true
+	}
+
+	return res
+}

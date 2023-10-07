@@ -48,10 +48,11 @@ func MakeListenQueryCmd(
 
 	return func(
 		staticArgs interpreter.TFunctionArgumentsTable,
-		inputs interpreter.TFunctionInputChannelTable,
+		_inputs interpreter.TFunctionInputChannelTable,
 		internalGlobals interpreter.TGlobalVariablesTable,
-		externalGlobals interpreter.TGlobalVariablesTable,
+		_externalGlobals interpreter.TGlobalVariablesTable,
 		execInfo interpreter.TExecutionInfo,
+		_interpreter *interpreter.Interpreter,
 	) interface{} {
 		fromVar, err := getFromVar(staticArgs, execInfo)
 		if err != nil {

@@ -7,10 +7,11 @@ import (
 
 func GetCmd(
 	staticArgs interpreter.TFunctionArgumentsTable,
-	inputs interpreter.TFunctionInputChannelTable,
+	_inputs interpreter.TFunctionInputChannelTable,
 	internalGlobals interpreter.TGlobalVariablesTable,
 	externalGlobals interpreter.TGlobalVariablesTable,
 	execInfo interpreter.TExecutionInfo,
+	_interpreter *interpreter.Interpreter,
 ) interface{} {
 	fromVar, isExternal, err := getFromVar(staticArgs, execInfo)
 	if err != nil {

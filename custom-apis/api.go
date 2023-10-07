@@ -97,3 +97,13 @@ func (self *CustomLLMApis) ListenQuery(
 		)
 	}
 }
+
+func (self *CustomLLMApis) GetAllModelsList() map[string]bool {
+	res := make(map[string]bool, 0)
+
+	for k := range self.llms {
+		res[k] = true
+	}
+
+	return res
+}

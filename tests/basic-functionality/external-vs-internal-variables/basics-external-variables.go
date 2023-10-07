@@ -38,7 +38,7 @@ func ExternalVariableDereferenceTest() {
 		resultStr,
 	)
 	fmt.Printf(
-		"FP error:\n%v\n",
+		"GPT error:\n%v\n",
 		errStr,
 	)
 	fmt.Println("===================")
