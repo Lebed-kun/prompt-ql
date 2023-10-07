@@ -1,6 +1,6 @@
 package hellocmd
 
 type THelloCmdResponse struct {
-	Models map[string]bool `json:"models"`
-	Variables map[string]bool `json:"variables"`
+	MyModels map[string]bool `json:"myModels"`
+	MyVariables map[string]bool `json:"myVariables"`
 }

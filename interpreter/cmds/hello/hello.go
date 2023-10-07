@@ -30,8 +30,8 @@ func MakeHelloCmd(
 		externalGlobals := interpreter.GetExternalGlobalsList()
 
 		result := THelloCmdResponse{
-			Models: modelsList,
-			Variables: externalGlobals,
+			MyModels: modelsList,
+			MyVariables: externalGlobals,
 		}
 		rawResult, err := json.Marshal(result)
 		if err != nil {
