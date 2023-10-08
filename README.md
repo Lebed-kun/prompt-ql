@@ -1,4 +1,4 @@
-﻿# PromptQL: Simple and flexible query language for large language models
+﻿# PromptQL: Flexible language for prompting agents based on ML models
 
 <img src="./readme-content/simple-dialog.png" />
 <img src="./readme-content/simple-dialog2.png" />
