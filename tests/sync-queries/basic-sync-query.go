@@ -3,27 +3,32 @@ package syncqueriestests
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
-	testutils "gitlab.com/jbyte777/prompt-ql/tests/utils"
-	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
+	testutils "gitlab.com/jbyte777/prompt-ql/v2/tests/utils"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v2/core"
 )
 
 // Works +
+// 28-09-2023: Works on total regress +++
 func BasicSyncQueryTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
+	defaultGlobals := interpretercore.TGlobalVariablesTable{
+		"logtime": testutils.LogTimeForProgram,
+	}
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+			DefaultExternalGlobals: defaultGlobals,
+		},
 	)
 
 	result := interpreterInst.Instance.Execute(
 		`
 			=========^^^^^==========
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				begin first query
 			{/call}
 			{~open_query sync model="gpt-3.5-turbo-16k"}
@@ -33,11 +38,11 @@ func BasicSyncQueryTest(
 				I want a response to the following question:
 				Write a comprehensive guide to write an article for Medium
 			{/open_query}
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				end first query
 			{/call}
 			=========+++++==========
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				begin second query
 			{/call}
 			{~open_query sync model="gpt-3.5-turbo-16k"}
@@ -47,14 +52,11 @@ func BasicSyncQueryTest(
 				I want a response to the following question:
 				Write a comprehensive guide to write an order email
 			{/open_query}
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				end second query
 			{/call}
 			=========^^^^^==========
 		`,
-		interpretercore.TGlobalVariablesTable{
-			"logtime": testutils.LogTimeForProgram,
-		},
 	)
 
 	if result.Error != nil {

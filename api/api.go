@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	errorsutils "gitlab.com/jbyte777/prompt-ql/utils/errors"
+	errorsutils "gitlab.com/jbyte777/prompt-ql/v2/utils/errors"
 )
 
 type GptApi struct {
@@ -156,4 +156,14 @@ func (self *GptApi) ListenQuery(
 func (self *GptApi) IsModelSupported(model string) bool {
 	_, isModelSupported := supportedOpenAiModels[model]
 	return isModelSupported
+}
+
+func (self *GptApi) GetAllModelsList() map[string]bool {
+	res := make(map[string]bool, 0)
+
+	for k := range supportedOpenAiModels {
+		res[k] = true
+	}
+
+	return res
 }

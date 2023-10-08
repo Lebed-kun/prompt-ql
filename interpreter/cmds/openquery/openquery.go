@@ -2,15 +2,15 @@ package openquerycmd
 
 import (
 	"fmt"
-	api "gitlab.com/jbyte777/prompt-ql/api"
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
-	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
-	utils "gitlab.com/jbyte777/prompt-ql/interpreter/utils"
+	api "gitlab.com/jbyte777/prompt-ql/v2/api"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	customapis "gitlab.com/jbyte777/prompt-ql/v2/custom-apis"
+	utils "gitlab.com/jbyte777/prompt-ql/v2/interpreter/utils"
 )
 
 func MakeOpenQueryCmd(
 	gptApi *api.GptApi,
-	customApis *customapis.CustomLLMApis,
+	customApis *customapis.CustomModelsApis,
 ) interpreter.TExecutedFunction {
 	standardOpenQuery := func(
 		model string,
@@ -83,8 +83,10 @@ func MakeOpenQueryCmd(
 	return func(
 		staticArgs interpreter.TFunctionArgumentsTable,
 		inputs interpreter.TFunctionInputChannelTable,
-		globals interpreter.TGlobalVariablesTable,
+		internalGlobals interpreter.TGlobalVariablesTable,
+		_externalGlobals interpreter.TGlobalVariablesTable,
 		execInfo interpreter.TExecutionInfo,
+		_interpreter *interpreter.Interpreter,
 	) interface{} {
 		userFlag := getUserFlag(staticArgs)
 		syncFlag := getSyncFlag(staticArgs)
@@ -124,7 +126,7 @@ func MakeOpenQueryCmd(
 			}
 			
 			if !syncFlag {
-				globals[toVar] = queryHandleOrResponse
+				internalGlobals[toVar] = queryHandleOrResponse
 			} else {
 				return queryHandleOrResponse
 			}
@@ -147,7 +149,7 @@ func MakeOpenQueryCmd(
 			}
 
 			if !syncFlag {
-				globals[toVar] = queryHandleOrResponse
+				internalGlobals[toVar] = queryHandleOrResponse
 			} else {
 				return queryHandleOrResponse
 			}

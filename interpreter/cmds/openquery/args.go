@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
 )
 
 func getToVar(
@@ -26,9 +26,18 @@ func getToVar(
 	}
 	var isToVarStr bool
 	toVar, isToVarStr = rawToVar.(string)
-	if !isToVarStr {
+	if !isToVarStr || len(toVar) == 0 {
 		return "", fmt.Errorf(
-			"!error (line=%v, char=%v): \"to\" parameter is \"%v\" which is not string",
+			"!error (line=%v, char=%v): \"to\" parameter is \"%v\" which is not a valid string",
+			execInfo.Line,
+			execInfo.CharPos,
+			rawToVar,
+		)
+	}
+
+	if toVar[0] == '@' {
+		return "", fmt.Errorf(
+			"!error (line=%v, char=%v): \"to\" parameter is \"%v\" hich is a name of external variable. Query handles can't be stored in external variables",
 			execInfo.Line,
 			execInfo.CharPos,
 			rawToVar,

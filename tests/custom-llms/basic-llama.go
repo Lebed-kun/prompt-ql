@@ -2,22 +2,22 @@ package customllmstests
 
 import (
 	"fmt"
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
 )
 
 // Works +++++
+// 28-09-2023: Works on total regress +++
 func BasicLlamaTest(
 	pathToLlamaCommand string,
 	pathToLlamaModel string,
 ) {
 	interpreterInst := interpreter.New(
-		"",
-		"",
-		0,
-		400,
+		interpreter.TPromptQLOptions{
+			CustomApisListenQueryTimeoutSec: 400,
+		},
 	)
 	llamaDoQuery := makeLlamaDoQuery(pathToLlamaCommand, pathToLlamaModel)
-	interpreterInst.CustomApis.RegisterLLMApi(
+	interpreterInst.CustomApis.RegisterModelApi(
 		"llama",
 		llamaDoQuery,
 	)
@@ -33,7 +33,6 @@ func BasicLlamaTest(
 			{/open_query}
 			{~listen_query from="query1" /}
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

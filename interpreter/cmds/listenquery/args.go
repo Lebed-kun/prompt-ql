@@ -3,7 +3,7 @@ package listenquerycmd
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
 )
 
 func getFromVar(
@@ -21,9 +21,18 @@ func getFromVar(
 	}
 	var isFromVarStr bool
 	fromVar, isFromVarStr = rawFromVar.(string)
-	if !isFromVarStr {
+	if !isFromVarStr || len(fromVar) == 0 {
 		return "", fmt.Errorf(
-			"!error  (line=%v, char=%v): \"from\" parameter is \"%v\" which is not string",
+			"!error (line=%v, char=%v): \"from\" parameter is \"%v\" which is not a valid string",
+			execInfo.Line,
+			execInfo.CharPos,
+			rawFromVar,
+		)
+	}
+
+	if fromVar[0] == '@' {
+		return "", fmt.Errorf(
+			"!error (line=%v, char=%v): \"from\" parameter is \"%v\" which is a name of external variable. Query handles can't be stored in external variables",
 			execInfo.Line,
 			execInfo.CharPos,
 			rawFromVar,

@@ -3,26 +3,22 @@ package basicfunctionalitytests
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
 )
 
-// Works ++++
-func ExecutionErrorTest(
-	openAiBaseUrl string,
-	openAiKey string,
-) {
+// Works ++++++
+// 28-09-2023: Works on total regress +++
+func BasicProgramTest() {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
 		`
-			{~call fn="nonexistentfn"}Example text{/call}
+			{~set to="X"}Example text{/set}
+			{~get from="X" /}
+			Hello world!
 		`,
-		nil,
 	)
 
 	if result.Error != nil {
@@ -31,14 +27,9 @@ func ExecutionErrorTest(
 
 	fmt.Println("===================")
 	resultStr, _ := result.ResultDataStr()
-	errStr, _ := result.ResultErrorStr()
 	fmt.Printf(
 		"ChatGPT response:\n%v",
 		resultStr,
-	)
-	fmt.Printf(
-		"ChatGPT error:\n%v\n",
-		errStr,
 	)
 	fmt.Println("===================")
 }

@@ -1,37 +1,41 @@
 package interpreterimpl
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
-	api "gitlab.com/jbyte777/prompt-ql/api"
-	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	api "gitlab.com/jbyte777/prompt-ql/v2/api"
+	customapis "gitlab.com/jbyte777/prompt-ql/v2/custom-apis"
 )
 
 type TPromptQL struct {
 	Instance *interpreter.Interpreter
-	CustomApis *customapis.CustomLLMApis
+	CustomApis *customapis.CustomModelsApis
 }
 
-func New(
-	openAiBaseUrl string,
-	openAiKey string,
-	openAiListenQueryTimeoutSec uint,
-	customApisListenQueryTimeoutSec uint,
-) *TPromptQL {
-	apiInst := api.New(
-		openAiBaseUrl,
-		openAiKey,
-		openAiListenQueryTimeoutSec,
-	)
-	customLLMApis := customapis.New(customApisListenQueryTimeoutSec)
+type TPromptQLOptions struct {
+	OpenAiBaseUrl string
+	OpenAiKey string
+	OpenAiListenQueryTimeoutSec uint
+	CustomApisListenQueryTimeoutSec uint
+	DefaultExternalGlobals interpreter.TGlobalVariablesTable
+}
 
-	execFnTable := makeCmdTable(apiInst, customLLMApis)
+func New(options TPromptQLOptions) *TPromptQL {
+	apiInst := api.New(
+		options.OpenAiBaseUrl,
+		options.OpenAiKey,
+		options.OpenAiListenQueryTimeoutSec,
+	)
+	customModelsApis := customapis.New(options.CustomApisListenQueryTimeoutSec)
+
+	execFnTable := makeCmdTable(apiInst, customModelsApis)
 	interpreterInst := interpreter.New(
 		execFnTable,
 		rootDataSwitch,
+		options.DefaultExternalGlobals,
 	)
 	
 	return &TPromptQL{
 		Instance: interpreterInst,
-		CustomApis: customLLMApis,
+		CustomApis: customModelsApis,
 	}
 }

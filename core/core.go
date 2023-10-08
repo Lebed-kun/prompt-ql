@@ -1,498 +1,70 @@
 package interpretercore
 
-import (
-	"fmt"
-	// stringsutils "gitlab.com/jbyte777/prompt-ql/utils/strings"
-	"strings"
-)
-
 type Interpreter struct {
+	// Settings
+	execFnTable   TExecutedFunctionTable
+	dataSwitchFn  TDataSwitchFunction
+	defaultExternalGlobals TGlobalVariablesTable
+
+	// Internal interpreter state
 	mode          int
 	line          int
 	charPos       int
 	strPos        int
-	globals       TGlobalVariablesTable
-	execCtxStack  TExecutionStack
 	isDirty       bool
 	criticalError error
-	execFnTable   TExecutedFunctionTable
-	dataSwitchFn  TDataSwitchFunction
-}
-
-func makeRootStackFrame() *TExecutionStackFrame {
-	inputChannels := make(TFunctionInputChannelTable)
-	inputChannels["data"] = make(TFunctionInputChannel, 0)
-	inputChannels["error"] = make(TFunctionInputChannel, 0)
-
-	return &TExecutionStackFrame{
-		State:         StackFrameStateExpectCmd,
-		FnName:        "root",
-		ArgsTable:     make(TFunctionArgumentsTable),
-		InputChannels: inputChannels,
-	}
+	execCtxStack  TExecutionStack
+	sessionClosed bool
+	
+	// Current globals
+	internalGlobals       TGlobalVariablesTable
+	externalGlobals TGlobalVariablesTable
 }
 
 func New(
 	execFnTable TExecutedFunctionTable,
 	dataSwitchFn TDataSwitchFunction,
+	defaultExternalVars TGlobalVariablesTable,
 ) *Interpreter {
 	execCtxStack := []*TExecutionStackFrame{
 		makeRootStackFrame(),
 	}
 
 	return &Interpreter{
+		// Settings
+		execFnTable:   execFnTable,
+		dataSwitchFn:  dataSwitchFn,
+		defaultExternalGlobals: defaultExternalVars,
+
+		// Internal interpreter state
 		mode:          InterpreterModePlainText,
 		line:          0,
 		charPos:       0,
 		strPos:        0,
-		globals:       make(TGlobalVariablesTable),
 		execCtxStack:  execCtxStack,
 		isDirty:       false,
 		criticalError: nil,
-		execFnTable:   execFnTable,
-		dataSwitchFn:  dataSwitchFn,
+		sessionClosed: true,
+
+		// Current globals
+		internalGlobals:       make(TGlobalVariablesTable),
+		externalGlobals: initializeExternalGlobals(defaultExternalVars),
 	}
 }
 
-func (self *Interpreter) resetImpl() {
-	self.resetPosition()
-	self.mode = InterpreterModePlainText
-	self.globals = make(TGlobalVariablesTable)
-	self.execCtxStack = []*TExecutionStackFrame{
-		makeRootStackFrame(),
-	}
-	self.isDirty = false
-	self.criticalError = nil
-}
-
-func (self *Interpreter) resetPosition() {
-	self.line = 0
-	self.charPos = 0
-	self.strPos = 0
-}
-
-func (self *Interpreter) getError(errorDetails string) error {
-	return fmt.Errorf(
-		"ERROR (line=%v, charpos=%v): %v",
-		self.line,
-		self.charPos,
-		errorDetails,
-	)
-}
-
-func (self *Interpreter) handlePlainText(program []rune) {
-	plainText := strings.Builder{}
-	escapeChar := false
-
-	for self.strPos < len(program) && (program[self.strPos] != '{' || escapeChar) {
-		if !escapeChar && program[self.strPos] == '\\' {
-			escapeChar = true
-		} else {
-			escapeChar = false
-			plainText.WriteRune(program[self.strPos])
-		}
-		self.strPos++
-
-		if program[self.strPos-1] == '\n' {
-			self.line++
-			self.charPos = 0
-		} else {
-			self.charPos++
-		}
-	}
-
-	rawText := plainText.String()
-	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
-	self.dataSwitchFn(
-		topCtx,
-		fmt.Sprintf("!data %v", rawText),
-	)
-}
-
-func (self *Interpreter) resolveVariable(program []rune) (interface{}, error) {
-	applyCnt := 1
-
-	for self.strPos < len(program) && program[self.strPos] == '$' {
-		applyCnt++
-		self.strPos++
-		self.charPos++
-	}
-
-	if self.strPos >= len(program) || !isAlphaNumChar(program[self.strPos]) {
-		return nil, self.getError(
-			"expected variable name in lating letters, digits or _ after $",
-		)
-	}
-
-	begin := self.strPos
-	for self.strPos < len(program) && isAlphaNumChar(program[self.strPos]) {
-		self.strPos++
-		self.charPos++
-	}
-
-	var varValue interface{}
-	varName := string(program[begin:self.strPos])
-	currApplyCnt := 0
-
-	for currApplyCnt < applyCnt {
-		var hasVar bool
-		varValue, hasVar = self.globals[varName]
-		if !hasVar {
-			varValue = nil
-			break
-		}
-
-		currApplyCnt++
-		nextVarName, isNextVarNameStr := varValue.(string)
-		if !isNextVarNameStr {
-			break
-		}
-		varName = nextVarName
-	}
-
-	if varValue != nil && currApplyCnt != applyCnt {
-		return nil, self.getError(
-			"variable name is not string",
-		)
-	}
-
-	return varValue, nil
-}
-
-func (self *Interpreter) resolveStrLiteral(program []rune) (string, error) {
-	literal := strings.Builder{}
-	escapeChar := false
-
-	for self.strPos < len(program) && (program[self.strPos] != '"' || escapeChar) {
-		if !escapeChar && program[self.strPos] == '\\' {
-			escapeChar = true
-		} else {
-			escapeChar = false
-			literal.WriteRune(program[self.strPos])
-		}
-		self.strPos++
-
-		if program[self.strPos-1] == '\n' {
-			self.line++
-			self.charPos = 0
-		} else {
-			self.charPos++
-		}
-	}
-
-	if self.strPos == len(program) && program[self.strPos-1] != '"' {
-		return "", self.getError(
-			"string literal must end with \"",
-		)
-	}
-
-	self.strPos++
-	return literal.String(), nil
-}
-
-func (self *Interpreter) skipWhitespaces(program []rune) {
-	for self.strPos < len(program) && isWhitespace(program[self.strPos]) {
-		if program[self.strPos] == '\n' {
-			self.charPos = 0
-			self.line++
-		} else {
-			self.charPos++
-		}
-
-		self.strPos++
-	}
-}
-
-func (self *Interpreter) resolveName(program []rune) string {
-	name := strings.Builder{}
-
-	for self.strPos < len(program) && isAlphaNumChar(program[self.strPos]) {
-		name.WriteRune(program[self.strPos])
-		self.strPos++
-		self.charPos++
-	}
-
-	return name.String()
-}
-
-func (self *Interpreter) handleCommand(program []rune) {
-	var currLiteral interface{} = nil
-	currArg := ""
-
-	for self.strPos < len(program) && program[self.strPos] != '}' {
-		if self.criticalError != nil {
-			break
-		}
-
-		topCtx := self.execCtxStack[len(self.execCtxStack)-1]
-		if len(currArg) > 0 {
-			topCtx.ArgsTable[currArg] = true
-		}
-
-		if isWhitespace(program[self.strPos]) {
-			self.skipWhitespaces(program)
-			continue
-		}
-
-		if program[self.strPos] == '~' {
-			newCtxFrame := &TExecutionStackFrame{
-				State:         StackFrameStateExpectCmd,
-				FnName:        "",
-				ArgsTable:     make(TFunctionArgumentsTable),
-				InputChannels: make(TFunctionInputChannelTable, 0),
-			}
-			self.execCtxStack = append(self.execCtxStack, newCtxFrame)
-
-			self.strPos++
-			self.charPos++
-			currLiteral = nil
-			currArg = ""
-			continue
-		}
-
-		if program[self.strPos] == '/' {
-			self.strPos++
-			self.charPos++
-
-			topCtx.State = StackFrameStateIsClosing
-			currLiteral = nil
-			currArg = ""
-			continue
-		}
-
-		if program[self.strPos] == '=' {
-			if topCtx.State != StackFrameStateExpectArg || len(currArg) == 0 {
-				self.criticalError = self.getError(
-					"expected argument before = ",
-				)
-				continue
-			}
-
-			self.strPos++
-			self.charPos++
-			currLiteral = nil
-			topCtx.State = StackFrameStateExpectVal
-			continue
-		}
-
-		if program[self.strPos] == '$' {
-			self.strPos++
-			self.charPos++
-
-			var err error
-			currLiteral, err = self.resolveVariable(program)
-
-			if err != nil {
-				self.criticalError = err
-				continue
-			}
-
-			goto ctxFill
-		}
-
-		if program[self.strPos] == '"' {
-			self.strPos++
-			self.charPos++
-
-			var err error
-			currLiteral, err = self.resolveStrLiteral(program)
-
-			if err != nil {
-				self.criticalError = err
-				continue
-			}
-
-			goto ctxFill
-		}
-
-		if isAlphaChar(program[self.strPos]) {
-			currLiteral = self.resolveName(program)
-			goto ctxFill
-		}
-
-		goto cmdParseError
-
-	ctxFill:
-		{
-			switch topCtx.State {
-			case StackFrameStateExpectCmd:
-				currLiteralStr, isCurrLiteralStr := currLiteral.(string)
-				if !isCurrLiteralStr {
-					self.criticalError = self.getError(
-						"command name is not string",
-					)
-				} else {
-					topCtx.FnName = currLiteralStr
-					topCtx.State = StackFrameStateExpectArg
-				}
-			case StackFrameStateExpectArg:
-				if len(currArg) > 0 {
-					currArg = ""
-				}
-
-				currLiteralStr, isCurrLiteralStr := currLiteral.(string)
-				if !isCurrLiteralStr {
-					self.criticalError = self.getError(
-						"argument name is not string",
-					)
-				} else {
-					currArg = currLiteralStr
-				}
-			case StackFrameStateExpectVal:
-				if len(currArg) == 0 {
-					self.criticalError = self.getError(
-						"argument is not provided",
-					)
-				} else {
-					topCtx.ArgsTable[currArg] = currLiteral
-					topCtx.State = StackFrameStateExpectArg
-					currArg = ""
-				}
-			}
-
-			continue
-		}
-
-	cmdParseError:
-		{
-			self.criticalError = self.getError(
-				fmt.Sprintf(
-					"unknown character %v",
-					program[self.strPos],
-				),
-			)
-		}
-	}
-
-	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
-	if len(currArg) > 0 {
-		topCtx.ArgsTable[currArg] = true
-	}
-}
-
-func (self *Interpreter) resolveTopCtx() {
-	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
-	if len(self.execCtxStack) < 2 || topCtx.State != StackFrameStateIsClosing {
-		return
-	}
-
-	self.execCtxStack = self.execCtxStack[:len(self.execCtxStack)-1]
-
-	cmd, hasCmd := self.execFnTable[topCtx.FnName]
-	if !hasCmd {
-		self.criticalError = self.getError(
-			fmt.Sprintf(
-				"command with name \"%v\" doesn't exist in interpreter table",
-				topCtx.FnName,
-			),
-		)
-		return
-	}
-
-	if errChan, hasErrChan := topCtx.InputChannels["error"]; hasErrChan && len(errChan) > 0 {
-		_, hasTopErrChan := self.execCtxStack[len(self.execCtxStack)-1].InputChannels["error"]
-
-		if !hasTopErrChan {
-			self.execCtxStack[len(self.execCtxStack)-1].InputChannels["error"] = make(TFunctionInputChannel, 0)
-		}
-
-		topErrChan := self.execCtxStack[len(self.execCtxStack)-1].InputChannels["error"]
-		self.execCtxStack[len(self.execCtxStack)-1].InputChannels["error"] = append(
-			topErrChan,
-			topCtx.InputChannels["error"]...,
-		)
-	} else {
-		result := cmd(
-			topCtx.ArgsTable,
-			topCtx.InputChannels,
-			self.globals,
-			TExecutionInfo{
-				StrPos:  self.strPos,
-				CharPos: self.charPos,
-				Line:    self.line,
-			},
-		)
-		self.dataSwitchFn(
-			self.execCtxStack[len(self.execCtxStack)-1],
-			result,
-		)
-	}
-}
-
-func (self *Interpreter) executeImpl(program []rune) *TInterpreterResult {
-	self.isDirty = true
-
-	for self.strPos < len(program) {
-		if self.criticalError != nil {
-			break
-		}
-
-		switch program[self.strPos] {
-		case '{':
-			self.mode = InterpreterModeCommand
-			self.strPos++
-			self.charPos++
-		case '}':
-			self.resolveTopCtx()
-			self.mode = InterpreterModePlainText
-			self.strPos++
-			self.charPos++
-		}
-
-		switch self.mode {
-		case InterpreterModePlainText:
-			self.handlePlainText(program)
-		case InterpreterModeCommand:
-			self.handleCommand(program)
-		}
-	}
-
-	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
-	complete := self.criticalError != nil ||
-		len(self.execCtxStack) == 1
-
-	topErrChan, hasTopErrChan := topCtx.InputChannels["error"]
-	if hasTopErrChan && len(topErrChan) > 0 {
-		complete = true
-	}
-
-	return &TInterpreterResult{
-		Result:   topCtx.InputChannels,
-		Error:    self.criticalError,
-		Complete: complete,
-	}
-}
-
-func (self *Interpreter) mergeGlobals(
-	globalVars TGlobalVariablesTable,
-) {
-	if globalVars == nil {
-		return
-	}
-
-	for name, val := range globalVars {
-		self.globals[name] = val
-	}
-}
-
-func (self *Interpreter) ExecutePartial(
-	program string,
-	globalVars TGlobalVariablesTable,
-) *TInterpreterResult {
-	self.mergeGlobals(globalVars)
+func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult {
 	res := self.executeImpl([]rune(program))
 	self.resetPosition()
 	return res
 }
 
-func (self *Interpreter) Execute(
-	program string,
-	globalVars TGlobalVariablesTable,
-) *TInterpreterResult {
-	self.mergeGlobals(globalVars)
-
+func (self *Interpreter) Execute(program string) *TInterpreterResult {
 	res := self.executeImpl([]rune(program))
-	self.resetImpl()
+	if self.sessionClosed {
+		self.resetImpl()
+	} else {
+		self.resetPosition()
+	}
 	return res
 }
 
@@ -502,4 +74,41 @@ func (self *Interpreter) Reset() {
 
 func (self *Interpreter) IsDirty() bool {
 	return self.isDirty
+}
+
+func (self *Interpreter) SetExternalGlobals(globals TGlobalVariablesTable) {
+	self.defaultExternalGlobals = globals
+	self.externalGlobals = initializeExternalGlobals(self.defaultExternalGlobals)
+}
+
+func (self *Interpreter) SetExternalGlobalVar(name string, val interface{}) {
+	if self.defaultExternalGlobals == nil {
+		self.defaultExternalGlobals = make(TGlobalVariablesTable)
+		self.externalGlobals = initializeExternalGlobals(self.defaultExternalGlobals)
+	}
+	
+	self.defaultExternalGlobals[name] = val
+	self.externalGlobals[name] = val
+}
+
+func (self *Interpreter) GetExternalGlobalsList() map[string]bool {
+	res := make(map[string]bool, 0)
+
+	for k := range self.defaultExternalGlobals {
+		res[k] = true
+	}
+
+	return res
+}
+
+func (self *Interpreter) OpenSession() {
+	self.sessionClosed = false
+}
+
+func (self *Interpreter) CloseSession() {
+	self.sessionClosed = true
+}
+
+func (self *Interpreter) IsSessionClosed() bool {
+	return self.sessionClosed
 }

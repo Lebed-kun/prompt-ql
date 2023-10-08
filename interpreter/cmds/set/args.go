@@ -3,7 +3,7 @@ package setcmd
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
 )
 
 func getToVar(
@@ -21,9 +21,18 @@ func getToVar(
 	}
 	var isToVarStr bool
 	toVar, isToVarStr = rawToVar.(string)
-	if !isToVarStr {
+	if !isToVarStr || len(toVar) == 0 {
 		return "", fmt.Errorf(
 			"!error (line=%v, char=%v): \"to\" parameter is \"%v\" which is not string",
+			execInfo.Line,
+			execInfo.CharPos,
+			rawToVar,
+		)
+	}
+
+	if toVar[0] == '@' {
+		return "", fmt.Errorf(
+			"!error (line=%v, char=%v): \"to\" parameter is \"%v\" which is a name of external variable. Writes to external variables in PromptQL code are restricted",
 			execInfo.Line,
 			execInfo.CharPos,
 			rawToVar,

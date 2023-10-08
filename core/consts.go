@@ -5,6 +5,8 @@ const (
 	StackFrameStateExpectArg
 	StackFrameStateExpectVal
 	StackFrameStateIsClosing
+	StackFrameStateFullfilled
+	StackFrameStateExpectCmdAfterFullfill
 )
 
 const (

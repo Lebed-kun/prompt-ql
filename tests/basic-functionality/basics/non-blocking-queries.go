@@ -3,21 +3,26 @@ package basicfunctionalitytests
 import (
 	"fmt"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
-	testutils "gitlab.com/jbyte777/prompt-ql/tests/utils"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v2/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
+	testutils "gitlab.com/jbyte777/prompt-ql/v2/tests/utils"
 )
 
 // Works +++++
+// 28-09-2023: Works on total regress +++
 func NonBlockingQueriesTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
+	defaultGlobals := interpretercore.TGlobalVariablesTable{
+		"logtime": testutils.LogTimeForProgram,
+	}
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+			DefaultExternalGlobals: defaultGlobals,
+		},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -29,7 +34,7 @@ func NonBlockingQueriesTest(
 				I want a response to the following question:
 				Write a comprehensive guide to learn statistics step by step.
 			{/open_query}
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				open query1
 			{/call}
 			=======================
@@ -40,24 +45,21 @@ func NonBlockingQueriesTest(
 				I want a response to the following question:
 				Write a comprehensive guide to make a solar panel step by step.
 			{/open_query}
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				open query2
 			{/call}
 			=======================
 			Answer1: {~listen_query from="query1" /}
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				listen query1
 			{/call}
 			=======================
 			Answer2: {~listen_query from="query2" /}
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				listen query2
 			{/call}
 			=======================
 		`,
-		interpretercore.TGlobalVariablesTable{
-			"logtime": testutils.LogTimeForProgram,
-		},
 	)
 
 	if result.Error != nil {

@@ -3,28 +3,22 @@ package basicfunctionalitytests
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
 )
 
-// Works ++++
-func BasicProgramTest(
-	openAiBaseUrl string,
-	openAiKey string,
-) {
+// Works ++
+// 28-09-2023: Works on total regress +++
+func MismatchCommandEmptyTagErrorTest() {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
 		`
-			{~set to="X"}Example text{/set}
-			{~get from="X" /}
-			Hello world!
+			{~data}
+				{~user}Example text{/user}
+			{/}
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

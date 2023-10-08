@@ -3,16 +3,18 @@ package wrappercmds
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
-	promptmsg "gitlab.com/jbyte777/prompt-ql/utils/promptmsg"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	promptmsg "gitlab.com/jbyte777/prompt-ql/v2/utils/promptmsg"
 )
 
 func MakeWrapperCmd(dataTag string) interpreter.TExecutedFunction {
 	return func(
-		staticArgs interpreter.TFunctionArgumentsTable,
+		_staticArgs interpreter.TFunctionArgumentsTable,
 		inputs interpreter.TFunctionInputChannelTable,
-		globals interpreter.TGlobalVariablesTable,
+		_internalGlobals interpreter.TGlobalVariablesTable,
+		_externalGlobals interpreter.TGlobalVariablesTable,
 		execInfo interpreter.TExecutionInfo,
+		_interpreter *interpreter.Interpreter,
 	) interface{} {
 		dataChan, hasDataChan := inputs["data"]
 		if !hasDataChan || len(dataChan) == 0 {

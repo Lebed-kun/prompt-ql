@@ -3,19 +3,14 @@ package basicfunctionalitytests
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
 )
 
-// Works ++++
-func InterpreterErrorTest(
-	openAiBaseUrl string,
-	openAiKey string,
-) {
+// Works ++++++
+// 28-09-2023: Works on total regress +++
+func InterpreterErrorTest() {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -24,7 +19,6 @@ func InterpreterErrorTest(
 			{~get ="X" /}
 			Hello world!
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

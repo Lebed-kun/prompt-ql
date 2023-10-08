@@ -1,7 +1,9 @@
 package wrapperswicth
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	promptmsg "gitlab.com/jbyte777/prompt-ql/v2/utils/promptmsg"
+	stringsutils "gitlab.com/jbyte777/prompt-ql/v2/utils/strings"
 )
 
 func WrapperSwitch(
@@ -29,9 +31,15 @@ func WrapperSwitch(
 			err,
 		)
 	} else {
-		topCtx.InputChannels["data"] = append(
-			topCtx.InputChannels["data"],
-			data,
+		text := stringsutils.TrimWhitespace(
+			promptmsg.ReplacePromptMsgPrefix(data, ""),
 		)
+
+		if len(text) > 0 && text != " " {
+			topCtx.InputChannels["data"] = append(
+				topCtx.InputChannels["data"],
+				text,
+			)
+		}
 	}
 }

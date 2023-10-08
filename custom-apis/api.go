@@ -5,47 +5,48 @@ import (
 	"fmt"
 	"time"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
-	errorsutils "gitlab.com/jbyte777/prompt-ql/utils/errors"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	errorsutils "gitlab.com/jbyte777/prompt-ql/v2/utils/errors"
 )
 
-type CustomLLMApis struct {
-	llms                  TDoQueryFuncTable
+type CustomModelsApis struct {
+	models                  TDoQueryFuncTable
 	listenQueryTimeoutSec uint
 }
 
 const defaultListenQueryTimeoutSec uint = 30
 
-func New(listenQueryTimeoutSec uint) *CustomLLMApis {
+func New(listenQueryTimeoutSec uint) *CustomModelsApis {
 	if listenQueryTimeoutSec == 0 {
 		listenQueryTimeoutSec = defaultListenQueryTimeoutSec
 	}
 
-	return &CustomLLMApis{
-		llms:                  TDoQueryFuncTable{},
+	return &CustomModelsApis{
+		models:                  TDoQueryFuncTable{},
 		listenQueryTimeoutSec: listenQueryTimeoutSec,
 	}
 }
 
-func (self *CustomLLMApis) RegisterLLMApi(
+func (self *CustomModelsApis) RegisterModelApi(
 	name string,
 	doQuery TDoQueryFunc,
 ) {
-	self.llms[name] = doQuery
+	self.models[name] = doQuery
 }
 
-func (self *CustomLLMApis) OpenQuery(
+func (self *CustomModelsApis) OpenQuery(
 	model string,
 	temperature float64,
 	inputs interpreter.TFunctionInputChannelTable,
 	execInfo interpreter.TExecutionInfo,
 ) (*TCustomQueryHandle, error) {
-	doQuery, hasDoQuery := self.llms[model]
+	doQuery, hasDoQuery := self.models[model]
 	if !hasDoQuery {
 		return nil, fmt.Errorf(
-			"!error (line=%v, char=%v): prompts are empty",
+			"!error (line=%v, char=%v): custom model named \"%v\" doesn't exist",
 			execInfo.Line,
 			execInfo.CharPos,
+			model,
 		)
 	}
 
@@ -74,7 +75,7 @@ func (self *CustomLLMApis) OpenQuery(
 	}, nil
 }
 
-func (self *CustomLLMApis) ListenQuery(
+func (self *CustomModelsApis) ListenQuery(
 	queryHandle *TCustomQueryHandle,
 ) (string, error) {
 	timer := time.NewTimer(
@@ -88,9 +89,19 @@ func (self *CustomLLMApis) ListenQuery(
 		return "", err
 	case <-timer.C:
 		return "", errorsutils.LogError(
-			"CustomLLMApis",
+			"CustomModelsApis",
 			"ListenQuery",
 			errors.New("Timeout for listening query"),
 		)
 	}
+}
+
+func (self *CustomModelsApis) GetAllModelsList() map[string]bool {
+	res := make(map[string]bool, 0)
+
+	for k := range self.models {
+		res[k] = true
+	}
+
+	return res
 }

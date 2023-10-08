@@ -3,14 +3,16 @@ package setcmd
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
 )
 
 func SetCmd(
 	staticArgs interpreter.TFunctionArgumentsTable,
 	inputs interpreter.TFunctionInputChannelTable,
-	globals interpreter.TGlobalVariablesTable,
+	internalGlobals interpreter.TGlobalVariablesTable,
+	_externalGlobals interpreter.TGlobalVariablesTable,
 	execInfo interpreter.TExecutionInfo,
+	_interpreter *interpreter.Interpreter,
 ) interface{} {
 	toVar, err := getToVar(staticArgs, execInfo)
 	if err != nil {
@@ -28,6 +30,6 @@ func SetCmd(
 	}
 
 	latestData := dataChan[len(dataChan) - 1]
-	globals[toVar] = latestData
+	internalGlobals[toVar] = latestData
 	return nil
 }

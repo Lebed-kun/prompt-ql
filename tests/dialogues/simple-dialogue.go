@@ -3,19 +3,21 @@ package dialoguestests
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
 )
 
-// Works ++++
+// Works +++++
+// 28-09-2023: Works on total regress +++
 func SimpleDialogTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		40,
-		0,
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+			OpenAiListenQueryTimeoutSec: 40,
+		},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -83,7 +85,6 @@ func SimpleDialogTest(
 			{/set}
 			Alice: {~get from="reply5" /}
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

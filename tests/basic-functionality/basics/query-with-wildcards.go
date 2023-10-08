@@ -2,34 +2,37 @@ package basicfunctionalitytests
 
 import (
 	"fmt"
-
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
 )
 
 // Works ++++++
-func BasicQueryTest(
+// 28-09-2023: Works on total regress +++
+func QueryWithWildcardsTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+		},
 	)
 
 	result := interpreterInst.Instance.Execute(
 		`
-			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
+			{~set to="cmd"}listen_query{/set}
+			{~set to="cmdarg"}from{/set}
+			{~set to="queryvar"}query1{/set}
+
+			{~open_query to=$queryvar model="gpt-3.5-turbo-16k"}
 				{~system}
 					You are a helpful and terse assistant.
 				{/system}
 				I want a response to the following question:
 				Write a comprehensive guide to machine learning
 			{/open_query}
-			{~listen_query from="query1" /}
+			{~$cmd $cmdarg=$queryvar /}
 		`,
-		nil,
 	)
 
 	if result.Error != nil {

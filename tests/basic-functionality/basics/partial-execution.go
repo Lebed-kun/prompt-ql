@@ -4,22 +4,28 @@ import (
 	"fmt"
 	"time"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v2/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
 )
 
-// Works ++++
+// Works ++++++
+// 28-09-2023: Works on total regress +++
 func PartialExecutionTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
+	defaultGlobals := interpretercore.TGlobalVariablesTable{
+		"postprocess": postProcessFunctionTest,
+	}
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+			DefaultExternalGlobals: defaultGlobals,
+		},
 	)
 
+	fmt.Println("First chunk of PromptQL code received")
 	result := interpreterInst.Instance.ExecutePartial(
 		`
 			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
@@ -29,13 +35,11 @@ func PartialExecutionTest(
 				I want a response to the following question:
 				Write a comprehensive guide to machine learning step by step
 		`,
-		interpretercore.TGlobalVariablesTable{
-			"postprocess": postProcessFunctionTest,
-		},
 	)
 
 	time.Sleep(3 * time.Second)
 
+	fmt.Println("Second chunk of PromptQL code received")
 	result = interpreterInst.Instance.ExecutePartial(
 		`
 			{/open_query}
@@ -46,13 +50,10 @@ func PartialExecutionTest(
 			{~get from="queryres" /}
 			==========================
 			JSON result is:
-			{~call fn="postprocess"}
+			{~call fn=@postprocess }
 				{~get from="queryres" /}
 			{/call}
 		`,
-		interpretercore.TGlobalVariablesTable{
-			"postprocess": postProcessFunctionTest,
-		},
 	)
 
 	if result.Error != nil {

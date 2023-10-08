@@ -3,8 +3,8 @@ package openquerycmd
 import (
 	"fmt"
 
-	api "gitlab.com/jbyte777/prompt-ql/api"
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	api "gitlab.com/jbyte777/prompt-ql/v2/api"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
 )
 
 func getPrompts(

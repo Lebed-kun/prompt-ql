@@ -2,15 +2,15 @@ package listenquerycmd
 
 import (
 	"fmt"
-	api "gitlab.com/jbyte777/prompt-ql/api"
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
-	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
-	utils "gitlab.com/jbyte777/prompt-ql/interpreter/utils"
+	api "gitlab.com/jbyte777/prompt-ql/v2/api"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	customapis "gitlab.com/jbyte777/prompt-ql/v2/custom-apis"
+	utils "gitlab.com/jbyte777/prompt-ql/v2/interpreter/utils"
 )
 
 func MakeListenQueryCmd(
 	gptApi *api.GptApi,
-	customApis *customapis.CustomLLMApis,
+	customApis *customapis.CustomModelsApis,
 ) interpreter.TExecutedFunction {
 	standardListenQuery := func(
 		queryHandle *api.TQueryHandle,
@@ -48,19 +48,21 @@ func MakeListenQueryCmd(
 
 	return func(
 		staticArgs interpreter.TFunctionArgumentsTable,
-		inputs interpreter.TFunctionInputChannelTable,
-		globals interpreter.TGlobalVariablesTable,
+		_inputs interpreter.TFunctionInputChannelTable,
+		internalGlobals interpreter.TGlobalVariablesTable,
+		_externalGlobals interpreter.TGlobalVariablesTable,
 		execInfo interpreter.TExecutionInfo,
+		_interpreter *interpreter.Interpreter,
 	) interface{} {
 		fromVar, err := getFromVar(staticArgs, execInfo)
 		if err != nil {
 			return err
 		}
 
-		rawQueryHandle, hasQueryHandle := globals[fromVar]
+		rawQueryHandle, hasQueryHandle := internalGlobals[fromVar]
 		if !hasQueryHandle {
 			return fmt.Errorf(
-				"!error (line=%v, char=%v): query handle by name \"%v\" doesn't exist",
+				"!error (line=%v, char=%v): query handle by name \"%v\" doesn't exist in internal variables",
 				execInfo.Line,
 				execInfo.CharPos,
 				fromVar,

@@ -3,20 +3,25 @@ package basicfunctionalitytests
 import (
 	"fmt"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v2/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
 )
 
 // Works ++++
+// 28-09-2023: Works on total regress +++
 func QueryWithPostprocessFunctionTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
+	defaultGlobals := interpretercore.TGlobalVariablesTable{
+		"postprocess": postProcessFunctionTest,
+	}
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+			DefaultExternalGlobals: defaultGlobals,
+		},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -35,13 +40,10 @@ func QueryWithPostprocessFunctionTest(
 			{~get from="queryres" /}
 
 			JSON result is:
-			{~call fn="postprocess"}
+			{~call fn=@postprocess }
 				{~get from="queryres" /}
 			{/call}
 		`,
-		interpretercore.TGlobalVariablesTable{
-			"postprocess": postProcessFunctionTest,
-		},
 	)
 
 	if result.Error != nil {
