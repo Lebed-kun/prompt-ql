@@ -42,14 +42,12 @@ func (self *CustomModelsApis) OpenQuery(
 ) (*TCustomQueryHandle, error) {
 	doQuery, hasDoQuery := self.models[model]
 	if !hasDoQuery {
-		// [BEGIN] DONE: include this error text fix in patch v1.2.2
 		return nil, fmt.Errorf(
 			"!error (line=%v, char=%v): custom model named \"%v\" doesn't exist",
 			execInfo.Line,
 			execInfo.CharPos,
 			model,
 		)
-		// [END] DONE: include this error text fix in patch v1.2.2
 	}
 
 	resChan := make(chan string)
