@@ -7,30 +7,24 @@
 
 It's a zero-dependencies library for orchestrating agents based on ML models like `gpt3.5-turbo` . The default ML model API is based on the OpenAI API: https://platform.openai.com/docs/api-reference . Full list of supported models is here: https://platform.openai.com/docs/models/model-endpoint-compatibility 
 
+
 ## Getting started
 ```
-go get -u gitlab.com/jbyte777/prompt-ql
+go get -u gitlab.com/jbyte777/prompt-ql/v2 - for v2.x release
+go get -u gitlab.com/jbyte777/prompt-ql - for v1.x release
 ```
-
-
 
 Making a basic query is just like writing plain HTML or another template:
 ```
-import (
-	"fmt"
-
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
-)
-
 func BasicQueryTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
 	interpreterInst := interpreter.New(
-		openAiBaseUrl,
-		openAiKey,
-		0,
-		0,
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+		},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -44,7 +38,6 @@ func BasicQueryTest(
 			{/open_query}
 			{~listen_query from="query1" /}
 		`,
-		nil,
 	)
 
 	// ...
@@ -63,30 +56,20 @@ errStr, _ := result.ResultErrorStr()
 You can easily batch multiple queries without waiting for completion of previously sent query:
 
 ```
-func logTimeForProgram(args []interface{}) interface{} {
-	if len(args) < 1 {
-		return ""
-	}
-
-	log, isLogStr := args[0].(string)
-	if !isLogStr {
-		return ""
-	}
-
-	fmt.Printf(
-		"[%v] %v",
-		timeutils.NowTimestamp(),
-		log,
-	)
-
-	return ""
-}
-
 func NonBlockingQueriesTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
-	// ...
+	defaultGlobals := interpretercore.TGlobalVariablesTable{
+		"logtime": testutils.LogTimeForProgram,
+	}
+	interpreterInst := interpreter.New(
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+			DefaultExternalGlobals: defaultGlobals,
+		},
+	)
 
 	result := interpreterInst.Instance.Execute(
 		`
@@ -97,7 +80,7 @@ func NonBlockingQueriesTest(
 				I want a response to the following question:
 				Write a comprehensive guide to learn statistics step by step.
 			{/open_query}
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				open query1
 			{/call}
 			=======================
@@ -108,24 +91,21 @@ func NonBlockingQueriesTest(
 				I want a response to the following question:
 				Write a comprehensive guide to make a solar panel step by step.
 			{/open_query}
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				open query2
 			{/call}
 			=======================
 			Answer1: {~listen_query from="query1" /}
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				listen query1
 			{/call}
 			=======================
 			Answer2: {~listen_query from="query2" /}
-			{~call fn="logtime"}
+			{~call fn=@logtime }
 				listen query2
 			{/call}
 			=======================
 		`,
-		interpretercore.TGlobalVariablesTable{
-			"logtime": logTimeForProgram,
-		},
 	)
 
 	// ...
@@ -203,28 +183,30 @@ result := interpreterInst.Instance.Execute(
 			{/open_query}
 			{~listen_query from="query1" /}
 		`,
-		nil,
 	)
 ```
 
 <img src="./readme-content/custom-llama-model/result.png" />
 
 
-## Post-process answer from ML agent with user defined functions
-You can define your own functions for query program. This allows you to prettify ML agent output for example:
+## Post-process answer from ML model with user defined functions
+You can define your own functions for query program. This allows you to prettify ML model output for example:
+
 ```
-import (
-	"fmt"
-
-	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
-)
-
 func QueryWithPostprocessFunctionTest(
 	openAiBaseUrl string,
 	openAiKey string,
 ) {
-	// ...
+	defaultGlobals := interpretercore.TGlobalVariablesTable{
+		"postprocess": postProcessFunctionTest,
+	}
+	interpreterInst := interpreter.New(
+		interpreter.TPromptQLOptions{
+			OpenAiBaseUrl: openAiBaseUrl,
+			OpenAiKey: openAiKey,
+			DefaultExternalGlobals: defaultGlobals,
+		},
+	)
 
 	result := interpreterInst.Instance.Execute(
 		`
@@ -242,13 +224,10 @@ func QueryWithPostprocessFunctionTest(
 			{~get from="queryres" /}
 
 			JSON result is:
-			{~call fn="postprocess"}
+			{~call fn=@postprocess }
 				{~get from="queryres" /}
 			{/call}
 		`,
-		interpretercore.TGlobalVariablesTable{
-			"postprocess": postProcessFunctionTest,
-		},
 	)
 
 	// ...
@@ -263,68 +242,29 @@ This gives you this output for example:
 <img src="./readme-content/query-with-fn3.jpg" />
 
 
-## Execute non-complete queries
+## Execute queries partially (and continously)
 
-What if a query is sent over the network, it's sent in unfinished chunks  and you need to save space? The PromptQL library can also handle this case! Just like with SSR rendered HTML that is split into chunks:
-```
-import (
-	"fmt"
-	"time"
+PromptQL v2.x+ is designed as an imperative protocol for ML-based agents. So partial execution of code is achievable at language level, with the `{~session_begin /}` and `{~session_end /}` commands. However, API of PromptQL v2.x for Golang still supports the `ExecutePartial` method: it executes PromptQL program just like session is always opened during it.
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
-)
+Session is like a thread of execution: all internal variables keep their state, execution context stack keeps its state during it.
 
-func PartialExecutionTest(
-	openAiBaseUrl string,
-	openAiKey string,
-) {
-	// ...
-
-	result := interpreterInst.Instance.ExecutePartial(
-		`
-			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
-				{~system}
-					You are a helpful and terse assistant.
-				{/system}
-				I want a response to the following question:
-				Write a comprehensive guide to machine learning step by step
-		`,
-		interpretercore.TGlobalVariablesTable{
-			"postprocess": postProcessFunctionTest,
-		},
-	)
-
-	// Emulate network, DB load etc...
-	time.Sleep(3 * time.Second)
-
-	result = interpreterInst.Instance.ExecutePartial(
-		`
-			{/open_query}
-			{~set to="queryres"}
-				{~listen_query from="query1" /}
-			{/set}
-			Raw result is:
-			{~get from="queryres" /}
-			==========================
-			JSON result is:
-			{~call fn="postprocess"}
-				{~get from="queryres" /}
-			{/call}
-		`,
-		interpretercore.TGlobalVariablesTable{
-			"postprocess": postProcessFunctionTest,
-		},
-	)
-
-	// ...
-}
-```
+You can view examples for this in a test located by a path of `/tests/basic-functionality/sessions` 
 
 
-## Use wildcards in your commands
+## External vs internal variables
 
-Wildcards are names of variables in interpreter table. They are prefixed with `$` sign. You can use them for non-string values, variadic commands etc.
+PromptQL v2.x makes difference between external and internal variables as it's message-oriented protocol. These kinds of variables differ in few points:
+
+* Accessing undefined external variables resolves into a run-time error. Accessing undefined internal variables resolves into `nil` value;
+* Direct writes to external variables resolve into a run-time error. Internal variables can be both read and written; 
+* External variables values are preserved between sessions. Internal variables values are lost after completing a PromptQL session;
+
+For more examples, you can visit the `/tests/basic-functionality/external-vs-internal-variables` tests.
+
+
+## Use references in your commands
+
+References are names of variables in some interpreter table. They are prefixed with `$` sign if it refernces to internal variable. Or with `$@` if it references to external variable. You can use them for non-string values, variadic commands etc.
 
 ```
 result := interpreterInst.Execute(
@@ -347,7 +287,7 @@ result := interpreterInst.Execute(
 ```
 
 
-## Supported PromptQL commands v1.0
+## Supported PromptQL commands v2.x
 
  - `{~open_query user to="X" model="Y" temperature="Z"}<execution_text>{/open_query}` - sends prompt request for given ML model that's defined by `<execution_text>` . It doesn't block execution of query. The command doesn't return any data. `<execution_text>` defines an input data for the command as follows:
 ```
@@ -361,16 +301,16 @@ Static arguments for the command are:
 ```
  - "user" - is a flag. If it's set, it **forces** a `model` to match user-defined model. If it's not set, then `model` is assumed as an OpenAI model **by default**. In this case if `model` is not supported by OpenAI, then `model` is assumed as a user-defined model;
  - "sync" - is a flag. If it's set, then query is executed in a blocking manner and returns a text response like the `listen_query` command do. If it's not set, then query is executed in parallel and result is stored in the `to` handle;
- - "to" - is a name of variable to store a query handle. It's a required parameter if query is **asynchronous** (i.e. no `sync` flag). It's not required if query is **synchronous** (i.e. `sync` flag is set);
+ - "to" - is a name of variable to store a query handle. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "to" is a required parameter if query is **asynchronous** (i.e. no `sync` flag). It's not required if query is **synchronous** (i.e. `sync` flag is set);
  - "model" - is a name of chosen ML model. Default value is "gpt-3.5-turbo";
  - "temperature" - is a temperature of chosen ML model. Default value is 1.0;
 ```
 
- - `{~listen_query from="X" /}` - waits for OpenAI ML model query from "X" variable to complete. It doesn't receive any additional inputs. It returns a text with the `!assistant` tag if succeed, otherwise it returns an error with the `!error` tag;
+ - `{~listen_query from="X" /}` - waits for OpenAI ML model query from "X" variable to complete. The command doesn't receive any additional inputs. It returns a text with the `!assistant` tag if succeed, otherwise it returns an error with the `!error` tag;
  
 Static arguments for the command are:
 ```
- - "from" - is a name of variable from which result is fetched. It's a required parameter;
+ - "from" - is a name of variable from which result is fetched. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "from" is a required parameter;
 ```
 
  - `{~call fn="F"}<execution_text>{/call}` - calls function from `fn` variable. Command returns error if `fn` variable doesn't exist or the variable doesn't contain function with the type `func([]interface{}) interface{}` . Otherwise the command returns a data from the execution of `fn`. `<execution_text>` defines an input data for the command as follows:
@@ -385,14 +325,14 @@ Static arguments for the command are:
 
 Static arguments for the command are:
 ```
- - "fn" - is a name of variable where called function is stored. It's a required parameter;
+ - "fn" - is a name of variable where called function is stored. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "fn" is a required parameter;
 ```
 
  - `{~get from="X" /}` - gets data from the `from` variable. The command doesn't receive any additional data;
 
 Static arguments for the command are:
 ```
- - "from" - is a name of variable from which data is retrieved. It's a required parameter;
+ - "from" - is a name of variable from which data is retrieved. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "from" is a required parameter;
 ```
 
  - `{~set to="X"}<execution_text>{/set}` -  stores data defined by `<execution_text>` in the `X` variable. The command doesn't return any value. `<execution_text>` defines an input data for the command as follows:
@@ -406,7 +346,7 @@ Static arguments for the command are:
 
 Static arguments for the command are:
 ```
- - "to" - is a name of variable to which data is stored. It's a required parameter;
+ - "to" - is a name of variable to which data is stored. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "to" is a required parameter;
 ```
 
  - Wrapper commands. They wrap a text with corresponding prompt tag: `!user`, `!assistant`, `!system`, `!data` or `!error`. This is useful for separating roles of ML model query texts, for specific error handling etc. They are defined like this:
@@ -419,39 +359,55 @@ Static arguments for the command are:
 ```
 They receive all input data in the `DATA` channel;
 
+ - `{~hello /}` - returns a set of ML models and external variables defined in given PromptQL instance. It's useful for acknowleding user or other automatic agent of given PromptQL agent capabilities. It returns a JSON string with following structure:
+ ```
+   {
+      "myModels": {
+				"gpt-4": true,
+				...
+				"myModel": true,
+			},
+      "myVariables": {
+				"myVar1": true,
+				...
+			},
+	 }
+ ```
+ - `{~session_begin /}` - opens a current execution session. After opening a session and execution of PromptQL chunk, a state of interpreter is saved (except its cursor pointing to program text). The command brings a basic management of execution flow to protocol/language level;
+ - `{~session_end /}` - closes a current execution session. After closing a session and execution of PromptQL chunk, a full state of interpreter is lost. The command brings a basic management of execution flow to protocol/language level;
+
 
 ## Additional features
- - References to entries in global variables table (or "wildcards") are supported. You can use them by prefixing a name with the `$` sign like:
+ - References to entries in some global variables table are supported. You can use them by prefixing a name with the `$` sign like:
 ```
+For references to internal variables:
 {~$command $arg=$val /}
+
+For references to external variables:
+{~$@command $@arg=$@val /}
 ```
  - Defining custom ML model APIs. It can be obtained with the `RegisterModelApi` method (see below)
 
 
 ## Interpreter API
- - `func New(
-	openAiBaseUrl string,
-	openAiKey string,
-	openAiListenQueryTimeoutSec uint,
-	customApisListenQueryTimeoutSec uint,
- ) *TPromptQL` - creates an instance of PromptQL. 
+ - `func New(options TPromptQLOptions) *TPromptQL` - creates an instance of PromptQL with default "closed" state of session. 
 
- The function receives parameters:
+ The function receives parameters from the `TPromptQLOptions` structure that contains:
  ```
- - "openAiBaseUrl" - is an URL to OpenAI API. For example, "https://api.openai.com". It's a required parameter;
- - "openAiKey" - is your OpenAI API key. You can set up it on "https://platform.openai.com/account/api-keys". It's a required parameter;
- - "listenQueryTimeoutSec" - is a timeout for listening prompting query from OpenAI model (sic!) . Default value is 30 seconds;
- - "customApisListenQueryTimeoutSec" - is a timeout for listening prompting query from user-defined ML model (sic!) . Default value is 30 seconds;
+ - "OpenAiBaseUrl" - is an URL to OpenAI API. For example, "https://api.openai.com". It's a required parameter for OpenAI models use-cases. Otherwise it can be omitted;
+ - "OpenAiKey" - is your OpenAI API key. You can set up it on "https://platform.openai.com/account/api-keys". It's a required parameter for OpenAI models use-cases. Otherwise it can be omitted;
+ - "OpenAiListenQueryTimeoutSec" - is a timeout for listening prompting query from an OpenAI model. Default value is 30 seconds;
+ - "CustomApisListenQueryTimeoutSec" - is a timeout for listening prompting query from a user-defined ML model. Default value is 30 seconds;
+ - "DefaultExternalGlobals" - is a table of predefined external global variables. You can provide there custom functions, constants, services etc. Default value is *nil*;
  ```
 
  - PromptQL.Instance methods:
 
-  - `func (self *PromptQL) Instance.Execute(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as a complete chunk. I.e. the state of interpreter is completely reset after execution.
+  - `func (self *Interpreter) Execute(program string) *TInterpreterResult` - executes query as a part of **current** session. I.e. if session is closed, then state of interpreter is completely reset after execution. Otherwise only interpreter cursor is reset.
  
   The method receives parameters:
   ```
   - "program" - is an executed PromptQL program;
-  - "globalVars" - are additional variables for the query;
   ```
 
   The method returns `*TInterpreterResult` which consists of:
@@ -465,20 +421,26 @@ They receive all input data in the `DATA` channel;
   ```
   For nice formatting of `Result`, you can use methods `func (self *TInterpreterResult) ResultDataStr() (string, bool)` and `func (self *TInterpreterResult) ResultErrorStr() (string, bool)`
 
-  - `func (self *PromptQL) Instance.ExecutePartial(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as an uncomplete chunk. Only interpreter cursor is reset. `globalVars` are additional variables for the query;
+  - `func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult` - executes query as a part of **open** session. Only interpreter cursor is reset.
 
   The method receives parameters:
   ```
   - "program" - is an executed PromptQL program;
-  - "globalVars" - are additional variables for the query;
   ```
 
-  - `func (self *PromptQL) Instance.Reset()` - for manually resetting all interpreter state. It can be combined with partial execution;
-  - `func (self *PromptQL) Instance.IsDirty() bool` - determines if interpreter is in progress of execution query chunks. It's `false` after execution of `Execute` and `Reset` methods;
+  - `func (self *PromptQL) Instance.Reset()` - for manually resetting all interpreter state. You can use it for very specific use-cases when standard PromptQL execution flow is not suitable; 
+  - `func (self *PromptQL) Instance.IsDirty() bool` - determines if interpreter is in process of execution PromptQL session. It's `false` after execution of closed session and after calling the `Reset` method;
+	- `func (self *Interpreter) Instance.SetExternalGlobals(globals TGlobalVariablesTable)` - for late setup of default external variables table;
+	- `func (self *Interpreter) Instance.SetExternalGlobalVar(name string, val interface{})` - for late setup of some external variable;
+	- `func (self *Interpreter) Instance.GetExternalGlobalsList() map[string]bool` - for getting list of external globals. It's primarily used by the `{~hello /}` command, but you can use it in other scenarios on your own;
+	- `func (self *Interpreter) Instance.OpenSession()` - for opening PromptQL execution session. It's primarily used by the `{~session_begin /}` command, but you can use it in other scenarios on your own (carefully as it modifies an instance state!);
+	- `func (self *Interpreter) Instance.CloseSession()` - for closing PromptQL execution session. It's primarily used by the `{~session_end /}` command, but you can use it in other scenarios on your own (carefully as it modifies an instance state!);
+	- `func (self *Interpreter) Instance.IsSessionClosed() bool` - returns a flag of **current** session state;
+
 
  - PromptQL.CustomApis methods:
 
- - `func (self *PromptQL) CustomApis.RegisterModelApi(name string, doQuery TDoQueryFunc)` - define ML model API with its own unique name and function for processing queries. This function is defined by this convention:
+ - `func (self *PromptQL) CustomApis.RegisterModelApi(name string, doQuery TDoQueryFunc)` - defines ML model API with its own unique name and function for processing queries. This function is defined by this convention:
 
 	```
 	  func(
@@ -491,6 +453,8 @@ They receive all input data in the `DATA` channel;
 
 	This function should block if it contains some blocking requests to IO, DB, network etc. As it executes in separate goroutine that pushes result to query handle;
 
+- `func (self *CustomModelsApis) GetAllModelsList() map[string]bool` - returns a list of user-defined ML models. It's primarily used by the `{~hello /}` command, but you can use it for other scenarios on your own;
+
 
 ## Architecture
 
@@ -499,9 +463,14 @@ Interpreter has simple stack-based architecture like this:
 
 <img src="./readme-content/prompt-ql-interpreter-state-diagram.png" />
 
-Each stack entry consists of **execution context**. It defines executed command with static arguments (defined with `<arg>=<val>`) and input channels (this data is propagated with previously executed command). A context can also be in 4 states:
+Each stack entry consists of **execution context**. It defines executed command with static arguments (defined with `<arg>=<val>`) and input channels (this data is filled after execution of inner commands). A context can also be in 4 states:
 
- - `StackFrameStateExpectCmd` - expecting a command name;
+ - `StackFrameStateExpectCmd` - expecting a command name for "opening" command;
  - `StackFrameStateExpectArg` - expecting a current argument name;
  - `StackFrameStateExpectVal` - expecting a current argument value;
  - `StackFrameStateIsClosing` - current top context stack frame is about to leave the stack and be executed. This is done after the command mode (defined with `{}` brackets) is switched back to the plain text mode of interpreter;
+ - `StackFrameStateFullfilled` - state that's set after filling all command info (command name and static arguments). It's introduced for better distinguising "opening" and "closing" commands;
+ - `StackFrameStateExpectCmdAfterFullfill` - expecting a command name for "closing" command. Ot's introduced for handling errors of mismatching command tags (ex. `{~open_query}<some_text>{/call}`);
+
+The overall state diagram of context states is:
+<img src="./readme-content/promptql-exec-context-state-diagram.png" />
