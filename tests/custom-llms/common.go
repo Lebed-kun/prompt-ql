@@ -5,8 +5,8 @@ import (
 	"os/exec"
 	"strings"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
-	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v2/core"
+	customapis "gitlab.com/jbyte777/prompt-ql/v2/custom-apis"
 )
 
 func llamaComposePrompt(

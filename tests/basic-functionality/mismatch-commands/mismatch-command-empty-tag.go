@@ -3,7 +3,7 @@ package basicfunctionalitytests
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
 )
 
 // Works ++

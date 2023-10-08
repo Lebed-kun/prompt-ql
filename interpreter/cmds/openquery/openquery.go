@@ -2,10 +2,10 @@ package openquerycmd
 
 import (
 	"fmt"
-	api "gitlab.com/jbyte777/prompt-ql/api"
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
-	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
-	utils "gitlab.com/jbyte777/prompt-ql/interpreter/utils"
+	api "gitlab.com/jbyte777/prompt-ql/v2/api"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	customapis "gitlab.com/jbyte777/prompt-ql/v2/custom-apis"
+	utils "gitlab.com/jbyte777/prompt-ql/v2/interpreter/utils"
 )
 
 func MakeOpenQueryCmd(

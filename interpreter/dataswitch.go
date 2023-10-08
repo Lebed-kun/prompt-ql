@@ -1,12 +1,12 @@
 package interpreterimpl
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
 
-	openqueryswitch "gitlab.com/jbyte777/prompt-ql/interpreter/dataswitches/openquery"
-	defaultswitch "gitlab.com/jbyte777/prompt-ql/interpreter/dataswitches/default"
-	wrapperswitch "gitlab.com/jbyte777/prompt-ql/interpreter/dataswitches/wrapper"
-	rootswitch "gitlab.com/jbyte777/prompt-ql/interpreter/dataswitches/root"
+	openqueryswitch "gitlab.com/jbyte777/prompt-ql/v2/interpreter/dataswitches/openquery"
+	defaultswitch "gitlab.com/jbyte777/prompt-ql/v2/interpreter/dataswitches/default"
+	wrapperswitch "gitlab.com/jbyte777/prompt-ql/v2/interpreter/dataswitches/wrapper"
+	rootswitch "gitlab.com/jbyte777/prompt-ql/v2/interpreter/dataswitches/root"
 )
 
 type TRootSwitchTable map[string]interpreter.TDataSwitchFunction

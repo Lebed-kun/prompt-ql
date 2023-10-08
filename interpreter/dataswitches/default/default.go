@@ -1,9 +1,9 @@
 package defaultswicth
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
-	promptmsg "gitlab.com/jbyte777/prompt-ql/utils/promptmsg"
-	stringsutils "gitlab.com/jbyte777/prompt-ql/utils/strings"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	promptmsg "gitlab.com/jbyte777/prompt-ql/v2/utils/promptmsg"
+	stringsutils "gitlab.com/jbyte777/prompt-ql/v2/utils/strings"
 )
 
 func DefaultSwitch(

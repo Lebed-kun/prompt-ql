@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/interpreter"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v2/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
 )
 
 func setupFirstAgent() *interpreter.TPromptQL {

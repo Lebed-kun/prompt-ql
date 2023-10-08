@@ -1,9 +1,9 @@
 package interpreterimpl
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
-	api "gitlab.com/jbyte777/prompt-ql/api"
-	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	api "gitlab.com/jbyte777/prompt-ql/v2/api"
+	customapis "gitlab.com/jbyte777/prompt-ql/v2/custom-apis"
 )
 
 type TPromptQL struct {

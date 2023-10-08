@@ -1,19 +1,19 @@
 package interpreterimpl
 
 import (
-	api "gitlab.com/jbyte777/prompt-ql/api"
-	customapis "gitlab.com/jbyte777/prompt-ql/custom-apis"
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	api "gitlab.com/jbyte777/prompt-ql/v2/api"
+	customapis "gitlab.com/jbyte777/prompt-ql/v2/custom-apis"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
 
-	callcmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/call"
-	getcmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/get"
-	listenquerycmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/listenquery"
-	openquerycmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/openquery"
-	setcmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/set"
-	wrappercmds "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/wrapper-cmds"
-	hellocmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/hello"
-	opensessioncmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/open-session"
-	closesessioncmd "gitlab.com/jbyte777/prompt-ql/interpreter/cmds/close-session"
+	callcmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/call"
+	getcmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/get"
+	listenquerycmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/listenquery"
+	openquerycmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/openquery"
+	setcmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/set"
+	wrappercmds "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/wrapper-cmds"
+	hellocmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/hello"
+	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/open-session"
+	closesessioncmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/close-session"
 )
 
 func makeCmdTable(

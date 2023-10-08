@@ -3,8 +3,8 @@ package wrappercmds
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
-	promptmsg "gitlab.com/jbyte777/prompt-ql/utils/promptmsg"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	promptmsg "gitlab.com/jbyte777/prompt-ql/v2/utils/promptmsg"
 )
 
 func MakeWrapperCmd(dataTag string) interpreter.TExecutedFunction {

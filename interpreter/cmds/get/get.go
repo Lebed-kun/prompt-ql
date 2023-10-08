@@ -2,7 +2,7 @@ package getcmd
 
 import (
 	"fmt"
-	interpreter "gitlab.com/jbyte777/prompt-ql/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
 )
 
 func GetCmd(
