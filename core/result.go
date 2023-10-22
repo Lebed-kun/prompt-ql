@@ -42,22 +42,7 @@ func (self *TInterpreterResult) ResultLatestData(chanName string) interface{} {
 	if !hasDataChan {
 		return nil
 	}
-	if len(dataChan) == 0 {
-		return nil
-	}
-	
-	for ptr := len(dataChan) - 1; ptr >= 0; ptr -= 1 {
-		data, isDataStr := dataChan[ptr].(string)
-		if !isDataStr && dataChan[ptr] != nil {
-			return dataChan[ptr]
-		}
-		trimmedData := stringsutils.TrimWhitespace(data)
-		if len(trimmedData) > 0 && trimmedData != " " {
-			return trimmedData
-		}
-	}
-
-	return nil
+	return dataChan.LatestCleanData()
 }
 // [END] TODO: include this method to PromptQL v1.3.0 minor release
 
