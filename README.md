@@ -419,7 +419,10 @@ For references to external variables:
 	 2. When all PromptQL commands are executed in current chunk. Only root context is left;
 	 3. When runtime/execution error occurs (i.e. when `*TInterpreterResult.Result` contains `error` data);
   ```
-  For nice formatting of `Result`, you can use methods `func (self *TInterpreterResult) ResultDataStr() (string, bool)` and `func (self *TInterpreterResult) ResultErrorStr() (string, bool)`
+  For nice formatting of `Result`, you can use methods `func (self *TInterpreterResult) ResultDataStr() (string, bool)` and `func (self *TInterpreterResult) ResultErrorStr() (string, bool)`.
+
+	Notice that these methods formats a result accumulated as a text on all root input channel entries. For getting the latest clean result you can use the `func (self *TInterpreterResult) ResultLatestData(chanName string) interface{}`
+
 
   - `func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult` - executes query as a part of **open** session. Only interpreter cursor is reset.
 

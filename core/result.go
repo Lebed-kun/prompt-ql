@@ -36,6 +36,29 @@ func (self *TInterpreterResult) ResultDataStr() (string, bool) {
 	), true
 }
 
+func (self *TInterpreterResult) ResultLatestData(chanName string) interface{} {
+	dataChan, hasDataChan := self.Result[chanName]
+	if !hasDataChan {
+		return nil
+	}
+	if len(dataChan) == 0 {
+		return nil
+	}
+	
+	for ptr := len(dataChan) - 1; ptr >= 0; ptr -= 1 {
+		data, isDataStr := dataChan[ptr].(string)
+		if !isDataStr && dataChan[ptr] != nil {
+			return dataChan[ptr]
+		}
+		trimmedData := stringsutils.TrimWhitespace(data)
+		if len(trimmedData) > 0 && trimmedData != " " {
+			return trimmedData
+		}
+	}
+
+	return nil
+}
+
 func (self *TInterpreterResult) ResultErrorStr() (string, bool) {
 	errChan, hasErrChan := self.Result["error"]
 	if !hasErrChan {
