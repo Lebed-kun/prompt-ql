@@ -463,7 +463,8 @@ They receive all input data in the `DATA` channel;
 	 2. When all PromptQL commands are executed in current chunk. Only root context is left;
 	 3. When runtime/execution error occurs (i.e. when `*TInterpreterResult.Result` contains `error` data);
   ```
-  For nice formatting of `Result`, you can use methods `func (self *TInterpreterResult) ResultDataStr() (string, bool)` and `func (self *TInterpreterResult) ResultErrorStr() (string, bool)`
+  For nice formatting of `Result`, you can use methods `func (self *TInterpreterResult) ResultDataStr() (string, bool)` and `func (self *TInterpreterResult) ResultErrorStr() (string, bool)`. Notice that these methods formats a result accumulated as a text on all entries of the input channel "data". For getting the latest clean result on specific channel, you can use the `func (self *TInterpreterResult) ResultLatestData(chanName string) interface{}`
+
 
   - `func (self *PromptQL) Instance.ExecutePartial(program string, globalVars TGlobalVariablesTable) *TInterpreterResult` - executes query as an uncomplete chunk. Only interpreter cursor is reset. `globalVars` are additional variables for the query;
 
