@@ -36,7 +36,6 @@ func (self *TInterpreterResult) ResultDataStr() (string, bool) {
 	), true
 }
 
-// [BEGIN] TODO: include this method to PromptQL v1.3.0 minor release
 func (self *TInterpreterResult) ResultLatestData(chanName string) interface{} {
 	dataChan, hasDataChan := self.Result[chanName]
 	if !hasDataChan {
@@ -44,7 +43,6 @@ func (self *TInterpreterResult) ResultLatestData(chanName string) interface{} {
 	}
 	return dataChan.LatestCleanData()
 }
-// [END] TODO: include this method to PromptQL v1.3.0 minor release
 
 func (self *TInterpreterResult) ResultErrorStr() (string, bool) {
 	errChan, hasErrChan := self.Result["error"]

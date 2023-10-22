@@ -6,7 +6,6 @@ import (
 
 type TFunctionInputChannel []interface{}
 
-// [BEGIN] TODO: include this method to PromptQL v1.3.0 minor release
 func (self TFunctionInputChannel) LatestCleanData() interface{} {
 	if len(self) == 0 {
 		return nil
@@ -25,4 +24,3 @@ func (self TFunctionInputChannel) LatestCleanData() interface{} {
 
 	return nil
 }
-// [END] TODO: include this method to PromptQL v1.3.0 minor release
