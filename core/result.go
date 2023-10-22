@@ -36,6 +36,14 @@ func (self *TInterpreterResult) ResultDataStr() (string, bool) {
 	), true
 }
 
+func (self *TInterpreterResult) ResultLatestData(chanName string) interface{} {
+	dataChan, hasDataChan := self.Result[chanName]
+	if !hasDataChan {
+		return nil
+	}
+	return dataChan.LatestCleanData()
+}
+
 func (self *TInterpreterResult) ResultErrorStr() (string, bool) {
 	errChan, hasErrChan := self.Result["error"]
 	if !hasErrChan {

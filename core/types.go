@@ -2,8 +2,6 @@ package interpretercore
 
 type TFunctionArgumentsTable map[string]interface{}
 
-type TFunctionInputChannel []interface{}
-
 type TFunctionInputChannelTable map[string]TFunctionInputChannel
 
 type TExecutionStackFrame struct {
