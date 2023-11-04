@@ -5,6 +5,7 @@ type Interpreter struct {
 	execFnTable   TExecutedFunctionTable
 	dataSwitchFn  TDataSwitchFunction
 	defaultExternalGlobals TGlobalVariablesTable
+	defaultExternalGlobalsMeta TExternalGlobalsMetaTable
 
 	// Internal interpreter state
 	mode          int
@@ -25,6 +26,7 @@ func New(
 	execFnTable TExecutedFunctionTable,
 	dataSwitchFn TDataSwitchFunction,
 	defaultExternalVars TGlobalVariablesTable,
+	defaultExternalVarsMeta TExternalGlobalsMetaTable,
 ) *Interpreter {
 	execCtxStack := []*TExecutionStackFrame{
 		makeRootStackFrame(),
@@ -35,6 +37,7 @@ func New(
 		execFnTable:   execFnTable,
 		dataSwitchFn:  dataSwitchFn,
 		defaultExternalGlobals: defaultExternalVars,
+		defaultExternalGlobalsMeta: defaultExternalVarsMeta,
 
 		// Internal interpreter state
 		mode:          InterpreterModePlainText,
@@ -76,26 +79,41 @@ func (self *Interpreter) IsDirty() bool {
 	return self.isDirty
 }
 
-func (self *Interpreter) SetExternalGlobals(globals TGlobalVariablesTable) {
+func (self *Interpreter) SetExternalGlobals(globals TGlobalVariablesTable, globalsMeta TExternalGlobalsMetaTable) {
 	self.defaultExternalGlobals = globals
+	self.defaultExternalGlobalsMeta = globalsMeta
 	self.externalGlobals = initializeExternalGlobals(self.defaultExternalGlobals)
 }
 
-func (self *Interpreter) SetExternalGlobalVar(name string, val interface{}) {
+func (self *Interpreter) SetExternalGlobalVar(name string, val interface{}, description string) {
 	if self.defaultExternalGlobals == nil {
 		self.defaultExternalGlobals = make(TGlobalVariablesTable)
 		self.externalGlobals = initializeExternalGlobals(self.defaultExternalGlobals)
 	}
+	if self.defaultExternalGlobalsMeta == nil && len(description) > 0 {
+		self.defaultExternalGlobalsMeta = make(TExternalGlobalsMetaTable)
+	}
 	
 	self.defaultExternalGlobals[name] = val
 	self.externalGlobals[name] = val
+	if self.defaultExternalGlobalsMeta != nil && len(description) > 0 {
+		self.defaultExternalGlobalsMeta[name] = &TExternalGlobalMetaInfo{
+			Description: description,
+		}
+	}
 }
 
-func (self *Interpreter) GetExternalGlobalsList() map[string]bool {
-	res := make(map[string]bool, 0)
-
-	for k := range self.defaultExternalGlobals {
-		res[k] = true
+func (self *Interpreter) GetExternalGlobalsList() map[string]string {
+	res := make(map[string]string, 0)
+	
+	if self.defaultExternalGlobalsMeta == nil {
+		for k := range self.defaultExternalGlobals {
+			res[k] = ""
+		}
+	} else {
+		for k, v := range self.defaultExternalGlobalsMeta {
+			res[k] = v.Description
+		}
 	}
 
 	return res

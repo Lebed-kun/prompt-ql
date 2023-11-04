@@ -3,9 +3,9 @@ package syncqueriestests
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
-	testutils "gitlab.com/jbyte777/prompt-ql/v2/tests/utils"
-	interpretercore "gitlab.com/jbyte777/prompt-ql/v2/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/interpreter"
+	testutils "gitlab.com/jbyte777/prompt-ql/v3/tests/utils"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v3/core"
 )
 
 // Works +

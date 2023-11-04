@@ -1,9 +1,9 @@
 package interpreterimpl
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
-	api "gitlab.com/jbyte777/prompt-ql/v2/api"
-	customapis "gitlab.com/jbyte777/prompt-ql/v2/custom-apis"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
+	api "gitlab.com/jbyte777/prompt-ql/v3/api"
+	customapis "gitlab.com/jbyte777/prompt-ql/v3/custom-apis"
 )
 
 type TPromptQL struct {
@@ -17,6 +17,7 @@ type TPromptQLOptions struct {
 	OpenAiListenQueryTimeoutSec uint
 	CustomApisListenQueryTimeoutSec uint
 	DefaultExternalGlobals interpreter.TGlobalVariablesTable
+	DefaultExternalGlobalsMeta interpreter.TExternalGlobalsMetaTable
 }
 
 func New(options TPromptQLOptions) *TPromptQL {
@@ -32,6 +33,7 @@ func New(options TPromptQLOptions) *TPromptQL {
 		execFnTable,
 		rootDataSwitch,
 		options.DefaultExternalGlobals,
+		options.DefaultExternalGlobalsMeta,
 	)
 	
 	return &TPromptQL{

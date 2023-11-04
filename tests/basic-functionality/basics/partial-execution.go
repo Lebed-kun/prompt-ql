@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/v2/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v3/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/interpreter"
 )
 
 // Works ++++++
 // 28-09-2023: Works on total regress +++
+// 04-11-2023: random regression test +++
 func PartialExecutionTest(
 	openAiBaseUrl string,
 	openAiKey string,

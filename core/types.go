@@ -27,6 +27,12 @@ type TDataSwitchFunction func(topCtx *TExecutionStackFrame, rawData interface{})
 
 type TGlobalVariablesTable map[string]interface{}
 
+type TExternalGlobalsMetaTable map[string]*TExternalGlobalMetaInfo
+
+type TExternalGlobalMetaInfo struct {
+	Description string
+}
+
 type TExecutionInfo struct {
 	Line int
 	CharPos int

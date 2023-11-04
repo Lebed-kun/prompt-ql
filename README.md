@@ -10,7 +10,7 @@ It's a zero-dependencies library for orchestrating agents based on ML models lik
 
 ## Getting started
 ```
-go get -u gitlab.com/jbyte777/prompt-ql/v2 - for v2.x release
+go get -u gitlab.com/jbyte777/prompt-ql/v3 - for v2.x release
 go get -u gitlab.com/jbyte777/prompt-ql - for v1.x release
 ```
 

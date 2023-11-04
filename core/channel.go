@@ -1,7 +1,7 @@
 package interpretercore
 
 import (
-	stringsutils "gitlab.com/jbyte777/prompt-ql/v2/utils/strings"
+	stringsutils "gitlab.com/jbyte777/prompt-ql/v3/utils/strings"
 )
 
 type TFunctionInputChannel []interface{}
