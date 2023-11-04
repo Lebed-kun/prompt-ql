@@ -43,6 +43,9 @@ func MakeHelloCmd(
 			)
 		}
 
-		return string(rawResult)
+		return fmt.Sprintf(
+			"%v\n",
+			string(rawResult),
+		)
 	}
 }

@@ -14,6 +14,7 @@ import (
 	hellocmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/hello"
 	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/open-session"
 	closesessioncmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/close-session"
+	headercmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/header"
 )
 
 func makeCmdTable(
@@ -34,5 +35,6 @@ func makeCmdTable(
 		"hello": hellocmd.MakeHelloCmd(gptApi, customApis),
 		"session_begin": opensessioncmd.OpenSessionCmd,
 		"session_end": closesessioncmd.CloseSessionCmd,
+		"header": headercmd.HeaderCmd,
 	}
 }

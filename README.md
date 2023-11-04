@@ -359,22 +359,29 @@ Static arguments for the command are:
 ```
 They receive all input data in the `DATA` channel;
 
- - `{~hello /}` - returns a set of ML models and external variables defined in given PromptQL instance. It's useful for acknowleding user or other automatic agent of given PromptQL agent capabilities. It returns a JSON string with following structure:
+ - `{~hello /}` - returns a set of ML models and external variables defined in given PromptQL instance. It's useful for acknowleding user or other automatic agent of given PromptQL agent capabilities. The command returns a JSON string with following structure:
  ```
    {
       "myModels": {
-				"gpt-4": true,
+				"gpt-4": "description of gpt-4",
 				...
-				"myModel": true,
+				"myModel": "description of myModel",
 			},
       "myVariables": {
-				"myVar1": true,
+				"myVar1": "description of myVar1",
 				...
 			},
 	 }
  ```
  - `{~session_begin /}` - opens a current execution session. After opening a session and execution of PromptQL chunk, a state of interpreter is saved (except its cursor pointing to program text). The command brings a basic management of execution flow to protocol/language level;
  - `{~session_end /}` - closes a current execution session. After closing a session and execution of PromptQL chunk, a full state of interpreter is lost. The command brings a basic management of execution flow to protocol/language level;
+ - `{~header from="Sender agent" to="Receiver agent" /}` - returns a message header formatted in JSON. It's useful for dynamic routing of PromptQL message to arbitrary known agent. The command returns a JSON string with following structure:
+ ```
+   {
+      "fromAgent": "Sender agent id/name",
+			"toAgent": "Receiver agent id/name",
+	 }
+ ```
 
 
 ## Additional features
