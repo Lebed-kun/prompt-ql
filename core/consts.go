@@ -12,4 +12,5 @@ const (
 const (
 	InterpreterModePlainText = iota
 	InterpreterModeCommand
+	InterpreterModeCodeLiteral
 )
