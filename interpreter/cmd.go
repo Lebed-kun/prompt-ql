@@ -15,6 +15,8 @@ import (
 	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/open-session"
 	closesessioncmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/close-session"
 	headercmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/header"
+	embedifcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/embed-if"
+	nopcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/nop"
 )
 
 func makeCmdTable(
@@ -36,5 +38,7 @@ func makeCmdTable(
 		"session_begin": opensessioncmd.OpenSessionCmd,
 		"session_end": closesessioncmd.CloseSessionCmd,
 		"header": headercmd.HeaderCmd,
+		"embed_if": embedifcmd.EmbedIfCmd,
+		"nop": nopcmd.NopCmd,
 	}
 }
