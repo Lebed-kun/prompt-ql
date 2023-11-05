@@ -44,7 +44,7 @@ func MakeHelloCmd(
 		}
 
 		return fmt.Sprintf(
-			"%v\n",
+			"MY_LAYOUT:%v\n",
 			string(rawResult),
 		)
 	}

@@ -49,7 +49,7 @@ func HeaderCmd(
 	}
 
 	return fmt.Sprintf(
-		"%v\n",
+		"HEADER:%v\n",
 		string(rawResult),
 	)
 }
