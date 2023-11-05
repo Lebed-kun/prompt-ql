@@ -2,8 +2,8 @@ package interpretercore
 
 import (
 	"strings"
-	stringsutils "gitlab.com/jbyte777/prompt-ql/v2/utils/strings"
-	promptmsgutils "gitlab.com/jbyte777/prompt-ql/v2/utils/promptmsg"
+	stringsutils "gitlab.com/jbyte777/prompt-ql/v3/utils/strings"
+	promptmsgutils "gitlab.com/jbyte777/prompt-ql/v3/utils/promptmsg"
 )
 
 type TInterpreterResult struct {

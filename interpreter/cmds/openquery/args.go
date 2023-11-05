@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
 )
 
 func getToVar(

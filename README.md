@@ -10,7 +10,7 @@ It's a zero-dependencies library for orchestrating agents based on ML models lik
 
 ## Getting started
 ```
-go get -u gitlab.com/jbyte777/prompt-ql/v2 - for v2.x release
+go get -u gitlab.com/jbyte777/prompt-ql/v3 - for v2.x release
 go get -u gitlab.com/jbyte777/prompt-ql - for v1.x release
 ```
 
@@ -288,7 +288,7 @@ result := interpreterInst.Execute(
 
 
 ## Supported PromptQL commands v2.x
-
+### 1. Basic query commands
  - `{~open_query user to="X" model="Y" temperature="Z"}<execution_text>{/open_query}` - sends prompt request for given ML model that's defined by `<execution_text>` . It doesn't block execution of query. The command doesn't return any data. `<execution_text>` defines an input data for the command as follows:
 ```
  - "!user <text>", "!data <text>" -> USER input channel;
@@ -359,22 +359,34 @@ Static arguments for the command are:
 ```
 They receive all input data in the `DATA` channel;
 
- - `{~hello /}` - returns a set of ML models and external variables defined in given PromptQL instance. It's useful for acknowleding user or other automatic agent of given PromptQL agent capabilities. It returns a JSON string with following structure:
+### 2. Agent messaging commands
+ - `{~hello /}` - returns a set of ML models and external variables defined in given PromptQL instance. It's useful for acknowleding user or other automatic agent of given PromptQL agent capabilities. The command returns a JSON string with following structure:
  ```
    {
       "myModels": {
-				"gpt-4": true,
+				"gpt-4": "description of gpt-4",
 				...
-				"myModel": true,
+				"myModel": "description of myModel",
 			},
       "myVariables": {
-				"myVar1": true,
+				"myVar1": "description of myVar1",
 				...
 			},
 	 }
  ```
  - `{~session_begin /}` - opens a current execution session. After opening a session and execution of PromptQL chunk, a state of interpreter is saved (except its cursor pointing to program text). The command brings a basic management of execution flow to protocol/language level;
  - `{~session_end /}` - closes a current execution session. After closing a session and execution of PromptQL chunk, a full state of interpreter is lost. The command brings a basic management of execution flow to protocol/language level;
+ - `{~header from="Sender agent" to="Receiver agent" /}` - returns a message header formatted in JSON. It's useful for dynamic routing of PromptQL message to arbitrary known agent. The command returns a JSON string with following structure:
+ ```
+   {
+      "fromAgent": "Sender agent id/name",
+			"toAgent": "Receiver agent id/name",
+	 }
+ ```
+
+### 3. Code embedding commands
+- `{~embed_if cond=@conditionFunc}<arg1><arg2>...<yes_branch><no_branch>{/embed_if}` - checks condition `cond` with arguments `<arg1><arg2>...`. If it's `true`, then `<yes_branch>` is returned. Otherwise, `<no_branch>` is returned. `cond` should have a type of `func([]interface{}) bool`. The command is useful for conditionally embedding PromptQL code on executing agent side;
+- `{~nop /}` - returns empty characters sequence `\x00` . It's a phantom command that can serve as an argument filler for other PromptQL commands;
 
 
 ## Additional features
@@ -387,6 +399,7 @@ For references to external variables:
 {~$@command $@arg=$@val /}
 ```
  - Defining custom ML model APIs. It can be obtained with the `RegisterModelApi` method (see below)
+ - Code embedding. You can include the PromptQL code in the brackets like this: `<% {~open_query sync}<other PromptQL code>{/open_query} %>`. And the code inside brackets won't be executed. Instead it will be returned just like plain string. This is useful for late PromptQL code processing or forwarding it to other agents.
 
 
 ## Interpreter API
@@ -434,8 +447,8 @@ For references to external variables:
   - `func (self *PromptQL) Instance.Reset()` - for manually resetting all interpreter state. You can use it for very specific use-cases when standard PromptQL execution flow is not suitable; 
   - `func (self *PromptQL) Instance.IsDirty() bool` - determines if interpreter is in process of execution PromptQL session. It's `false` after execution of closed session and after calling the `Reset` method;
 	- `func (self *Interpreter) Instance.SetExternalGlobals(globals TGlobalVariablesTable)` - for late setup of default external variables table;
-	- `func (self *Interpreter) Instance.SetExternalGlobalVar(name string, val interface{})` - for late setup of some external variable;
-	- `func (self *Interpreter) Instance.GetExternalGlobalsList() map[string]bool` - for getting list of external globals. It's primarily used by the `{~hello /}` command, but you can use it in other scenarios on your own;
+	- `func (self *Interpreter) Instance.SetExternalGlobalVar(name string, val interface{}, description string)` - for late setup of some external variable (with optional description);
+	- `func (self *Interpreter) Instance.GetExternalGlobalsList() map[string]string` - for getting list of external globals with descriptions. It's primarily used by the `{~hello /}` command, but you can use it in other scenarios on your own;
 	- `func (self *Interpreter) Instance.OpenSession()` - for opening PromptQL execution session. It's primarily used by the `{~session_begin /}` command, but you can use it in other scenarios on your own (carefully as it modifies an instance state!);
 	- `func (self *Interpreter) Instance.CloseSession()` - for closing PromptQL execution session. It's primarily used by the `{~session_end /}` command, but you can use it in other scenarios on your own (carefully as it modifies an instance state!);
 	- `func (self *Interpreter) Instance.IsSessionClosed() bool` - returns a flag of **current** session state;
@@ -443,7 +456,7 @@ For references to external variables:
 
  - PromptQL.CustomApis methods:
 
- - `func (self *PromptQL) CustomApis.RegisterModelApi(name string, doQuery TDoQueryFunc)` - defines ML model API with its own unique name and function for processing queries. This function is defined by this convention:
+ - `func (self *PromptQL) CustomApis.RegisterModelApi(name string, doQuery TDoQueryFunc, description string)` - defines ML model API with its own unique name and function for processing queries. And optional description if provided. The `doQuery` function is defined by this convention:
 
 	```
 	  func(
@@ -456,7 +469,7 @@ For references to external variables:
 
 	This function should block if it contains some blocking requests to IO, DB, network etc. As it executes in separate goroutine that pushes result to query handle;
 
-- `func (self *CustomModelsApis) GetAllModelsList() map[string]bool` - returns a list of user-defined ML models. It's primarily used by the `{~hello /}` command, but you can use it for other scenarios on your own;
+- `func (self *CustomModelsApis) GetAllModelsList() map[string]string` - returns a list of user-defined ML models with their descriptions. It's primarily used by the `{~hello /}` command, but you can use it for other scenarios on your own;
 
 
 ## Architecture

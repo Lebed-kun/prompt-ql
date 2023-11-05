@@ -2,7 +2,7 @@ package customllmstests
 
 import (
 	"fmt"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/interpreter"
 )
 
 // Works +++++
@@ -20,6 +20,7 @@ func BasicLlamaTest(
 	interpreterInst.CustomApis.RegisterModelApi(
 		"llama",
 		llamaDoQuery,
+		"a Llama 7b model",
 	)
 
 	result := interpreterInst.Instance.Execute(

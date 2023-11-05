@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"time"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
-	errorsutils "gitlab.com/jbyte777/prompt-ql/v2/utils/errors"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
+	errorsutils "gitlab.com/jbyte777/prompt-ql/v3/utils/errors"
 )
 
 type CustomModelsApis struct {
 	models                  TDoQueryFuncTable
+	modelsMeta TCustomModelMetaTable
 	listenQueryTimeoutSec uint
 }
 
@@ -23,6 +24,7 @@ func New(listenQueryTimeoutSec uint) *CustomModelsApis {
 
 	return &CustomModelsApis{
 		models:                  TDoQueryFuncTable{},
+		modelsMeta: TCustomModelMetaTable{},
 		listenQueryTimeoutSec: listenQueryTimeoutSec,
 	}
 }
@@ -30,8 +32,21 @@ func New(listenQueryTimeoutSec uint) *CustomModelsApis {
 func (self *CustomModelsApis) RegisterModelApi(
 	name string,
 	doQuery TDoQueryFunc,
+	description string,
 ) {
 	self.models[name] = doQuery
+	
+	if self.modelsMeta[name] == nil {
+		self.modelsMeta[name] = &TCustomModelMetaInfo{
+			Description: description,
+		}
+	}
+	self.modelsMeta[name].Description = description
+}
+
+func (self *CustomModelsApis) UnregisterModelApi(name string) {
+	delete(self.models, name)
+	delete(self.modelsMeta, name)
 }
 
 func (self *CustomModelsApis) OpenQuery(
@@ -96,11 +111,11 @@ func (self *CustomModelsApis) ListenQuery(
 	}
 }
 
-func (self *CustomModelsApis) GetAllModelsList() map[string]bool {
-	res := make(map[string]bool, 0)
+func (self *CustomModelsApis) GetAllModelsList() map[string]string {
+	res := make(map[string]string, 0)
 
-	for k := range self.models {
-		res[k] = true
+	for k, v := range self.modelsMeta {
+		res[k] = v.Description
 	}
 
 	return res

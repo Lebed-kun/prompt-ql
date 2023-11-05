@@ -3,9 +3,9 @@ package openqueryswicth
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
-	promptmsg "gitlab.com/jbyte777/prompt-ql/v2/utils/promptmsg"
-	stringsutils "gitlab.com/jbyte777/prompt-ql/v2/utils/strings"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
+	promptmsg "gitlab.com/jbyte777/prompt-ql/v3/utils/promptmsg"
+	stringsutils "gitlab.com/jbyte777/prompt-ql/v3/utils/strings"
 )
 
 func OpenQuerySwitch(

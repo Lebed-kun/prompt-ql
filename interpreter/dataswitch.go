@@ -1,12 +1,12 @@
 package interpreterimpl
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
 
-	openqueryswitch "gitlab.com/jbyte777/prompt-ql/v2/interpreter/dataswitches/openquery"
-	defaultswitch "gitlab.com/jbyte777/prompt-ql/v2/interpreter/dataswitches/default"
-	wrapperswitch "gitlab.com/jbyte777/prompt-ql/v2/interpreter/dataswitches/wrapper"
-	rootswitch "gitlab.com/jbyte777/prompt-ql/v2/interpreter/dataswitches/root"
+	openqueryswitch "gitlab.com/jbyte777/prompt-ql/v3/interpreter/dataswitches/openquery"
+	defaultswitch "gitlab.com/jbyte777/prompt-ql/v3/interpreter/dataswitches/default"
+	wrapperswitch "gitlab.com/jbyte777/prompt-ql/v3/interpreter/dataswitches/wrapper"
+	rootswitch "gitlab.com/jbyte777/prompt-ql/v3/interpreter/dataswitches/root"
 )
 
 type TRootSwitchTable map[string]interpreter.TDataSwitchFunction
@@ -21,6 +21,7 @@ var rootSwitchTable TRootSwitchTable = map[string]interpreter.TDataSwitchFunctio
 	"system": wrapperswitch.WrapperSwitch,
 	"data": wrapperswitch.WrapperSwitch,
 	"error": wrapperswitch.WrapperSwitch,
+	"embed_if": defaultswitch.DefaultSwitch,
 }
 
 func rootDataSwitch(

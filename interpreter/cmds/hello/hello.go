@@ -3,9 +3,9 @@ package hellocmd
 import (
 	"encoding/json"
 	"fmt"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
-	api "gitlab.com/jbyte777/prompt-ql/v2/api"
-	customapis "gitlab.com/jbyte777/prompt-ql/v2/custom-apis"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
+	api "gitlab.com/jbyte777/prompt-ql/v3/api"
+	customapis "gitlab.com/jbyte777/prompt-ql/v3/custom-apis"
 )
 
 func MakeHelloCmd(
@@ -23,8 +23,8 @@ func MakeHelloCmd(
 		modelsList := gptApi.GetAllModelsList()
 		customModels := customApis.GetAllModelsList()
 
-		for model := range customModels {
-			modelsList[model] = true
+		for name, desc := range customModels {
+			modelsList[name] = desc
 		}
 
 		externalGlobals := interpreter.GetExternalGlobalsList()
@@ -43,6 +43,9 @@ func MakeHelloCmd(
 			)
 		}
 
-		return string(rawResult)
+		return fmt.Sprintf(
+			"MY_LAYOUT:%v\n",
+			string(rawResult),
+		)
 	}
 }

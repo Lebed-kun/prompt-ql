@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sync"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/v2/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v3/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/interpreter"
 )
 
 func setupFirstAgent() *interpreter.TPromptQL {
@@ -16,9 +16,21 @@ func setupFirstAgent() *interpreter.TPromptQL {
 			return nil
 		},
 	}
+	defaultGlobalsMeta := interpretercore.TExternalGlobalsMetaTable{
+		"myRef111": &interpretercore.TExternalGlobalMetaInfo{
+			Description: "an Alice's reference to @myVar",
+		},
+		"myVar111": &interpretercore.TExternalGlobalMetaInfo{
+			Description: "an Alice's example external variable",
+		},
+		"myFunc111": &interpretercore.TExternalGlobalMetaInfo{
+			Description: "an Alice's example external function",
+		},
+	}
 	agent := interpreter.New(
 		interpreter.TPromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
+			DefaultExternalGlobalsMeta: defaultGlobalsMeta,
 		},
 	)
 	agent.CustomApis.RegisterModelApi(
@@ -31,6 +43,7 @@ func setupFirstAgent() *interpreter.TPromptQL {
 		) (string, error) {
 			return "", nil
 		},
+		"my model 111",
 	)
 
 	return agent
@@ -43,9 +56,18 @@ func setupSecondAgent() *interpreter.TPromptQL {
 			return nil
 		},
 	}
+	defaultGlobalsMeta := interpretercore.TExternalGlobalsMetaTable{
+		"myVar222": &interpretercore.TExternalGlobalMetaInfo{
+			Description: "a Bob's example external variable",
+		},
+		"myFunc222": &interpretercore.TExternalGlobalMetaInfo{
+			Description: "a Bob's example external function",
+		},
+	}
 	agent := interpreter.New(
 		interpreter.TPromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
+			DefaultExternalGlobalsMeta: defaultGlobalsMeta,
 		},
 	)
 	agent.CustomApis.RegisterModelApi(
@@ -58,12 +80,14 @@ func setupSecondAgent() *interpreter.TPromptQL {
 		) (string, error) {
 			return "", nil
 		},
+		"my model 222",
 	)
 
 	return agent
 }
 
 // 07-10-2023: Works +++
+// 04-11-2023: Works with descriptions +++
 func MultiagentPingPongTest() {
 	agent1 := setupFirstAgent()
 	agent2 := setupSecondAgent()

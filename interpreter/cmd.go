@@ -1,19 +1,22 @@
 package interpreterimpl
 
 import (
-	api "gitlab.com/jbyte777/prompt-ql/v2/api"
-	customapis "gitlab.com/jbyte777/prompt-ql/v2/custom-apis"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	api "gitlab.com/jbyte777/prompt-ql/v3/api"
+	customapis "gitlab.com/jbyte777/prompt-ql/v3/custom-apis"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
 
-	callcmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/call"
-	getcmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/get"
-	listenquerycmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/listenquery"
-	openquerycmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/openquery"
-	setcmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/set"
-	wrappercmds "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/wrapper-cmds"
-	hellocmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/hello"
-	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/open-session"
-	closesessioncmd "gitlab.com/jbyte777/prompt-ql/v2/interpreter/cmds/close-session"
+	callcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/call"
+	getcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/get"
+	listenquerycmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/listenquery"
+	openquerycmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/openquery"
+	setcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/set"
+	wrappercmds "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/wrapper-cmds"
+	hellocmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/hello"
+	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/open-session"
+	closesessioncmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/close-session"
+	headercmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/header"
+	embedifcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/embed-if"
+	nopcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/nop"
 )
 
 func makeCmdTable(
@@ -34,5 +37,8 @@ func makeCmdTable(
 		"hello": hellocmd.MakeHelloCmd(gptApi, customApis),
 		"session_begin": opensessioncmd.OpenSessionCmd,
 		"session_end": closesessioncmd.CloseSessionCmd,
+		"header": headercmd.HeaderCmd,
+		"embed_if": embedifcmd.EmbedIfCmd,
+		"nop": nopcmd.NopCmd,
 	}
 }

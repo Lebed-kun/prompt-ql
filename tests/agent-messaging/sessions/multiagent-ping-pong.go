@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/v2/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v3/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/interpreter"
 )
 
 func setupFirstAgent() *interpreter.TPromptQL {
@@ -32,6 +32,7 @@ func setupFirstAgent() *interpreter.TPromptQL {
 		) (string, error) {
 			return "", nil
 		},
+		"my model 111",
 	)
 
 	return agent
@@ -59,12 +60,14 @@ func setupSecondAgent() *interpreter.TPromptQL {
 		) (string, error) {
 			return "", nil
 		},
+		"my model 222",
 	)
 
 	return agent
 }
 
 // 07-10-2023: Works +++
+// 04-11-2023: Works +++
 func MultiagentSessionPingPongTest() {
 	agent1 := setupFirstAgent()
 	agent2 := setupSecondAgent()

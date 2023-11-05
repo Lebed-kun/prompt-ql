@@ -1,7 +1,7 @@
 package customapis
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
 )
 
 type TDoQueryFuncTable map[string]TDoQueryFunc
@@ -12,6 +12,12 @@ type TDoQueryFunc func(
 	inputs interpreter.TFunctionInputChannelTable,
 	execInfo interpreter.TExecutionInfo,
 ) (string, error)
+
+type TCustomModelMetaTable map[string]*TCustomModelMetaInfo
+
+type TCustomModelMetaInfo struct {
+	Description string
+}
 
 type TCustomQueryHandle struct {
 	IsCustom bool

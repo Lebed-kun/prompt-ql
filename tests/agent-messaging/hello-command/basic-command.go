@@ -3,11 +3,12 @@ package hellocommandtests
 import (
 	"fmt"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/v2/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v2/interpreter"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v3/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v3/interpreter"
 )
 
 // 07-10-2023: Works +++
+// 04-11-2023: Works with descriptions +++
 func HelloCommandTest() {
 	defaultGlobals := interpretercore.TGlobalVariablesTable{
 		"myRef": "@myVar",
@@ -16,9 +17,21 @@ func HelloCommandTest() {
 			return nil
 		},
 	}
+	defaultGlobalsMeta := interpretercore.TExternalGlobalsMetaTable{
+		"myRef": &interpretercore.TExternalGlobalMetaInfo{
+			Description: "a reference to @myVar",
+		},
+		"myVar": &interpretercore.TExternalGlobalMetaInfo{
+			Description: "an example external variable",
+		},
+		"myFunc": &interpretercore.TExternalGlobalMetaInfo{
+			Description: "an example external function",
+		},
+	}
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
+			DefaultExternalGlobalsMeta: defaultGlobalsMeta,
 		},
 	)
 
@@ -32,6 +45,7 @@ func HelloCommandTest() {
 		) (string, error) {
 			return "", nil
 		},
+		"my model 111",
 	)
 	interpreterInst.CustomApis.RegisterModelApi(
 		"myMlModel222",
@@ -43,6 +57,7 @@ func HelloCommandTest() {
 		) (string, error) {
 			return "", nil
 		},
+		"my model 222",
 	)
 
 	result := interpreterInst.Instance.Execute(
