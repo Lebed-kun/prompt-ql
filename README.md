@@ -287,7 +287,7 @@ result := interpreterInst.Execute(
 ```
 
 
-## Supported PromptQL commands v2.x
+## Supported PromptQL commands v3.x
 ### 1. Basic query commands
  - `{~open_query user to="X" model="Y" temperature="Z"}<execution_text>{/open_query}` - sends prompt request for given ML model that's defined by `<execution_text>` . It doesn't block execution of query. The command doesn't return any data. `<execution_text>` defines an input data for the command as follows:
 ```
