@@ -484,21 +484,20 @@ For references to external variables:
 
 
  - PromptQL.CustomApis methods:
+	- `func (self *PromptQL) CustomApis.RegisterModelApi(name string, doQuery TDoQueryFunc, description string)` - defines ML model API with its own unique name and function for processing queries. And optional description if provided. The `doQuery` function is defined by this convention:
 
- - `func (self *PromptQL) CustomApis.RegisterModelApi(name string, doQuery TDoQueryFunc, description string)` - defines ML model API with its own unique name and function for processing queries. And optional description if provided. The `doQuery` function is defined by this convention:
+		```
+			func(
+				model string,
+				temperature float64,
+				inputs interpreter.TFunctionInputChannelTable,
+				execInfo interpreter.TExecutionInfo,
+			) (string, error)
+		```
 
-	```
-	  func(
-	    model string,
-	    temperature float64,
-	    inputs interpreter.TFunctionInputChannelTable,
-	    execInfo interpreter.TExecutionInfo,
-    ) (string, error)
-	```
+		This function should block if it contains some blocking requests to IO, DB, network etc. As it executes in separate goroutine that pushes result to query handle;
 
-	This function should block if it contains some blocking requests to IO, DB, network etc. As it executes in separate goroutine that pushes result to query handle;
-
-- `func (self *CustomModelsApis) GetAllModelsList() map[string]string` - returns a list of user-defined ML models with their descriptions. It's primarily used by the `{~hello /}` command, but you can use it for other scenarios on your own;
+	- `func (self *CustomModelsApis) GetAllModelsList() map[string]string` - returns a list of user-defined ML models with their descriptions. It's primarily used by the `{~hello /}` command, but you can use it for other scenarios on your own;
 
 
 ## Architecture
