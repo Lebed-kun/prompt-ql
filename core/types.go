@@ -38,3 +38,13 @@ type TExecutionInfo struct {
 	CharPos int
 	StrPos int
 }
+
+type TEmbeddingsTable map[string]string
+
+type TEmbeddingArgsTable map[string]string
+
+type TEmbeddingMetaInfo struct {
+	Description string
+}
+
+type TEmbeddingMetaInfoTable map[string]*TEmbeddingMetaInfo

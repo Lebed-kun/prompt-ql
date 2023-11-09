@@ -28,10 +28,12 @@ func MakeHelloCmd(
 		}
 
 		externalGlobals := interpreter.GetExternalGlobalsList()
+		embeddings := interpreter.GetEmbeddingsList()
 
 		result := THelloCmdResponse{
 			MyModels: modelsList,
 			MyVariables: externalGlobals,
+			MyEmbeddings: embeddings,
 		}
 		rawResult, err := json.Marshal(result)
 		if err != nil {

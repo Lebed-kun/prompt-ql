@@ -10,6 +10,7 @@ func (self *Interpreter) resetImpl() {
 	}
 	self.isDirty = false
 	self.criticalError = nil
+	self.embeddings = make(TEmbeddingsTable)
 }
 
 func (self *Interpreter) resetPosition() {

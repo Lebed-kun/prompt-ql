@@ -1,6 +1,9 @@
 package interpretercore
 
 import (
+	"fmt"
+	"strings"
+
 	stringsutils "gitlab.com/jbyte777/prompt-ql/v4/utils/strings"
 )
 
@@ -23,4 +26,24 @@ func (self TFunctionInputChannel) LatestCleanData() interface{} {
 	}
 
 	return nil
+}
+
+func (self TFunctionInputChannel) MergeIntoString() (string, error) {
+	result := strings.Builder{}
+	for _, arg := range self {
+		argStr, isArgStr := arg.(string)
+
+		if !isArgStr {
+			return "", fmt.Errorf(
+				"argument \"%v\" is not a string",
+				arg,
+			)
+		}
+
+		result.WriteString(argStr)
+	}
+
+	return stringsutils.TrimWhitespace(
+		result.String(),
+	), nil
 }

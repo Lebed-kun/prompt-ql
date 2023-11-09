@@ -22,6 +22,8 @@ var rootSwitchTable TRootSwitchTable = map[string]interpreter.TDataSwitchFunctio
 	"data": wrapperswitch.WrapperSwitch,
 	"error": wrapperswitch.WrapperSwitch,
 	"embed_if": defaultswitch.DefaultSwitch,
+	"embed_def": defaultswitch.DefaultSwitch,
+	"embed_exp": defaultswitch.DefaultSwitch,
 }
 
 func rootDataSwitch(

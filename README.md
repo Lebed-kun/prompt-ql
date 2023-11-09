@@ -287,8 +287,10 @@ result := interpreterInst.Execute(
 ```
 
 
-## Supported PromptQL commands v3.x
+## Supported PromptQL commands v4.x
 ### 1. Basic query commands
+They are basic building blocks of a query to ML models. They have been introduced since the v1.x version
+
  - `{~open_query user to="X" model="Y" temperature="Z"}<execution_text>{/open_query}` - sends prompt request for given ML model that's defined by `<execution_text>` . It doesn't block execution of query. The command doesn't return any data. `<execution_text>` defines an input data for the command as follows:
 ```
  - "!user <text>", "!data <text>" -> USER input channel;
@@ -360,7 +362,9 @@ Static arguments for the command are:
 They receive all input data in the `DATA` channel;
 
 ### 2. Agent messaging commands
- - `{~hello /}` - returns a set of ML models and external variables defined in given PromptQL instance. It's useful for acknowleding user or other automatic agent of given PromptQL agent capabilities. The command returns a JSON string with following structure:
+They are useful for communicating API of some called agent to calling agent. They have been introduced since the v2.x version
+
+ - `{~hello /}` - returns a set of ML models, external variables and code embeddings. They're defined in given PromptQL instance. It's useful for acknowleding user or other automatic agent of given PromptQL agent capabilities. The command returns a JSON string with following structure:
  ```
    {
       "myModels": {
@@ -372,10 +376,12 @@ They receive all input data in the `DATA` channel;
 				"myVar1": "description of myVar1",
 				...
 			},
+			"myEmbeddings": {
+				"myEmbedding1": "description of myEmbedding1",
+				...
+			},
 	 }
  ```
- - `{~session_begin /}` - opens a current execution session. After opening a session and execution of PromptQL chunk, a state of interpreter is saved (except its cursor pointing to program text). The command brings a basic management of execution flow to protocol/language level;
- - `{~session_end /}` - closes a current execution session. After closing a session and execution of PromptQL chunk, a full state of interpreter is lost. The command brings a basic management of execution flow to protocol/language level;
  - `{~header from="Sender agent" to="Receiver agent" /}` - returns a message header formatted in JSON. It's useful for dynamic routing of PromptQL message to arbitrary known agent. The command returns a JSON string with following structure:
  ```
    {
@@ -384,8 +390,22 @@ They receive all input data in the `DATA` channel;
 	 }
  ```
 
-### 3. Code embedding commands
-- `{~embed_if cond=@conditionFunc}<arg1><arg2>...<yes_branch><no_branch>{/embed_if}` - checks condition `cond` with arguments `<arg1><arg2>...`. If it's `true`, then `<yes_branch>` is returned. Otherwise, `<no_branch>` is returned. `cond` should have a type of `func([]interface{}) bool`. The command is useful for conditionally embedding PromptQL code on executing agent side;
+### 3. Execution life-cycle commands
+They are useful for controlling agent's execution flow at language level. They have been introduced since the v2.x version
+
+ - `{~session_begin /}` - opens a current execution session. After opening a session and execution of PromptQL chunk, a state of interpreter is saved (except its cursor pointing to program text). The command brings a basic management of execution flow to protocol/language level;
+ - `{~session_end /}` - closes a current execution session. After closing a session and execution of PromptQL chunk, a full state of interpreter is lost. The command brings a basic management of execution flow to protocol/language level;
+
+### 4. Code embedding commands
+They are useful for embedding PromptQL code as data in messages. It's useful for later code execution: by forwarded agent, for separation of interfacing and implementation etc. They have been introduced since the v3.x version.
+
+Embeddable can contain placeholders defined as a special literal with the `%` sign like `%embd_arg`. They are resolved on code expansion.
+
+ - `{~embed_if cond=@conditionFunc}<arg1><arg2>...<yes_branch><no_branch>{/embed_if}` - checks condition `cond` with arguments `<arg1><arg2>...`. If it's `true`, then `<yes_branch>` is returned. Otherwise, `<no_branch>` is returned. `cond` should have a type of `func([]interface{}) bool`. The command is useful for conditionally embedding PromptQL code on executing agent side;
+ - `{~embed_def name="embed_name" desc="embed_description"}<PromptQL code as text>{/embed_def}` - registers a `<PromptQL code as text>` as an expandable chunk of code for later expansion and execution by `embed_name`. `embed_description` can be optionally provided for communicating layout of embedding in the `{~hello /}` command;
+ - `{~embed_exp name="embed_name"}<arg1=val1>...<argN=valN>{/embed_exp}` - expands a PromptQL code defined as embedding `embed_name`. `<arg1=val1>...<argN=valN>` can be optionally provided to pass placeholders to embedding. Placeholder is defined as a special literal like: `%arg1`, ..., `%argN`;
+
+### 5. Miscellaneous commands
 - `{~nop /}` - returns empty characters sequence `\x00` . It's a phantom command that can serve as an argument filler for other PromptQL commands;
 
 
@@ -415,43 +435,52 @@ For references to external variables:
  ```
 
  - PromptQL.Instance methods:
+	- Basic API:
+		- `func (self *Interpreter) Execute(program string) *TInterpreterResult` - executes query as a part of **current** session. I.e. if session is closed, then state of interpreter is completely reset after execution. Otherwise only interpreter cursor is reset.
 
-  - `func (self *Interpreter) Execute(program string) *TInterpreterResult` - executes query as a part of **current** session. I.e. if session is closed, then state of interpreter is completely reset after execution. Otherwise only interpreter cursor is reset.
- 
-  The method receives parameters:
-  ```
-  - "program" - is an executed PromptQL program;
-  ```
+		The method receives parameters:
+		```
+		- "program" - is an executed PromptQL program;
+		```
 
-  The method returns `*TInterpreterResult` which consists of:
-  ```
-  - "Result" - is a collection of input channels for root context (which represents a final result). It contains "data" and "error" channels;
-  - "Error" - is a parsing error;
-  - "Complete" - is a flag for completeness of execution of PromptQL program. Execution of PromptQL chunk is complete in 3 cases:
-	 1. When parsing error occurs (i.e. `*TInterpreterResult.Error != nil`);
-	 2. When all PromptQL commands are executed in current chunk. Only root context is left;
-	 3. When runtime/execution error occurs (i.e. when `*TInterpreterResult.Result` contains `error` data);
-  ```
-  For nice formatting of `Result`, you can use methods `func (self *TInterpreterResult) ResultDataStr() (string, bool)` and `func (self *TInterpreterResult) ResultErrorStr() (string, bool)`.
+		The method returns `*TInterpreterResult` which consists of:
+		```
+		- "Result" - is a collection of input channels for root context (which represents a final result). It contains "data" and "error" channels;
+		- "Error" - is a parsing error;
+		- "Complete" - is a flag for completeness of execution of PromptQL program. Execution of PromptQL chunk is complete in 3 cases:
+			1. When parsing error occurs (i.e. `*TInterpreterResult.Error != nil`);
+			2. When all PromptQL commands are executed in current chunk. Only root context is left;
+			3. When runtime/execution error occurs (i.e. when `*TInterpreterResult.Result` contains `error` data);
+		```
+		For nice formatting of `Result`, you can use methods `func (self *TInterpreterResult) ResultDataStr() (string, bool)` and `func (self *TInterpreterResult) ResultErrorStr() (string, bool)`.
 
-	Notice that these methods formats a result accumulated as a text on all root input channel entries. For getting the latest clean result you can use the `func (self *TInterpreterResult) ResultLatestData(chanName string) interface{}`
+		Notice that these methods formats a result accumulated as a text on all root input channel entries. For getting the latest clean result you can use the `func (self *TInterpreterResult) ResultLatestData(chanName string) interface{}`
 
 
-  - `func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult` - executes query as a part of **open** session. Only interpreter cursor is reset.
+		- `func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult` - executes query as a part of **open** session. Only interpreter cursor is reset.
 
-  The method receives parameters:
-  ```
-  - "program" - is an executed PromptQL program;
-  ```
+		The method receives parameters:
+		```
+		- "program" - is an executed PromptQL program;
+		```
 
-  - `func (self *PromptQL) Instance.Reset()` - for manually resetting all interpreter state. You can use it for very specific use-cases when standard PromptQL execution flow is not suitable; 
-  - `func (self *PromptQL) Instance.IsDirty() bool` - determines if interpreter is in process of execution PromptQL session. It's `false` after execution of closed session and after calling the `Reset` method;
-	- `func (self *Interpreter) Instance.SetExternalGlobals(globals TGlobalVariablesTable)` - for late setup of default external variables table;
-	- `func (self *Interpreter) Instance.SetExternalGlobalVar(name string, val interface{}, description string)` - for late setup of some external variable (with optional description);
-	- `func (self *Interpreter) Instance.GetExternalGlobalsList() map[string]string` - for getting list of external globals with descriptions. It's primarily used by the `{~hello /}` command, but you can use it in other scenarios on your own;
-	- `func (self *Interpreter) Instance.OpenSession()` - for opening PromptQL execution session. It's primarily used by the `{~session_begin /}` command, but you can use it in other scenarios on your own (carefully as it modifies an instance state!);
-	- `func (self *Interpreter) Instance.CloseSession()` - for closing PromptQL execution session. It's primarily used by the `{~session_end /}` command, but you can use it in other scenarios on your own (carefully as it modifies an instance state!);
-	- `func (self *Interpreter) Instance.IsSessionClosed() bool` - returns a flag of **current** session state;
+		- `func (self *PromptQL) Instance.Reset()` - for manually resetting all interpreter state. You can use it for very specific use-cases when standard PromptQL execution flow is not suitable; 
+		- `func (self *PromptQL) Instance.IsDirty() bool` - determines if interpreter is in process of execution PromptQL session. It's `false` after execution of closed session and after calling the `Reset` method;
+
+	- Globals API:
+		- `func (self *Interpreter) Instance.SetExternalGlobals(globals TGlobalVariablesTable)` - for late setup of default external variables table;
+		- `func (self *Interpreter) Instance.SetExternalGlobalVar(name string, val interface{}, description string)` - for late setup of some external variable (with optional description);
+		- `func (self *Interpreter) Instance.GetExternalGlobalsList() map[string]string` - for getting list of external globals with descriptions. It's primarily used by the `{~hello /}` command, but you can use it in other scenarios on your own;
+
+	- Sessions API:
+		- `func (self *Interpreter) Instance.OpenSession()` - for opening PromptQL execution session. It's primarily used by the `{~session_begin /}` command, but you can use it in other scenarios on your own (carefully as it modifies an instance state!);
+		- `func (self *Interpreter) Instance.CloseSession()` - for closing PromptQL execution session. It's primarily used by the `{~session_end /}` command, but you can use it in other scenarios on your own (carefully as it modifies an instance state!);
+		- `func (self *Interpreter) Instance.IsSessionClosed() bool` - returns a flag of **current** session state;
+	
+	- Embeddings API:
+		- `func (self *Interpreter) Instance.GetEmbeddingsList() map[string]string` - for getting list of embeddings with descriptions. It's primarily used by the `{~hello /}` command, but you can use it in other scenarios on your own;
+		- `func (self *Interpreter) Instance.RegisterEmbedding(name string, code string, description string)` - for registering some PromptQL code chunk for later expansion or execution (with optional description), It's primarily used by the `{~embed_def}{/embed_def}` command, but you can use it in other scenarios on your own;
+		- `func (self *Interpreter) Instance.ExpandEmbedding(name string, args TEmbeddingArgsTable) (string, error)` - for expanding PromptQL code chunk (with optional `args`). It's primarily used by the `{~embed_exp}{/embed_exp}` command, but you can use it in other scenarios on your own;
 
 
  - PromptQL.CustomApis methods:

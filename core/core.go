@@ -1,5 +1,10 @@
 package interpretercore
 
+import (
+	"fmt"
+	"strings"
+)
+
 type Interpreter struct {
 	// Settings
 	execFnTable   TExecutedFunctionTable
@@ -20,6 +25,10 @@ type Interpreter struct {
 	// Current globals
 	internalGlobals       TGlobalVariablesTable
 	externalGlobals TGlobalVariablesTable
+
+	// Current embeddings
+	embeddings TEmbeddingsTable
+	embeddingsMeta TEmbeddingMetaInfoTable
 }
 
 func New(
@@ -52,8 +61,14 @@ func New(
 		// Current globals
 		internalGlobals:       make(TGlobalVariablesTable),
 		externalGlobals: initializeExternalGlobals(defaultExternalVars),
+
+		// Current embeddings
+		embeddings: make(TEmbeddingsTable),
+		embeddingsMeta: make(TEmbeddingMetaInfoTable),
 	}
 }
+
+// [BEGIN] Basic API
 
 func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult {
 	res := self.executeImpl([]rune(program))
@@ -78,6 +93,10 @@ func (self *Interpreter) Reset() {
 func (self *Interpreter) IsDirty() bool {
 	return self.isDirty
 }
+
+// [END] Basic API
+
+// [BEGIN] Globals API
 
 func (self *Interpreter) SetExternalGlobals(globals TGlobalVariablesTable, globalsMeta TExternalGlobalsMetaTable) {
 	self.defaultExternalGlobals = globals
@@ -119,6 +138,10 @@ func (self *Interpreter) GetExternalGlobalsList() map[string]string {
 	return res
 }
 
+// [END] Globals API
+
+// [BEGIN] Sessions API
+
 func (self *Interpreter) OpenSession() {
 	self.sessionClosed = false
 }
@@ -130,3 +153,65 @@ func (self *Interpreter) CloseSession() {
 func (self *Interpreter) IsSessionClosed() bool {
 	return self.sessionClosed
 }
+
+// [END] Sessions API
+
+// [BEGIN] Embeddings API
+
+func (self *Interpreter) GetEmbeddingsList() map[string]string {
+	res := make(map[string]string, 0)
+	
+	for k, v := range self.embeddingsMeta {
+		res[k] = v.Description
+	}
+
+	return res
+}
+
+func (self *Interpreter) RegisterEmbedding(name string, code string, description string) {
+	self.embeddings[name] = code
+	if len(description) > 0 {
+		self.embeddingsMeta[name] = &TEmbeddingMetaInfo{
+			Description: description,
+		}
+	}
+}
+
+func (self *Interpreter) ExpandEmbedding(name string, args TEmbeddingArgsTable) (string, error) {
+	embd, hasEmbd := self.embeddings[name]
+	if !hasEmbd {
+		return "", self.getError(
+			fmt.Sprintf("embedding named \"%v\" is not defined", name),
+		)
+	}
+
+	embdRunes := []rune(embd)
+	res := strings.Builder{}
+	ptr := 0
+	for ptr < len(embdRunes) {
+		if embdRunes[ptr] == '%' && ptr < len(embdRunes) - 1 && isAlphaChar(embdRunes[ptr+1]) {
+			ptr++
+
+			begin := ptr
+			for ptr < len(embdRunes) && isAlphaChar(embdRunes[ptr]) {
+				ptr++
+			}
+
+			argName := string(embdRunes[begin:ptr])
+			argVal, hasArg := args[argName]
+			if !hasArg {
+				argVal = fmt.Sprintf("%%%v", argName)
+			}
+
+			res.WriteString(argVal)
+			continue
+		}
+
+		res.WriteRune(embdRunes[ptr])
+		ptr++
+	}
+
+	return res.String(), nil
+}
+
+// [END] Embeddings API
