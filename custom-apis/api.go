@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
-	errorsutils "gitlab.com/jbyte777/prompt-ql/v3/utils/errors"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v4/core"
+	errorsutils "gitlab.com/jbyte777/prompt-ql/v4/utils/errors"
 )
 
 type CustomModelsApis struct {

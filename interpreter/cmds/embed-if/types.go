@@ -1,7 +1,7 @@
 package embedifcmd
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v4/core"
 )
 
 type TCondCallableFunction func(

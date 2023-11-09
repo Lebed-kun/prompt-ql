@@ -1,9 +1,9 @@
 package wrapperswicth
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
-	promptmsg "gitlab.com/jbyte777/prompt-ql/v3/utils/promptmsg"
-	stringsutils "gitlab.com/jbyte777/prompt-ql/v3/utils/strings"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v4/core"
+	promptmsg "gitlab.com/jbyte777/prompt-ql/v4/utils/promptmsg"
+	stringsutils "gitlab.com/jbyte777/prompt-ql/v4/utils/strings"
 )
 
 func WrapperSwitch(

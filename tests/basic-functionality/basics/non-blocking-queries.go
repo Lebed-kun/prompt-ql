@@ -3,9 +3,9 @@ package basicfunctionalitytests
 import (
 	"fmt"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/v3/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v3/interpreter"
-	testutils "gitlab.com/jbyte777/prompt-ql/v3/tests/utils"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v4/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v4/interpreter"
+	testutils "gitlab.com/jbyte777/prompt-ql/v4/tests/utils"
 )
 
 // Works +++++

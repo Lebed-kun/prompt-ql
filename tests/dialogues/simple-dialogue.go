@@ -3,7 +3,7 @@ package dialoguestests
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/v3/interpreter"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v4/interpreter"
 )
 
 // Works +++++

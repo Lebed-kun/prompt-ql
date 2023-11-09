@@ -3,7 +3,7 @@ package interpreterutils
 import (
 	"fmt"
 	"strings"
-	api "gitlab.com/jbyte777/prompt-ql/v3/api"
+	api "gitlab.com/jbyte777/prompt-ql/v4/api"
 )
 
 func MergeGptApiChoices(choices []api.TGptApiResponseChoice) string {

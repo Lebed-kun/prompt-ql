@@ -1,8 +1,8 @@
 package rootswicth
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
-	promptmsg "gitlab.com/jbyte777/prompt-ql/v3/utils/promptmsg"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v4/core"
+	promptmsg "gitlab.com/jbyte777/prompt-ql/v4/utils/promptmsg"
 )
 
 func RootSwitch(

@@ -3,7 +3,7 @@ package headercmd
 import (
 	"encoding/json"
 	"fmt"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v4/core"
 )
 
 func HeaderCmd(

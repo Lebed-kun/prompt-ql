@@ -1,22 +1,22 @@
 package interpreterimpl
 
 import (
-	api "gitlab.com/jbyte777/prompt-ql/v3/api"
-	customapis "gitlab.com/jbyte777/prompt-ql/v3/custom-apis"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v3/core"
+	api "gitlab.com/jbyte777/prompt-ql/v4/api"
+	customapis "gitlab.com/jbyte777/prompt-ql/v4/custom-apis"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v4/core"
 
-	callcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/call"
-	getcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/get"
-	listenquerycmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/listenquery"
-	openquerycmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/openquery"
-	setcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/set"
-	wrappercmds "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/wrapper-cmds"
-	hellocmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/hello"
-	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/open-session"
-	closesessioncmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/close-session"
-	headercmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/header"
-	embedifcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/embed-if"
-	nopcmd "gitlab.com/jbyte777/prompt-ql/v3/interpreter/cmds/nop"
+	callcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/call"
+	getcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/get"
+	listenquerycmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/listenquery"
+	openquerycmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/openquery"
+	setcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/set"
+	wrappercmds "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/wrapper-cmds"
+	hellocmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/hello"
+	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/open-session"
+	closesessioncmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/close-session"
+	headercmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/header"
+	embedifcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/embed-if"
+	nopcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/nop"
 )
 
 func makeCmdTable(
