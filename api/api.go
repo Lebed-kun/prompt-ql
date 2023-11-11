@@ -25,6 +25,10 @@ func New(
 	openAiKey string,
 	listenQueryTimeoutSec uint,
 ) *GptApi {
+	if len(openAiBaseUrl) == 0 {
+		openAiBaseUrl = "https://api.openai.com"
+	}
+
 	if listenQueryTimeoutSec == 0 {
 		listenQueryTimeoutSec = defaultListenQueryTimeoutSec
 	}
