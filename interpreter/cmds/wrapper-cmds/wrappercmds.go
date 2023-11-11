@@ -26,17 +26,16 @@ func MakeWrapperCmd(dataTag string) interpreter.TExecutedFunction {
 			)
 		}
 	
-		rawLatestData := dataChan[len(dataChan) - 1]
-		latestData, isLatestDataStr := rawLatestData.(string)
-		if !isLatestDataStr {
+		latestData, err := dataChan.MergeIntoString()
+		if err != nil {
 			return fmt.Errorf(
-				"!error (line=%v, char=%v): \"%v\" is not valid string for \"%v\" wrapper",
+				"!error (line=%v, char=%v): %v",
 				execInfo.Line,
 				execInfo.CharPos,
-				rawLatestData,
-				dataTag,
+				err.Error(),
 			)
 		}
+
 		return promptmsg.ReplacePromptMsgPrefix(
 			latestData,
 			fmt.Sprintf("!%v", dataTag),

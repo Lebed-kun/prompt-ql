@@ -20,6 +20,8 @@ import (
 	// execution life-cycle commands
 	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/open-session"
 	closesessioncmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/close-session"
+	unsafeclearvarscmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/unsafe-clear-vars"
+	unsafeclearstackcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/unsafe-clear-stack"
 
 	// code embedding commands
 	embedifcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/embed-if"
@@ -54,6 +56,8 @@ func makeCmdTable(
 		// execution life-cycle commands
 		"session_begin": opensessioncmd.OpenSessionCmd,
 		"session_end": closesessioncmd.CloseSessionCmd,
+		"unsafe_clear_vars": unsafeclearvarscmd.UnsafeClearVarsCmd,
+		"unsafe_clear_stack": unsafeclearstackcmd.UnsafeClearStackCmd,
 
 		// code embedding commands
 		"embed_if": embedifcmd.EmbedIfCmd,

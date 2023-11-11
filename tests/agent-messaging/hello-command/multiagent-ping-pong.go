@@ -88,6 +88,7 @@ func setupSecondAgent() *interpreter.TPromptQL {
 
 // 07-10-2023: Works +++
 // 04-11-2023: Works with descriptions +++
+// 11-11-2023: Works on regress +++
 func MultiagentPingPongTest() {
 	agent1 := setupFirstAgent()
 	agent2 := setupSecondAgent()

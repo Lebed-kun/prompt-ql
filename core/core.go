@@ -215,3 +215,17 @@ func (self *Interpreter) ExpandEmbedding(name string, args TEmbeddingArgsTable) 
 }
 
 // [END] Embeddings API
+
+// [BEGIN] Misc control flow API
+
+func (self *Interpreter) ControlFlowClearInternalVars() {
+	self.internalGlobals = make(TGlobalVariablesTable)
+}
+
+func (self *Interpreter) ControlFlowClearStack() {
+	self.execCtxStack = []*TExecutionStackFrame{
+		makeRootStackFrame(),
+	}
+}
+
+// [END] Misc control flow API

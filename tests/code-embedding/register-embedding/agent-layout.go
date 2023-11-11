@@ -1,4 +1,4 @@
-package hellocommandtests
+package registerembeddingtest
 
 import (
 	"fmt"
@@ -7,10 +7,9 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/v4/interpreter"
 )
 
-// 07-10-2023: Works +++
-// 04-11-2023: Works with descriptions +++
-// 11-11-2023: Works on regress +++
-func HelloCommandTest() {
+// 11-11-2023: Works +++
+func AgentLayoutWithEmbeddingTest() {
+	// Define external globals
 	defaultGlobals := interpretercore.TGlobalVariablesTable{
 		"myRef": "@myVar",
 		"myVar": "Hello, PromptQL!",
@@ -36,6 +35,7 @@ func HelloCommandTest() {
 		},
 	)
 
+	// Define custom ML APIs
 	interpreterInst.CustomApis.RegisterModelApi(
 		"myMlModel111",
 		func(
@@ -59,6 +59,22 @@ func HelloCommandTest() {
 			return "", nil
 		},
 		"my model 222",
+	)
+
+	// Define custom code embeddings
+	interpreterInst.Instance.Execute(
+		`
+			{~session_begin /}
+			{~embed_def name="myEmbedding1" desc="Alice code embedding"}
+				<%
+					{~set to="myVar1"}
+						{~data}Hello, Alice!{/data}
+					{/set}
+					{~get from="myVar1" /}
+					%someothercmd
+				%>
+			{/embed_def}
+		`,
 	)
 
 	result := interpreterInst.Instance.Execute(

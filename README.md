@@ -395,6 +395,8 @@ They are useful for controlling agent's execution flow at language level. They h
 
  - `{~session_begin /}` - opens a current execution session. After opening a session and execution of PromptQL chunk, a state of interpreter is saved (except its cursor pointing to program text). The command brings a basic management of execution flow to protocol/language level;
  - `{~session_end /}` - closes a current execution session. After closing a session and execution of PromptQL chunk, a full state of interpreter is lost. The command brings a basic management of execution flow to protocol/language level;
+ - `{~unsafe_clear_vars /}` - clears internal variables state. It's useful for isolated execution of code on single "session" flow. Use it carefully!
+ - `{~unsafe_clear_stack /}` - clears execution context stack. It's useful for isolated execution of code on single "session" flow, for preventing accumulation of results on root. Use it carefully!
 
 ### 4. Code embedding commands
 They are useful for embedding PromptQL code as data in messages. It's useful for later code execution: by forwarded agent, for separation of interfacing and implementation etc. They have been introduced since the v3.x version.
@@ -481,6 +483,10 @@ For references to external variables:
 		- `func (self *Interpreter) Instance.GetEmbeddingsList() map[string]string` - for getting list of embeddings with descriptions. It's primarily used by the `{~hello /}` command, but you can use it in other scenarios on your own;
 		- `func (self *Interpreter) Instance.RegisterEmbedding(name string, code string, description string)` - for registering some PromptQL code chunk for later expansion or execution (with optional description), It's primarily used by the `{~embed_def}{/embed_def}` command, but you can use it in other scenarios on your own;
 		- `func (self *Interpreter) Instance.ExpandEmbedding(name string, args TEmbeddingArgsTable) (string, error)` - for expanding PromptQL code chunk (with optional `args`). It's primarily used by the `{~embed_exp}{/embed_exp}` command, but you can use it in other scenarios on your own;
+
+	- Misc control flow API:
+		- `func (self *Interpreter) ControlFlowClearInternalVars()` - for clearing internal variables state. It's basically used by the `{~unsafe_clear_vars /}` command. If you decide to use it, do it carefully!
+		- `func (self *Interpreter) ControlFlowClearStack()` - for clearing execution context stack up to root. It's basically used by the `{~unsafe_clear_stack /}` command. If you decide to use it, do it carefully!
 
 
  - PromptQL.CustomApis methods:
