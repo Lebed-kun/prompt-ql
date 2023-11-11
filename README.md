@@ -244,7 +244,7 @@ This gives you this output for example:
 
 ## Execute queries partially (and continously)
 
-PromptQL v2.x+ is designed as an imperative protocol for ML-based agents. So partial execution of code is achievable at language level, with the `{~session_begin /}` and `{~session_end /}` commands.
+PromptQL since the v2.x version is designed as an imperative protocol for ML-based agents. So partial execution of code is achievable at language level, with the `{~session_begin /}` and `{~session_end /}` commands.
 
 Session is like a thread of execution: all internal variables keep their state, execution context stack keeps its state during it.
 
@@ -253,7 +253,7 @@ You can view examples for this in a test located by a path of `/tests/basic-func
 
 ## External vs internal variables
 
-PromptQL v2.x makes difference between external and internal variables as it's message-oriented protocol. These kinds of variables differ in few points:
+PromptQL v4.x makes difference between external and internal variables as it's message-oriented protocol. These kinds of variables differ in few points:
 
 * Accessing undefined external variables resolves into a run-time error. Accessing undefined internal variables resolves into `nil` value;
 * Direct writes to external variables resolve into a run-time error. Internal variables can be both read and written; 
