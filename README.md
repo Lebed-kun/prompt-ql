@@ -244,7 +244,7 @@ This gives you this output for example:
 
 ## Execute queries partially (and continously)
 
-PromptQL v2.x+ is designed as an imperative protocol for ML-based agents. So partial execution of code is achievable at language level, with the `{~session_begin /}` and `{~session_end /}` commands. However, API of PromptQL v2.x for Golang still supports the `ExecutePartial` method: it executes PromptQL program just like session is always opened during it.
+PromptQL v2.x+ is designed as an imperative protocol for ML-based agents. So partial execution of code is achievable at language level, with the `{~session_begin /}` and `{~session_end /}` commands.
 
 Session is like a thread of execution: all internal variables keep their state, execution context stack keeps its state during it.
 
@@ -396,7 +396,7 @@ They are useful for controlling agent's execution flow at language level. They h
  - `{~session_begin /}` - opens a current execution session. After opening a session and execution of PromptQL chunk, a state of interpreter is saved (except its cursor pointing to program text). The command brings a basic management of execution flow to protocol/language level;
  - `{~session_end /}` - closes a current execution session. After closing a session and execution of PromptQL chunk, a full state of interpreter is lost. The command brings a basic management of execution flow to protocol/language level;
  - `{~unsafe_clear_vars /}` - clears internal variables state. It's useful for isolated execution of code on single "session" flow. Use it carefully!
- - `{~unsafe_clear_stack /}` - clears execution context stack. It's useful for isolated execution of code on single "session" flow, for preventing accumulation of results on root. Use it carefully!
+ - `{~unsafe_clear_stack /}` - clears execution context stack. The command is useful for isolated execution of code on single "session" flow, for preventing accumulation of results on root. Use it carefully!
 
 ### 4. Code embedding commands
 They are useful for embedding PromptQL code as data in messages. It's useful for later code execution: by forwarded agent, for separation of interfacing and implementation etc. They have been introduced since the v3.x version.
@@ -438,7 +438,8 @@ For references to external variables:
 
  - PromptQL.Instance methods:
 	- Basic API:
-		- `func (self *Interpreter) Execute(program string) *TInterpreterResult` - executes query as a part of **current** session. I.e. if session is closed, then state of interpreter is completely reset after execution. Otherwise only interpreter cursor is reset.
+		- `func (self *Interpreter) Instance.Execute(program string) *TInterpreterResult` - executes query as a part of **current** session. I.e. if session is closed, then state of interpreter is completely reset after execution. Otherwise only interpreter cursor is reset.
+		If code contains restricted commands, then code execution returns an error inside `*TInterpreterResult.Error`
 
 		The method receives parameters:
 		```
@@ -458,13 +459,7 @@ For references to external variables:
 
 		Notice that these methods formats a result accumulated as a text on all root input channel entries. For getting the latest clean result you can use the `func (self *TInterpreterResult) ResultLatestData(chanName string) interface{}`
 
-
-		- `func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult` - executes query as a part of **open** session. Only interpreter cursor is reset.
-
-		The method receives parameters:
-		```
-		- "program" - is an executed PromptQL program;
-		```
+		- `func (self *Interpreter) Instance.UnsafeExecute(program string) *TInterpreterResult` - same as `Instance.Execute`. But it allows to execute PromptQL commands without any restrictions. It's best suited for internal setups like embeddings definitions; 
 
 		- `func (self *PromptQL) Instance.Reset()` - for manually resetting all interpreter state. You can use it for very specific use-cases when standard PromptQL execution flow is not suitable; 
 		- `func (self *PromptQL) Instance.IsDirty() bool` - determines if interpreter is in process of execution PromptQL session. It's `false` after execution of closed session and after calling the `Reset` method;
@@ -486,7 +481,7 @@ For references to external variables:
 
 	- Misc control flow API:
 		- `func (self *Interpreter) ControlFlowClearInternalVars()` - for clearing internal variables state. It's basically used by the `{~unsafe_clear_vars /}` command. If you decide to use it, do it carefully!
-		- `func (self *Interpreter) ControlFlowClearStack()` - for clearing execution context stack up to root. It's basically used by the `{~unsafe_clear_stack /}` command. If you decide to use it, do it carefully!
+		- `func (self *Interpreter) ControlFlowClearStack()` - for clearing execution context stack up to root. It also clears parsing error. It's basically used by the `{~unsafe_clear_stack /}` command. If you decide to use it, do it carefully!
 
 
  - PromptQL.CustomApis methods:

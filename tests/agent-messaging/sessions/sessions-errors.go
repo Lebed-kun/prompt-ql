@@ -6,7 +6,7 @@ import (
 )
 
 // 07-10-2023: Works +++
-func OpenSessionError() {
+func OpenSessionErrorTest() {
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{},
 	)
@@ -32,7 +32,7 @@ func OpenSessionError() {
 }
 
 // 07-10-2023: Works +++
-func CloseSessionError() {
+func CloseSessionErrorTest() {
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{},
 	)

@@ -153,7 +153,7 @@ func (self *Interpreter) resolveName(program []rune) string {
 	return name.String()
 }
 
-func (self *Interpreter) resolveTopCtx() {
+func (self *Interpreter) resolveTopCtx(withCmdRestrictions bool) {
 	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
 	if len(self.execCtxStack) < 2 || topCtx.State != StackFrameStateIsClosing {
 		return
@@ -166,6 +166,17 @@ func (self *Interpreter) resolveTopCtx() {
 		self.criticalError = self.getError(
 			fmt.Sprintf(
 				"command with name \"%v\" doesn't exist in interpreter table",
+				topCtx.FnName,
+			),
+		)
+		return
+	}
+
+	_, isCmdRestricted := self.restrictedCmds[topCtx.FnName]
+	if withCmdRestrictions && isCmdRestricted {
+		self.criticalError = self.getError(
+			fmt.Sprintf(
+				"command with name \"%v\" is forbidden to be executed on safe flow",
 				topCtx.FnName,
 			),
 		)
@@ -204,7 +215,7 @@ func (self *Interpreter) resolveTopCtx() {
 	}
 }
 
-func (self *Interpreter) executeImpl(program []rune) *TInterpreterResult {
+func (self *Interpreter) executeImpl(program []rune, withCmdRestrictions bool) *TInterpreterResult {
 	self.isDirty = true
 
 	for self.strPos < len(program) {
@@ -235,7 +246,7 @@ func (self *Interpreter) executeImpl(program []rune) *TInterpreterResult {
 				self.strPos++
 				self.charPos++
 			case '}':
-				self.resolveTopCtx()
+				self.resolveTopCtx(withCmdRestrictions)
 				self.mode = InterpreterModePlainText
 				self.strPos++
 				self.charPos++
@@ -266,6 +277,16 @@ func (self *Interpreter) executeImpl(program []rune) *TInterpreterResult {
 		Error:    self.criticalError,
 		Complete: complete,
 	}
+}
+
+func (self *Interpreter) executeFullImpl(program []rune, withCmdRestrictions bool) *TInterpreterResult {
+	res := self.executeImpl(program, withCmdRestrictions)
+	if self.sessionClosed {
+		self.resetImpl()
+	} else {
+		self.resetPosition()
+	}
+	return res
 }
 
 

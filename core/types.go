@@ -48,3 +48,5 @@ type TEmbeddingMetaInfo struct {
 }
 
 type TEmbeddingMetaInfoTable map[string]*TEmbeddingMetaInfo
+
+type TRestrictedCommands map[string]bool

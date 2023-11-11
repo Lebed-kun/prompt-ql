@@ -29,6 +29,9 @@ type Interpreter struct {
 	// Current embeddings
 	embeddings TEmbeddingsTable
 	embeddingsMeta TEmbeddingMetaInfoTable
+
+	// Current restrictions
+	restrictedCmds TRestrictedCommands
 }
 
 func New(
@@ -36,9 +39,14 @@ func New(
 	dataSwitchFn TDataSwitchFunction,
 	defaultExternalVars TGlobalVariablesTable,
 	defaultExternalVarsMeta TExternalGlobalsMetaTable,
+	restrictedCommands TRestrictedCommands,
 ) *Interpreter {
 	execCtxStack := []*TExecutionStackFrame{
 		makeRootStackFrame(),
+	}
+
+	if restrictedCommands == nil {
+		restrictedCommands = make(TRestrictedCommands)
 	}
 
 	return &Interpreter{
@@ -65,24 +73,21 @@ func New(
 		// Current embeddings
 		embeddings: make(TEmbeddingsTable),
 		embeddingsMeta: make(TEmbeddingMetaInfoTable),
+
+		// Current restrictions
+		restrictedCmds: restrictedCommands,
 	}
 }
 
 // [BEGIN] Basic API
 
-func (self *Interpreter) ExecutePartial(program string) *TInterpreterResult {
-	res := self.executeImpl([]rune(program))
-	self.resetPosition()
+func (self *Interpreter) Execute(program string) *TInterpreterResult {
+	res := self.executeFullImpl([]rune(program), true)
 	return res
 }
 
-func (self *Interpreter) Execute(program string) *TInterpreterResult {
-	res := self.executeImpl([]rune(program))
-	if self.sessionClosed {
-		self.resetImpl()
-	} else {
-		self.resetPosition()
-	}
+func (self *Interpreter) UnsafeExecute(program string) *TInterpreterResult {
+	res := self.executeFullImpl([]rune(program), false)
 	return res
 }
 
@@ -226,6 +231,7 @@ func (self *Interpreter) ControlFlowClearStack() {
 	self.execCtxStack = []*TExecutionStackFrame{
 		makeRootStackFrame(),
 	}
+	self.criticalError = nil
 }
 
 // [END] Misc control flow API

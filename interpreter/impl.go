@@ -18,6 +18,7 @@ type TPromptQLOptions struct {
 	CustomApisListenQueryTimeoutSec uint
 	DefaultExternalGlobals interpreter.TGlobalVariablesTable
 	DefaultExternalGlobalsMeta interpreter.TExternalGlobalsMetaTable
+	RestrictedCommands interpreter.TRestrictedCommands
 }
 
 func New(options TPromptQLOptions) *TPromptQL {
@@ -34,6 +35,7 @@ func New(options TPromptQLOptions) *TPromptQL {
 		rootDataSwitch,
 		options.DefaultExternalGlobals,
 		options.DefaultExternalGlobalsMeta,
+		options.RestrictedCommands,
 	)
 	
 	return &TPromptQL{

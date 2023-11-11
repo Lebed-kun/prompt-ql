@@ -11,6 +11,7 @@ import (
 // Works ++++++
 // 28-09-2023: Works on total regress +++
 // 04-11-2023: random regression test +++
+// 11-11-2023: random regression test +++
 func PartialExecutionTest(
 	openAiBaseUrl string,
 	openAiKey string,
@@ -27,8 +28,9 @@ func PartialExecutionTest(
 	)
 
 	fmt.Println("First chunk of PromptQL code received")
-	result := interpreterInst.Instance.ExecutePartial(
+	result := interpreterInst.Instance.Execute(
 		`
+			{~session_begin /}
 			{~open_query to="query1" model="gpt-3.5-turbo-16k"}
 				{~system}
 					You are a helpful and terse assistant.
@@ -41,7 +43,7 @@ func PartialExecutionTest(
 	time.Sleep(3 * time.Second)
 
 	fmt.Println("Second chunk of PromptQL code received")
-	result = interpreterInst.Instance.ExecutePartial(
+	result = interpreterInst.Instance.Execute(
 		`
 			{/open_query}
 			{~set to="queryres"}

@@ -6,7 +6,7 @@ import (
 )
 
 // 07-10-2023: Works +++
-func BasicSession() {
+func BasicSessionTest() {
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{},
 	)
