@@ -405,7 +405,9 @@ Embeddable can contain placeholders defined as a special literal with the `%` si
 
  - `{~embed_if cond=@conditionFunc}<arg1><arg2>...<yes_branch><no_branch>{/embed_if}` - checks condition `cond` with arguments `<arg1><arg2>...`. If it's `true`, then `<yes_branch>` is returned. Otherwise, `<no_branch>` is returned. `cond` should have a type of `func([]interface{}) bool`. The command is useful for conditionally embedding PromptQL code on executing agent side;
  - `{~embed_def name="embed_name" desc="embed_description"}<PromptQL code as text>{/embed_def}` - registers a `<PromptQL code as text>` as an expandable chunk of code for later expansion and execution by `embed_name`. `embed_description` can be optionally provided for communicating layout of embedding in the `{~hello /}` command;
- - `{~embed_exp name="embed_name"}<arg1=val1>...<argN=valN>{/embed_exp}` - expands a PromptQL code defined as embedding `embed_name`. `<arg1=val1>...<argN=valN>` can be optionally provided to pass placeholders to embedding. Placeholder is defined as a special literal like: `%arg1`, ..., `%argN`;
+ - `{~embed_exp name="embed_name" [inline]}<arg1=val1>...<argN=valN>{/embed_exp}` - expands a PromptQL code. The command has two modes of embedding expansion:
+	- Registered embedding. It's defined by `embed_name`. In this case `name` parameter is required. `<arg1=val1>...<argN=valN>` can be optionally provided to pass placeholders to embedding. Placeholder is defined as a special literal like: `%arg1`, ..., `%argN`;
+	- Inline embedding. It's marked by the `inline` flag. And in this case the `name` parameter has no effect and thus can be omitted. Then embedding is passed as an input before the `<arg1=val1>...<argN=valN>` sequence of placeholder arguments;
 
 ### 5. Miscellaneous commands
 - `{~nop /}` - returns empty characters sequence `\x00` . It's a phantom command that can serve as an argument filler for other PromptQL commands;
@@ -477,7 +479,8 @@ For references to external variables:
 	- Embeddings API:
 		- `func (self *Interpreter) Instance.GetEmbeddingsList() map[string]string` - for getting list of embeddings with descriptions. It's primarily used by the `{~hello /}` command, but you can use it in other scenarios on your own;
 		- `func (self *Interpreter) Instance.RegisterEmbedding(name string, code string, description string)` - for registering some PromptQL code chunk for later expansion or execution (with optional description), It's primarily used by the `{~embed_def}{/embed_def}` command, but you can use it in other scenarios on your own;
-		- `func (self *Interpreter) Instance.ExpandEmbedding(name string, args TEmbeddingArgsTable) (string, error)` - for expanding PromptQL code chunk (with optional `args`). It's primarily used by the `{~embed_exp}{/embed_exp}` command, but you can use it in other scenarios on your own;
+		- `func (self *Interpreter) Instance.ExpandEmbedding(name string, args TEmbeddingArgsTable) (string, error)` - for expanding PromptQL code chunk **referenced by name** (with optional `args`). It's primarily used by the `{~embed_exp}{/embed_exp}` command, but you can use it in other scenarios on your own;
+		- `func (self *Interpreter) Instance.ExpandInlineEmbedding(embedding string, args TEmbeddingArgsTable) (string, error)` - for expanding PromptQL code chunk **passed as plain text** (with optional `args`). It's primarily used by the `{~embed_exp}{/embed_exp}` command, but you can use it in other scenarios on your own;
 
 	- Misc control flow API:
 		- `func (self *Interpreter) ControlFlowClearInternalVars()` - for clearing internal variables state. It's basically used by the `{~unsafe_clear_vars /}` command. If you decide to use it, do it carefully!

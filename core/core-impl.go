@@ -289,4 +289,34 @@ func (self *Interpreter) executeFullImpl(program []rune, withCmdRestrictions boo
 	return res
 }
 
+func (self *Interpreter) expandImpl(embedding string, args TEmbeddingArgsTable) string {
+	embdRunes := []rune(embedding)
+	res := strings.Builder{}
+	ptr := 0
+	for ptr < len(embdRunes) {
+		if embdRunes[ptr] == '%' && ptr < len(embdRunes) - 1 && isAlphaChar(embdRunes[ptr+1]) {
+			ptr++
+
+			begin := ptr
+			for ptr < len(embdRunes) && isAlphaChar(embdRunes[ptr]) {
+				ptr++
+			}
+
+			argName := string(embdRunes[begin:ptr])
+			argVal, hasArg := args[argName]
+			if !hasArg {
+				argVal = fmt.Sprintf("%%%v", argName)
+			}
+
+			res.WriteString(argVal)
+			continue
+		}
+
+		res.WriteRune(embdRunes[ptr])
+		ptr++
+	}
+
+	return res.String()
+}
+
 

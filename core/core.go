@@ -2,7 +2,6 @@ package interpretercore
 
 import (
 	"fmt"
-	"strings"
 )
 
 type Interpreter struct {
@@ -190,33 +189,11 @@ func (self *Interpreter) ExpandEmbedding(name string, args TEmbeddingArgsTable) 
 		)
 	}
 
-	embdRunes := []rune(embd)
-	res := strings.Builder{}
-	ptr := 0
-	for ptr < len(embdRunes) {
-		if embdRunes[ptr] == '%' && ptr < len(embdRunes) - 1 && isAlphaChar(embdRunes[ptr+1]) {
-			ptr++
+	return self.expandImpl(embd, args), nil
+}
 
-			begin := ptr
-			for ptr < len(embdRunes) && isAlphaChar(embdRunes[ptr]) {
-				ptr++
-			}
-
-			argName := string(embdRunes[begin:ptr])
-			argVal, hasArg := args[argName]
-			if !hasArg {
-				argVal = fmt.Sprintf("%%%v", argName)
-			}
-
-			res.WriteString(argVal)
-			continue
-		}
-
-		res.WriteRune(embdRunes[ptr])
-		ptr++
-	}
-
-	return res.String(), nil
+func (self *Interpreter) ExpandInlineEmbedding(embedding string, args TEmbeddingArgsTable) string {
+	return self.expandImpl(embedding, args)
 }
 
 // [END] Embeddings API

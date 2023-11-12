@@ -7,6 +7,7 @@ import (
 )
 
 // 11-11-2023: Works +++
+// 12-11-2023: regress +++
 func RegisterEmbeddingWithoutParamsTest() {
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{},
