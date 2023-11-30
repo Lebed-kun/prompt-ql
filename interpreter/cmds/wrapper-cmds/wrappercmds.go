@@ -36,6 +36,13 @@ func MakeWrapperCmd(dataTag string) interpreter.TExecutedFunction {
 			)
 		}
 
+		// [BEGIN] TODO: include this in the 1.x-4.x patches 
+		promptMsgPrefix := promptmsg.GetPromptMsgPrefix(latestData)
+		if len(promptMsgPrefix) == 0 {
+			return fmt.Sprintf("!%v %v", dataTag, latestData)
+		}
+		// [END] TODO: include this in the 1.x-4.x patches
+
 		return promptmsg.ReplacePromptMsgPrefix(
 			latestData,
 			fmt.Sprintf("!%v", dataTag),

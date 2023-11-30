@@ -3,6 +3,7 @@ package interpreterimpl
 import (
 	api "gitlab.com/jbyte777/prompt-ql/v5/api"
 	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
+	loggerapis "gitlab.com/jbyte777/prompt-ql/v5/logger-apis"
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
 
 	// basic commands
@@ -12,7 +13,8 @@ import (
 	openquerycmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/openquery"
 	setcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/set"
 	wrappercmds "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/wrapper-cmds"
-
+	nopcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/nop"
+	
 	// communication commands
 	hellocmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/hello"
 	headercmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/header"
@@ -28,13 +30,20 @@ import (
 	embeddefcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/embed-def"
 	embedexpcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/embed-exp"
 
-	// misc
-	nopcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/nop"
+	// debugging commands
+	debugcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/debug"
 )
+
+var cmdsMetaInfo = interpreter.TCommandMetaInfoTable{
+	"debug": &interpreter.TCommandMetaInfo{
+		IsErrorTolerant: true,
+	},
+}
 
 func makeCmdTable(
 	gptApi *api.GptApi,
 	customApis *customapis.CustomModelsApis,
+	loggerApis *loggerapis.LoggerApis,
 ) interpreter.TExecutedFunctionTable {
 	return interpreter.TExecutedFunctionTable{
 		// basic commands
@@ -48,6 +57,7 @@ func makeCmdTable(
 		"system": wrappercmds.MakeWrapperCmd("system"),
 		"data": wrappercmds.MakeWrapperCmd("data"),
 		"error": wrappercmds.MakeWrapperCmd("error"),
+		"nop": nopcmd.NopCmd,
 
 		// communication commands
 		"hello": hellocmd.MakeHelloCmd(gptApi, customApis),
@@ -64,7 +74,7 @@ func makeCmdTable(
 		"embed_def": embeddefcmd.EmbedDefCmd,
 		"embed_exp": embedexpcmd.EmbedExpCmd,
 
-		// misc
-		"nop": nopcmd.NopCmd,
+		// debugging commands
+		"debug": debugcmd.MakeDebugCmd(loggerApis),
 	}
 }

@@ -360,6 +360,8 @@ Static arguments for the command are:
 {~error}<execution_text>{/error}
 ```
 They receive all input data in the `DATA` channel;
+ 
+ - `{~nop /}` - returns empty characters sequence `\x00` . It's a phantom command that can serve as an argument filler for other PromptQL commands;
 
 ### 2. Agent messaging commands
 They are useful for communicating API of some called agent to calling agent. They have been introduced since the v2.x version
@@ -409,9 +411,8 @@ Embeddable can contain placeholders defined as a special literal with the `%` si
 	- Registered embedding. It's defined by `embed_name`. In this case `name` parameter is required. `<arg1=val1>...<argN=valN>` can be optionally provided to pass placeholders to embedding. Placeholder is defined as a special literal like: `%arg1`, ..., `%argN`;
 	- Inline embedding. It's marked by the `inline` flag. And in this case the `name` parameter has no effect and thus can be omitted. Then embedding is passed as an input before the `<arg1=val1>...<argN=valN>` sequence of placeholder arguments;
 
-### 5. Miscellaneous commands
-- `{~nop /}` - returns empty characters sequence `\x00` . It's a phantom command that can serve as an argument filler for other PromptQL commands;
-
+### 5. Code debugging commands
+ - `{~debug logger="logger_name"}<PromptQL code>{/debug}` - logs all channel inputs, current interpreter cursor, current internal globals and current external globals states. `logger` is an optional parameter. If not specified, then default console logger is used. For custom logger, you must register a logging function before
 
 ## Additional features
  - References to entries in some global variables table are supported. You can use them by prefixing a name with the `$` sign like:
@@ -502,8 +503,18 @@ For references to external variables:
 
 		This function should block if it contains some blocking requests to IO, DB, network etc. As it executes in separate goroutine that pushes result to query handle;
 
-	- `func (self *CustomModelsApis) GetAllModelsList() map[string]string` - returns a list of user-defined ML models with their descriptions. It's primarily used by the `{~hello /}` command, but you can use it for other scenarios on your own;
+	- `func (self *PromptQL) CustomApis.GetAllModelsList() map[string]string` - returns a list of user-defined ML models with their descriptions. It's primarily used by the `{~hello /}` command, but you can use it for other scenarios on your own;
 
+ - PromptQL.LoggerApis methods:
+  - `func (self *PromptQL) LoggerApis.RegisterLogger(name string, logger TLoggerFunc)` - registers a custom logger for later use in PromptQL code debugging. A logging function must follow this layout:
+	```
+	  func(
+			execInfo interpreter.TExecutionInfo,
+			inputs interpreter.TFunctionInputChannelTable,
+			internalGlobals interpreter.TGlobalVariablesTable,
+			externalGlobals interpreter.TGlobalVariablesTable,
+		) error
+	```
 
 ## Architecture
 

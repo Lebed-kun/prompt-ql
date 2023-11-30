@@ -7,6 +7,7 @@ import (
 	defaultswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/default"
 	wrapperswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/wrapper"
 	rootswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/root"
+	debugswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/debug"
 )
 
 type TRootSwitchTable map[string]interpreter.TDataSwitchFunction
@@ -24,6 +25,7 @@ var rootSwitchTable TRootSwitchTable = map[string]interpreter.TDataSwitchFunctio
 	"embed_if": defaultswitch.DefaultSwitch,
 	"embed_def": defaultswitch.DefaultSwitch,
 	"embed_exp": defaultswitch.DefaultSwitch,
+	"debug": debugswitch.DebugSwitch,
 }
 
 func rootDataSwitch(

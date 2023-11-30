@@ -50,3 +50,9 @@ type TEmbeddingMetaInfo struct {
 type TEmbeddingMetaInfoTable map[string]*TEmbeddingMetaInfo
 
 type TRestrictedCommands map[string]bool
+
+type TCommandMetaInfo struct {
+	IsErrorTolerant bool
+}
+
+type TCommandMetaInfoTable map[string]*TCommandMetaInfo

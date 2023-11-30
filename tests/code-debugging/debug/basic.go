@@ -1,4 +1,4 @@
-package commentstests
+package debugtest
 
 import (
 	"fmt"
@@ -8,12 +8,13 @@ import (
 )
 
 // 30-11-2023: Works +++
-func BasicCommentTest() {
+func BasicDebugTest() {
 	defaultGlobals := interpretercore.TGlobalVariablesTable{
 		"myFunc": func(args []interface{}) interface{} {
 			argStr, _ := args[0].(string)
 			return argStr
 		},
+		"myVar": "Just a global var",
 	}
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{
@@ -23,15 +24,20 @@ func BasicCommentTest() {
 
 	result := interpreterInst.Instance.Execute(
 		`
-			{~call fn=@myFunc}{~data}The first line of PromptQL will be executed{/data}{/call}
-			<%
-				{~call fn=@myFunc}{~data}The second line of PromptQL will be just printed to result{/data}{/call}
-			%>
-			{~call fn=@myFunc}{~data}The third line of PromptQL will be executed{/data}{/call}
-			<~
-				{~call fn=@myFunc}{~data}The fourth line of PromptQL will be just ignored{/data}{/call}
-			~>
-			{~call fn=@myFunc}{~data}The fifth line of PromptQL will be executed{/data}{/call}
+			{~debug}
+				{~error}Some error line{/error}
+				{~set to="myVar"}MyVar value{/set}
+				{~set to="myVar2"}MyVar2 value{/set}
+				{~user}1st user line{/user}
+				{~system}1st system line{/system}
+				{~user}2nd user line{/user}
+				{~assistant}1st assistant line{/assistant}
+				{~system}2nd system line{/system}
+				{~assistant}2nd assistant line{/assistant}
+				{~data}1st data line{/data}
+				{~get from="myVar" /}
+				{~get from="myVar2" /}
+			{/debug}
 		`,
 	)
 

@@ -31,6 +31,9 @@ type Interpreter struct {
 
 	// Current restrictions
 	restrictedCmds TRestrictedCommands
+
+	// Commands meta info
+	cmdsMeta TCommandMetaInfoTable
 }
 
 func New(
@@ -39,6 +42,7 @@ func New(
 	defaultExternalVars TGlobalVariablesTable,
 	defaultExternalVarsMeta TExternalGlobalsMetaTable,
 	restrictedCommands TRestrictedCommands,
+	cmdsMeta TCommandMetaInfoTable,
 ) *Interpreter {
 	execCtxStack := []*TExecutionStackFrame{
 		makeRootStackFrame(),
@@ -46,6 +50,10 @@ func New(
 
 	if restrictedCommands == nil {
 		restrictedCommands = make(TRestrictedCommands)
+	}
+
+	if cmdsMeta == nil {
+		cmdsMeta = make(TCommandMetaInfoTable)
 	}
 
 	return &Interpreter{
@@ -75,6 +83,9 @@ func New(
 
 		// Current restrictions
 		restrictedCmds: restrictedCommands,
+
+		// Commands meta info
+		cmdsMeta: cmdsMeta,
 	}
 }
 

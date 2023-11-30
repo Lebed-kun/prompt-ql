@@ -183,7 +183,9 @@ func (self *Interpreter) resolveTopCtx(withCmdRestrictions bool) {
 		return
 	}
 
-	if errChan, hasErrChan := topCtx.InputChannels["error"]; hasErrChan && len(errChan) > 0 {
+	cmdMeta, hasCmdMeta := self.cmdsMeta[topCtx.FnName]
+	isCmdErrorTolerant := hasCmdMeta && cmdMeta.IsErrorTolerant
+	if errChan, hasErrChan := topCtx.InputChannels["error"]; !isCmdErrorTolerant && hasErrChan && len(errChan) > 0 {
 		_, hasTopErrChan := self.execCtxStack[len(self.execCtxStack)-1].InputChannels["error"]
 
 		if !hasTopErrChan {
