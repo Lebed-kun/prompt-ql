@@ -3,7 +3,7 @@ package inlineembeddingtest
 import (
 	"fmt"
 
-	interpreter "gitlab.com/jbyte777/prompt-ql/v4/interpreter"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v5/interpreter"
 )
 
 // 12-11-2023: Works +++

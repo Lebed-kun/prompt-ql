@@ -3,9 +3,9 @@ package hellocmd
 import (
 	"encoding/json"
 	"fmt"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v4/core"
-	api "gitlab.com/jbyte777/prompt-ql/v4/api"
-	customapis "gitlab.com/jbyte777/prompt-ql/v4/custom-apis"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
+	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
 )
 
 func MakeHelloCmd(

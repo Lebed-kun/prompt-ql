@@ -2,10 +2,10 @@ package listenquerycmd
 
 import (
 	"fmt"
-	api "gitlab.com/jbyte777/prompt-ql/v4/api"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v4/core"
-	customapis "gitlab.com/jbyte777/prompt-ql/v4/custom-apis"
-	utils "gitlab.com/jbyte777/prompt-ql/v4/interpreter/utils"
+	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
+	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
+	utils "gitlab.com/jbyte777/prompt-ql/v5/interpreter/utils"
 )
 
 func MakeListenQueryCmd(
