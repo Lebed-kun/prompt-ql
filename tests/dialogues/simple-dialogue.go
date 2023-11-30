@@ -8,6 +8,7 @@ import (
 
 // Works +++++
 // 28-09-2023: Works on total regress +++
+// 30-11-2023: random regress +++
 func SimpleDialogTest(
 	openAiBaseUrl string,
 	openAiKey string,

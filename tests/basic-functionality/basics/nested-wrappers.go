@@ -9,6 +9,7 @@ import (
 // Works +++
 // 28-09-2023: Works on total regress +++
 // 11-11-2023: Works on regress +++
+// 30-11-2023: random regress +++
 func NestedWrappersTest() {
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{},
