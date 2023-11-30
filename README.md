@@ -8,11 +8,13 @@
 It's a zero-dependencies library for orchestrating agents based on ML models like `gpt3.5-turbo` . The default ML model API is based on the OpenAI API: https://platform.openai.com/docs/api-reference . Full list of supported models is here: https://platform.openai.com/docs/models/model-endpoint-compatibility 
 
 
-## Getting started
+## Getting started 
+
 ```
-go get -u gitlab.com/jbyte777/prompt-ql/vX - for >= v2.x release
-go get -u gitlab.com/jbyte777/prompt-ql - for v1.x release
+go get -u gitlab.com/jbyte777/prompt-ql/vX - for >= v4.x release
 ```
+
+**Note:** major versions < 4.x are no longer supported since the 5.x release. So new patches and minor updates are no longer included in them. If you have a version older than 4.x, consider upgrading PromptQL library instead.
 
 Making a basic query is just like writing plain HTML or another template:
 ```
@@ -391,6 +393,9 @@ They are useful for communicating API of some called agent to calling agent. The
 			"toAgent": "Receiver agent id/name",
 	 }
  ```
+ - `{~msg_begin /}` - returns a `[MSG_BEGIN]` message tag marking begin of message chunk. Useful for marking bounds of message chunk in single batch (for example, when sending response to multiple agents at once)
+ - `{~msg_end /}` - returns a `[MSG_BEGIN]` message tag marking end of message chunk. Useful for marking bounds of message chunk in single batch (for example, when sending response to multiple agents at once);
+ - `{~msg_restart_chain /}` - returns a `[MSG_RESTART_CHAIN]` message tag. It marks a call to reinitialize chain of prompts between agents. Useful in cases when chain of prompts is stuck after some error or unexpected event for example;
 
 ### 3. Execution life-cycle commands
 They are useful for controlling agent's execution flow at language level. They have been introduced since the v2.x version

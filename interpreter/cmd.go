@@ -18,6 +18,9 @@ import (
 	// communication commands
 	hellocmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/hello"
 	headercmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/header"
+	msgbegincmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/msg-begin"
+	msgendcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/msg-end"
+	msgrestartchaincmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/msg-restart-chain"
 
 	// execution life-cycle commands
 	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/open-session"
@@ -62,6 +65,9 @@ func makeCmdTable(
 		// communication commands
 		"hello": hellocmd.MakeHelloCmd(gptApi, customApis),
 		"header": headercmd.HeaderCmd,
+		"msg_begin": msgbegincmd.MsgBeginCmd,
+		"msg_end": msgendcmd.MsgEndCmd,
+		"msg_restart_chain": msgrestartchaincmd.MsgRestartChainCmd,
 
 		// execution life-cycle commands
 		"session_begin": opensessioncmd.OpenSessionCmd,
