@@ -8,6 +8,7 @@ import (
 
 // 11-11-2023: Works +++
 // 12-11-2023: regress +++
+// 30-11-2023: random regression test +++
 func RegisterEmbeddingTest() {
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{},

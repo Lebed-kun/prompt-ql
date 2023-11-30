@@ -2,7 +2,7 @@ package interpretercore
 
 func (self *Interpreter) resetImpl() {
 	self.resetPosition()
-	self.mode = InterpreterModePlainText
+	self.mode = interpreterModePlainText
 	self.internalGlobals = make(TGlobalVariablesTable)
 	self.externalGlobals = initializeExternalGlobals(self.defaultExternalGlobals)
 	self.execCtxStack = []*TExecutionStackFrame{

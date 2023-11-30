@@ -14,7 +14,9 @@ func (self *Interpreter) handlePlainText(program []rune) {
 		// start of command
 		(escapeChar || program[self.strPos] != '{') &&
 		// start of code literal
-		(escapeChar || self.strPos >= len(program) - 1 || !(program[self.strPos] == '<' && program[self.strPos+1] == '%')) {
+		(escapeChar || self.strPos >= len(program) - 1 || !(program[self.strPos] == '<' && program[self.strPos+1] == '%')) &&
+		// start of code comment
+		(escapeChar || self.strPos >= len(program) - 1 || !(program[self.strPos] == '<' && program[self.strPos+1] == '~')) {
 		if !escapeChar && program[self.strPos] == '\\' {
 			escapeChar = true
 		} else {
@@ -77,6 +79,35 @@ func (self *Interpreter) handleCodeLiteral(program []rune) {
 	}
 }
 
+func (self *Interpreter) handleCodeComment(program []rune) {
+	escapeChar := false
+
+	// end of program text
+	for self.strPos < len(program)-1 &&
+		// end of code comment literal
+		(escapeChar || !(program[self.strPos] == '~' && program[self.strPos+1] == '>')) {
+		if !escapeChar && program[self.strPos] == '\\' {
+			escapeChar = true
+		} else {
+			escapeChar = false
+		}
+		self.strPos++
+
+		if program[self.strPos-1] == '\n' {
+			self.line++
+			self.charPos = 0
+		} else {
+			self.charPos++
+		}
+	}
+
+	if self.strPos == len(program)-1 {
+		self.criticalError = self.getError(
+			"expected ~> in the end of code comment",
+		)
+	}
+}
+
 func (self *Interpreter) handleCommand(program []rune) {
 	var currLiteral interface{} = nil
 	currArg := ""
@@ -98,7 +129,7 @@ func (self *Interpreter) handleCommand(program []rune) {
 
 		if program[self.strPos] == '~' {
 			newCtxFrame := &TExecutionStackFrame{
-				State:         StackFrameStateExpectCmd,
+				State:         stackFrameStateExpectCmd,
 				FnName:        "",
 				ArgsTable:     make(TFunctionArgumentsTable),
 				InputChannels: make(TFunctionInputChannelTable, 0),
@@ -116,10 +147,10 @@ func (self *Interpreter) handleCommand(program []rune) {
 			self.strPos++
 			self.charPos++
 
-			if topCtx.State == StackFrameStateFullfilled {
-				topCtx.State = StackFrameStateExpectCmdAfterFullfill
+			if topCtx.State == stackFrameStateFullfilled {
+				topCtx.State = stackFrameStateExpectCmdAfterFullfill
 			} else {
-				topCtx.State = StackFrameStateIsClosing
+				topCtx.State = stackFrameStateIsClosing
 			}
 
 			currLiteral = nil
@@ -128,7 +159,7 @@ func (self *Interpreter) handleCommand(program []rune) {
 		}
 
 		if program[self.strPos] == '=' {
-			if topCtx.State != StackFrameStateExpectArg || len(currArg) == 0 {
+			if topCtx.State != stackFrameStateExpectArg || len(currArg) == 0 {
 				self.criticalError = self.getError(
 					"expected argument before = ",
 				)
@@ -138,7 +169,7 @@ func (self *Interpreter) handleCommand(program []rune) {
 			self.strPos++
 			self.charPos++
 			currLiteral = nil
-			topCtx.State = StackFrameStateExpectVal
+			topCtx.State = stackFrameStateExpectVal
 			continue
 		}
 
@@ -182,7 +213,7 @@ func (self *Interpreter) handleCommand(program []rune) {
 	ctxFill:
 		{
 			switch topCtx.State {
-			case StackFrameStateExpectCmd:
+			case stackFrameStateExpectCmd:
 				currLiteralStr, isCurrLiteralStr := currLiteral.(string)
 				if !isCurrLiteralStr {
 					self.criticalError = self.getError(
@@ -190,9 +221,9 @@ func (self *Interpreter) handleCommand(program []rune) {
 					)
 				} else {
 					topCtx.FnName = currLiteralStr
-					topCtx.State = StackFrameStateExpectArg
+					topCtx.State = stackFrameStateExpectArg
 				}
-			case StackFrameStateExpectArg:
+			case stackFrameStateExpectArg:
 				if len(currArg) > 0 {
 					currArg = ""
 				}
@@ -205,17 +236,17 @@ func (self *Interpreter) handleCommand(program []rune) {
 				} else {
 					currArg = currLiteralStr
 				}
-			case StackFrameStateExpectVal:
+			case stackFrameStateExpectVal:
 				if len(currArg) == 0 {
 					self.criticalError = self.getError(
 						"argument is not provided",
 					)
 				} else {
 					topCtx.ArgsTable[currArg] = currLiteral
-					topCtx.State = StackFrameStateExpectArg
+					topCtx.State = stackFrameStateExpectArg
 					currArg = ""
 				}
-			case StackFrameStateExpectCmdAfterFullfill:
+			case stackFrameStateExpectCmdAfterFullfill:
 				currLiteralStr, isCurrLiteralStr := currLiteral.(string)
 				if !isCurrLiteralStr {
 					self.criticalError = self.getError(
@@ -230,7 +261,7 @@ func (self *Interpreter) handleCommand(program []rune) {
 						),
 					)
 				} else {
-					topCtx.State = StackFrameStateIsClosing
+					topCtx.State = stackFrameStateIsClosing
 				}
 			}
 
@@ -253,7 +284,7 @@ func (self *Interpreter) handleCommand(program []rune) {
 	}
 
 	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
-	if topCtx.State == StackFrameStateExpectCmdAfterFullfill {
+	if topCtx.State == stackFrameStateExpectCmdAfterFullfill {
 		self.criticalError = self.getError(
 			fmt.Sprintf(
 				"closing command is empty while command on the closest context is \"%v\"",
@@ -263,8 +294,8 @@ func (self *Interpreter) handleCommand(program []rune) {
 		return
 	}
 
-	if topCtx.State != StackFrameStateIsClosing {
-		topCtx.State = StackFrameStateFullfilled
+	if topCtx.State != stackFrameStateIsClosing {
+		topCtx.State = stackFrameStateFullfilled
 	}
 	if len(currArg) > 0 {
 		topCtx.ArgsTable[currArg] = true

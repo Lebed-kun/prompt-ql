@@ -1,4 +1,4 @@
-package basiccodeembeddingtest
+package commentstests
 
 import (
 	"fmt"
@@ -7,9 +7,8 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/v4/interpreter"
 )
 
-// 04-11-2023: Works +++
-// 30-11-2023: random regression test +++
-func BasicCodeEmbeddingTest() {
+// 30-11-2023: Works +++
+func BasicCommentTest() {
 	defaultGlobals := interpretercore.TGlobalVariablesTable{
 		"myFunc": func(args []interface{}) interface{} {
 			argStr, _ := args[0].(string)
@@ -29,6 +28,10 @@ func BasicCodeEmbeddingTest() {
 				{~call fn=@myFunc}{~data}The second line of PromptQL will be just printed to result{/data}{/call}
 			%>
 			{~call fn=@myFunc}{~data}The third line of PromptQL will be executed{/data}{/call}
+			<~
+				{~call fn=@myFunc}{~data}The fourth line of PromptQL will be just ignored{/data}{/call}
+			~>
+			{~call fn=@myFunc}{~data}The fifth line of PromptQL will be executed{/data}{/call}
 		`,
 	)
 
@@ -49,4 +52,3 @@ func BasicCodeEmbeddingTest() {
 	)
 	fmt.Println("===================")
 }
-

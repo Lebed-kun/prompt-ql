@@ -155,7 +155,7 @@ func (self *Interpreter) resolveName(program []rune) string {
 
 func (self *Interpreter) resolveTopCtx(withCmdRestrictions bool) {
 	topCtx := self.execCtxStack[len(self.execCtxStack)-1]
-	if len(self.execCtxStack) < 2 || topCtx.State != StackFrameStateIsClosing {
+	if len(self.execCtxStack) < 2 || topCtx.State != stackFrameStateIsClosing {
 		return
 	}
 
@@ -226,40 +226,53 @@ func (self *Interpreter) executeImpl(program []rune, withCmdRestrictions bool) *
 		switch program[self.strPos] {
 		case '<':
 			if self.strPos < len(program)-1 && program[self.strPos+1] == '%' {
-				self.mode = InterpreterModeCodeLiteral
+				self.mode = interpreterModeCodeLiteral
+				self.strPos += 2
+				self.charPos += 2
+			} else if self.strPos < len(program)-1 && program[self.strPos+1] == '~' {
+				self.mode = interpreterModeCodeComment
 				self.strPos += 2
 				self.charPos += 2
 			}
 		case '%':
-			if self.mode == InterpreterModeCodeLiteral &&
+			if self.mode == interpreterModeCodeLiteral &&
 				self.strPos < len(program)-1 && program[self.strPos+1] == '>' {
-				self.mode = InterpreterModePlainText
+				self.mode = interpreterModePlainText
+				self.strPos += 2
+				self.charPos += 2
+			}
+		case '~':
+			if self.mode == interpreterModeCodeComment &&
+				self.strPos < len(program)-1 && program[self.strPos+1] == '>' {
+				self.mode = interpreterModePlainText
 				self.strPos += 2
 				self.charPos += 2
 			}
 		}
 
-		if self.mode != InterpreterModeCodeLiteral {
+		if self.mode != interpreterModeCodeLiteral && self.mode != interpreterModeCodeComment {
 			switch program[self.strPos] {
 			case '{':
-				self.mode = InterpreterModeCommand
+				self.mode = interpreterModeCommand
 				self.strPos++
 				self.charPos++
 			case '}':
 				self.resolveTopCtx(withCmdRestrictions)
-				self.mode = InterpreterModePlainText
+				self.mode = interpreterModePlainText
 				self.strPos++
 				self.charPos++
 			}
 		}
 
 		switch self.mode {
-		case InterpreterModePlainText:
+		case interpreterModePlainText:
 			self.handlePlainText(program)
-		case InterpreterModeCommand:
+		case interpreterModeCommand:
 			self.handleCommand(program)
-		case InterpreterModeCodeLiteral:
+		case interpreterModeCodeLiteral:
 			self.handleCodeLiteral(program)
+		case interpreterModeCodeComment:
+			self.handleCodeComment(program)
 		}
 	}
 

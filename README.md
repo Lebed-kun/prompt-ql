@@ -424,6 +424,7 @@ For references to external variables:
 ```
  - Defining custom ML model APIs. It can be obtained with the `RegisterModelApi` method (see below)
  - Code embedding. You can include the PromptQL code in the brackets like this: `<% {~open_query sync}<other PromptQL code>{/open_query} %>`. And the code inside brackets won't be executed. Instead it will be returned just like plain string. This is useful for late PromptQL code processing or forwarding it to other agents.
+ - Code commenting. You can include the PromptQL code in the brackets like this: `<~ {~open_query sync}<other PromptQL code>{/open_query} ~>`. Code inside them will be just ignored. This is useful for prompts debugging and prompts descriptions for prompt developers.
 
 
 ## Interpreter API
@@ -513,12 +514,12 @@ Interpreter has simple stack-based architecture like this:
 
 Each stack entry consists of **execution context**. It defines executed command with static arguments (defined with `<arg>=<val>`) and input channels (this data is filled after execution of inner commands). A context can also be in 4 states:
 
- - `StackFrameStateExpectCmd` - expecting a command name for "opening" command;
- - `StackFrameStateExpectArg` - expecting a current argument name;
- - `StackFrameStateExpectVal` - expecting a current argument value;
- - `StackFrameStateIsClosing` - current top context stack frame is about to leave the stack and be executed. This is done after the command mode (defined with `{}` brackets) is switched back to the plain text mode of interpreter;
- - `StackFrameStateFullfilled` - state that's set after filling all command info (command name and static arguments). It's introduced for better distinguising "opening" and "closing" commands;
- - `StackFrameStateExpectCmdAfterFullfill` - expecting a command name for "closing" command. Ot's introduced for handling errors of mismatching command tags (ex. `{~open_query}<some_text>{/call}`);
+ - `stackFrameStateExpectCmd` - expecting a command name for "opening" command;
+ - `stackFrameStateExpectArg` - expecting a current argument name;
+ - `stackFrameStateExpectVal` - expecting a current argument value;
+ - `stackFrameStateIsClosing` - current top context stack frame is about to leave the stack and be executed. This is done after the command mode (defined with `{}` brackets) is switched back to the plain text mode of interpreter;
+ - `stackFrameStateFullfilled` - state that's set after filling all command info (command name and static arguments). It's introduced for better distinguising "opening" and "closing" commands;
+ - `stackFrameStateExpectCmdAfterFullfill` - expecting a command name for "closing" command. Ot's introduced for handling errors of mismatching command tags (ex. `{~open_query}<some_text>{/call}`);
 
 The overall state diagram of context states is:
 <img src="./readme-content/promptql-exec-context-state-diagram.png" />

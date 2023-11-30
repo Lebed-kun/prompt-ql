@@ -1,16 +1,17 @@
 package interpretercore
 
 const (
-	StackFrameStateExpectCmd = iota
-	StackFrameStateExpectArg
-	StackFrameStateExpectVal
-	StackFrameStateIsClosing
-	StackFrameStateFullfilled
-	StackFrameStateExpectCmdAfterFullfill
+	stackFrameStateExpectCmd = iota
+	stackFrameStateExpectArg
+	stackFrameStateExpectVal
+	stackFrameStateIsClosing
+	stackFrameStateFullfilled
+	stackFrameStateExpectCmdAfterFullfill
 )
 
 const (
-	InterpreterModePlainText = iota
-	InterpreterModeCommand
-	InterpreterModeCodeLiteral
+	interpreterModePlainText = iota
+	interpreterModeCommand
+	interpreterModeCodeLiteral
+	interpreterModeCodeComment
 )

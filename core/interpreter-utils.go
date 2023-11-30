@@ -6,7 +6,7 @@ func makeRootStackFrame() *TExecutionStackFrame {
 	inputChannels["error"] = make(TFunctionInputChannel, 0)
 
 	return &TExecutionStackFrame{
-		State:         StackFrameStateExpectCmd,
+		State:         stackFrameStateExpectCmd,
 		FnName:        "root",
 		ArgsTable:     make(TFunctionArgumentsTable),
 		InputChannels: inputChannels,

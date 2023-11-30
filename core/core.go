@@ -56,7 +56,7 @@ func New(
 		defaultExternalGlobalsMeta: defaultExternalVarsMeta,
 
 		// Internal interpreter state
-		mode:          InterpreterModePlainText,
+		mode:          interpreterModePlainText,
 		line:          0,
 		charPos:       0,
 		strPos:        0,
