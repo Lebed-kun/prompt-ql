@@ -2,7 +2,7 @@ package hellocommandtests
 
 import (
 	"fmt"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v4/interpreter"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v5/interpreter"
 )
 
 // 04-11-2023: Works +++

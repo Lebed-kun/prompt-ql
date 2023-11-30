@@ -2,7 +2,7 @@ package testutils
 
 import (
 	"fmt"
-	timeutils "gitlab.com/jbyte777/prompt-ql/v4/utils/time"
+	timeutils "gitlab.com/jbyte777/prompt-ql/v5/utils/time"
 )
 
 func LogTimeForProgram(args []interface{}) interface{} {

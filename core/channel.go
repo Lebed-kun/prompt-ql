@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	stringsutils "gitlab.com/jbyte777/prompt-ql/v4/utils/strings"
+	stringsutils "gitlab.com/jbyte777/prompt-ql/v5/utils/strings"
 )
 
 type TFunctionInputChannel []interface{}

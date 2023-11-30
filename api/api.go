@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	errorsutils "gitlab.com/jbyte777/prompt-ql/v4/utils/errors"
+	errorsutils "gitlab.com/jbyte777/prompt-ql/v5/utils/errors"
 )
 
 type GptApi struct {

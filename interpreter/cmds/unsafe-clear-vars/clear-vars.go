@@ -1,7 +1,7 @@
 package clearvarscmd
 
 import (
-	interpreter "gitlab.com/jbyte777/prompt-ql/v4/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
 )
 
 func UnsafeClearVarsCmd(

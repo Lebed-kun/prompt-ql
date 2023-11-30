@@ -1,35 +1,35 @@
 package interpreterimpl
 
 import (
-	api "gitlab.com/jbyte777/prompt-ql/v4/api"
-	customapis "gitlab.com/jbyte777/prompt-ql/v4/custom-apis"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v4/core"
+	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
 
 	// basic commands
-	callcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/call"
-	getcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/get"
-	listenquerycmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/listenquery"
-	openquerycmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/openquery"
-	setcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/set"
-	wrappercmds "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/wrapper-cmds"
+	callcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/call"
+	getcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/get"
+	listenquerycmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/listenquery"
+	openquerycmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/openquery"
+	setcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/set"
+	wrappercmds "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/wrapper-cmds"
 
 	// communication commands
-	hellocmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/hello"
-	headercmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/header"
+	hellocmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/hello"
+	headercmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/header"
 
 	// execution life-cycle commands
-	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/open-session"
-	closesessioncmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/close-session"
-	unsafeclearvarscmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/unsafe-clear-vars"
-	unsafeclearstackcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/unsafe-clear-stack"
+	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/open-session"
+	closesessioncmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/close-session"
+	unsafeclearvarscmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/unsafe-clear-vars"
+	unsafeclearstackcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/unsafe-clear-stack"
 
 	// code embedding commands
-	embedifcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/embed-if"
-	embeddefcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/embed-def"
-	embedexpcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/embed-exp"
+	embedifcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/embed-if"
+	embeddefcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/embed-def"
+	embedexpcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/embed-exp"
 
 	// misc
-	nopcmd "gitlab.com/jbyte777/prompt-ql/v4/interpreter/cmds/nop"
+	nopcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/nop"
 )
 
 func makeCmdTable(

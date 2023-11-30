@@ -3,8 +3,8 @@ package externalvsinternalvariablestests
 import (
 	"fmt"
 
-	interpretercore "gitlab.com/jbyte777/prompt-ql/v4/core"
-	interpreter "gitlab.com/jbyte777/prompt-ql/v4/interpreter"
+	interpretercore "gitlab.com/jbyte777/prompt-ql/v5/core"
+	interpreter "gitlab.com/jbyte777/prompt-ql/v5/interpreter"
 )
 
 // 28-09-2023: Works +++

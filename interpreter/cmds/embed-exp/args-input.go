@@ -3,7 +3,7 @@ package embedexpcmd
 import (
 	"fmt"
 
-	interpretermod "gitlab.com/jbyte777/prompt-ql/v4/core"
+	interpretermod "gitlab.com/jbyte777/prompt-ql/v5/core"
 )
 
 func getArgs(

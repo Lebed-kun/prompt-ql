@@ -253,7 +253,7 @@ You can view examples for this in a test located by a path of `/tests/basic-func
 
 ## External vs internal variables
 
-PromptQL v4.x makes difference between external and internal variables as it's message-oriented protocol. These kinds of variables differ in few points:
+PromptQL v5.x makes difference between external and internal variables as it's message-oriented protocol. These kinds of variables differ in few points:
 
 * Accessing undefined external variables resolves into a run-time error. Accessing undefined internal variables resolves into `nil` value;
 * Direct writes to external variables resolve into a run-time error. Internal variables can be both read and written; 
@@ -287,7 +287,7 @@ result := interpreterInst.Execute(
 ```
 
 
-## Supported PromptQL commands v4.x
+## Supported PromptQL commands v5.x
 ### 1. Basic query commands
 They are basic building blocks of a query to ML models. They have been introduced since the v1.x version
 
