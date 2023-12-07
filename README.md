@@ -438,8 +438,8 @@ For references to external variables:
 
  The function receives parameters from the `TPromptQLOptions` structure that contains:
  ```
- - "OpenAiBaseUrl" - is an URL to OpenAI API. For example, "https://api.openai.com". It's a required parameter for OpenAI models use-cases. Otherwise it can be omitted;
- - "OpenAiKey" - is your OpenAI API key. You can set up it on "https://platform.openai.com/account/api-keys". It's a required parameter for OpenAI models use-cases. Otherwise it can be omitted;
+ - "OpenAiBaseUrl" - is an URL to OpenAI compatible API. For example, "https://api.openai.com". But it can be any URL to API compatible with OpenAI's Chat API. It's a required parameter for OpenAI models use-cases. Otherwise it can be omitted;
+ - "OpenAiKey" - is your OpenAI API key. You can set up it on "https://platform.openai.com/account/api-keys". It's a required parameter for OpenAI models use-cases. But for other OpenAI compatible APIs it's not always necessary. For user-defined model APIs it can be omitted;
  - "OpenAiListenQueryTimeoutSec" - is a timeout for listening prompting query from an OpenAI model. Default value is 30 seconds;
  - "CustomApisListenQueryTimeoutSec" - is a timeout for listening prompting query from a user-defined ML model. Default value is 30 seconds;
  - "DefaultExternalGlobals" - is a table of predefined external global variables. You can provide there custom functions, constants, services etc. Default value is *nil*;
