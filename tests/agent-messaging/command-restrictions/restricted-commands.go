@@ -8,6 +8,7 @@ import (
 )
 
 // 11-11-2023: Works +++
+// 10-12-2023: Regress ???
 func RestrictedCommandsTest() {
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{
@@ -37,7 +38,7 @@ func RestrictedCommandsTest() {
 	)
 	result2Str, _ := result2.ResultDataStr()
 
-	interpreterInst.Instance.ControlFlowClearStack()
+	interpreterInst.Instance.UnsafeExecute(`{~unsafe_clear_stack /}`)
 
 	result3 := interpreterInst.Instance.Execute(
 		`
