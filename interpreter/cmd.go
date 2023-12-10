@@ -41,6 +41,18 @@ var cmdsMetaInfo = interpreter.TCommandMetaInfoTable{
 	"debug": &interpreter.TCommandMetaInfo{
 		IsErrorTolerant: true,
 	},
+	"session_begin": &interpreter.TCommandMetaInfo{
+		IsErrorTolerant: true,
+	},
+	"session_end": &interpreter.TCommandMetaInfo{
+		IsErrorTolerant: true,
+	},
+	"unsafe_clear_vars": &interpreter.TCommandMetaInfo{
+		IsErrorTolerant: true,
+	},
+	"unsafe_clear_stack": &interpreter.TCommandMetaInfo{
+		IsErrorTolerant: true,
+	},
 }
 
 func makeCmdTable(
