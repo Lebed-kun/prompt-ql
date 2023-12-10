@@ -6,9 +6,9 @@ import (
 	customapis "gitlab.com/jbyte777/prompt-ql/v4/custom-apis"
 )
 
-type TPromptQL struct {
-	Instance *interpreter.Interpreter
-	CustomApis *customapis.CustomModelsApis
+type PromptQL struct {
+	Instance interpreter.InterpreterApi
+	CustomApis customapis.CustomModelsMainApi
 }
 
 type TPromptQLOptions struct {
@@ -21,7 +21,7 @@ type TPromptQLOptions struct {
 	RestrictedCommands interpreter.TRestrictedCommands
 }
 
-func New(options TPromptQLOptions) *TPromptQL {
+func New(options TPromptQLOptions) *PromptQL {
 	apiInst := api.New(
 		options.OpenAiBaseUrl,
 		options.OpenAiKey,
@@ -38,7 +38,7 @@ func New(options TPromptQLOptions) *TPromptQL {
 		options.RestrictedCommands,
 	)
 	
-	return &TPromptQL{
+	return &PromptQL{
 		Instance: interpreterInst,
 		CustomApis: customModelsApis,
 	}

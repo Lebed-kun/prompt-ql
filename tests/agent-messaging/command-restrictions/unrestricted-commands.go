@@ -8,6 +8,7 @@ import (
 )
 
 // 11-11-2023: Works +++
+// 10-12-2023: Regress +++
 func UnrestrictedCommandsTest() {
 	interpreterInst := interpreter.New(
 		interpreter.TPromptQLOptions{
@@ -16,9 +17,9 @@ func UnrestrictedCommandsTest() {
 				"embed_def": true,
 			},
 		},
-	)
+	).Instance.(*interpretercore.Interpreter)
 
-	result1 := interpreterInst.Instance.UnsafeExecute(
+	result1 := interpreterInst.UnsafeExecute(
 		`
 			{~hello /}
 	    Then I try to execute forbidden command for clearing stack in unrestricted mode:
@@ -27,7 +28,7 @@ func UnrestrictedCommandsTest() {
 	)
 	result1Str, _ := result1.ResultDataStr()
 
-	result2 := interpreterInst.Instance.UnsafeExecute(
+	result2 := interpreterInst.UnsafeExecute(
 		`
 			{~session_begin /}
 			{~hello /}
@@ -37,9 +38,9 @@ func UnrestrictedCommandsTest() {
 	)
 	result2Str, _ := result2.ResultDataStr()
 
-	interpreterInst.Instance.ControlFlowClearStack()
+	interpreterInst.ControlFlowClearStack()
 
-	result3 := interpreterInst.Instance.UnsafeExecute(
+	result3 := interpreterInst.UnsafeExecute(
 		`
 			I try to expand defined embedding:
 			{~embed_exp name="myEmbedding" /}
