@@ -427,7 +427,7 @@ For references to external variables:
 
 
 ## Interpreter API
- - `func New(options TPromptQLOptions) *TPromptQL` - creates an instance of PromptQL with default "closed" state of session. 
+ - `func New(options TPromptQLOptions) *PromptQL` - creates an instance of PromptQL with default "closed" state of session. 
 
  The function receives parameters from the `TPromptQLOptions` structure that contains:
  ```
