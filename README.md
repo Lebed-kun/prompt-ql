@@ -446,8 +446,10 @@ For references to external variables:
  ```
 
  - PromptQL.Instance methods:
+	These are methods which can be used by multi-agent prompts driven programs.
+
 	- Basic API:
-		- `func (self *Interpreter) Instance.Execute(program string) *TInterpreterResult` - executes query as a part of **current** session. I.e. if session is closed, then state of interpreter is completely reset after execution. Otherwise only interpreter cursor is reset.
+		- `func (self *PromptQL) Instance.Execute(program string) *TInterpreterResult` - executes query as a part of **current** session. I.e. if session is closed, then state of interpreter is completely reset after execution. Otherwise only interpreter cursor is reset.
 		If code contains restricted commands, then code execution returns an error inside `*TInterpreterResult.Error`
 
 		The method receives parameters:
@@ -468,33 +470,17 @@ For references to external variables:
 
 		Notice that these methods formats a result accumulated as a text on all root input channel entries. For getting the latest clean result you can use the `func (self *TInterpreterResult) ResultLatestData(chanName string) interface{}`
 
-		- `func (self *Interpreter) Instance.UnsafeExecute(program string) *TInterpreterResult` - same as `Instance.Execute`. But it allows to execute PromptQL commands without any restrictions. It's best suited for internal setups like embeddings definitions; 
+		- `func (self *PromptQL) Instance.UnsafeExecute(program string) *TInterpreterResult` - same as `Instance.Execute`. But it allows to execute PromptQL commands without any restrictions. It's best suited for internal setups like embeddings definitions; 
 
 		- `func (self *PromptQL) Instance.Reset()` - for manually resetting all interpreter state. You can use it for very specific use-cases when standard PromptQL execution flow is not suitable; 
 		- `func (self *PromptQL) Instance.IsDirty() bool` - determines if interpreter is in process of execution PromptQL session. It's `false` after execution of closed session and after calling the `Reset` method;
 
-	- Globals API:
-		- `func (self *Interpreter) Instance.SetExternalGlobals(globals TGlobalVariablesTable)` - for late setup of default external variables table;
-		- `func (self *Interpreter) Instance.SetExternalGlobalVar(name string, val interface{}, description string)` - for late setup of some external variable (with optional description);
-		- `func (self *Interpreter) Instance.GetExternalGlobalsList() map[string]string` - for getting list of external globals with descriptions. It's primarily used by the `{~hello /}` command, but you can use it in other scenarios on your own;
-
 	- Sessions API:
-		- `func (self *Interpreter) Instance.OpenSession()` - for opening PromptQL execution session. It's primarily used by the `{~session_begin /}` command, but you can use it in other scenarios on your own (carefully as it modifies an instance state!);
-		- `func (self *Interpreter) Instance.CloseSession()` - for closing PromptQL execution session. It's primarily used by the `{~session_end /}` command, but you can use it in other scenarios on your own (carefully as it modifies an instance state!);
-		- `func (self *Interpreter) Instance.IsSessionClosed() bool` - returns a flag of **current** session state;
-	
-	- Embeddings API:
-		- `func (self *Interpreter) Instance.GetEmbeddingsList() map[string]string` - for getting list of embeddings with descriptions. It's primarily used by the `{~hello /}` command, but you can use it in other scenarios on your own;
-		- `func (self *Interpreter) Instance.RegisterEmbedding(name string, code string, description string)` - for registering some PromptQL code chunk for later expansion or execution (with optional description), It's primarily used by the `{~embed_def}{/embed_def}` command, but you can use it in other scenarios on your own;
-		- `func (self *Interpreter) Instance.ExpandEmbedding(name string, args TEmbeddingArgsTable) (string, error)` - for expanding PromptQL code chunk **referenced by name** (with optional `args`). It's primarily used by the `{~embed_exp}{/embed_exp}` command, but you can use it in other scenarios on your own;
-		- `func (self *Interpreter) Instance.ExpandInlineEmbedding(embedding string, args TEmbeddingArgsTable) (string, error)` - for expanding PromptQL code chunk **passed as plain text** (with optional `args`). It's primarily used by the `{~embed_exp}{/embed_exp}` command, but you can use it in other scenarios on your own;
-
-	- Misc control flow API:
-		- `func (self *Interpreter) ControlFlowClearInternalVars()` - for clearing internal variables state. It's basically used by the `{~unsafe_clear_vars /}` command. If you decide to use it, do it carefully!
-		- `func (self *Interpreter) ControlFlowClearStack()` - for clearing execution context stack up to root. It also clears parsing error. It's basically used by the `{~unsafe_clear_stack /}` command. If you decide to use it, do it carefully!
-
+		- `func (self *PromptQL) Instance.IsSessionClosed() bool` - returns a flag of **current** session state;
 
  - PromptQL.CustomApis methods:
+	These are methods which can be used by multi-agent prompts driven programs.
+
 	- `func (self *PromptQL) CustomApis.RegisterModelApi(name string, doQuery TDoQueryFunc, description string)` - defines ML model API with its own unique name and function for processing queries. And optional description if provided. The `doQuery` function is defined by this convention:
 
 		```
@@ -508,7 +494,7 @@ For references to external variables:
 
 		This function should block if it contains some blocking requests to IO, DB, network etc. As it executes in separate goroutine that pushes result to query handle;
 
-	- `func (self *PromptQL) CustomApis.GetAllModelsList() map[string]string` - returns a list of user-defined ML models with their descriptions. It's primarily used by the `{~hello /}` command, but you can use it for other scenarios on your own;
+	- `func (self *PromptQL) CustomApis.UnregisterModelApi(name string)` - unregisters an ML model API;
 
  - PromptQL.LoggerApis methods:
   - `func (self *PromptQL) LoggerApis.RegisterLogger(name string, logger TLoggerFunc)` - registers a custom logger for later use in PromptQL code debugging. A logging function must follow this layout:
@@ -520,6 +506,18 @@ For references to external variables:
 			externalGlobals interpreter.TGlobalVariablesTable,
 		) error
 	```
+
+ - PromptQL.LoggerApis methods:
+  - `func (self *PromptQL) LoggerApis.RegisterLogger(name string, logger TLoggerFunc)` - - registers a custom logger for later use in PromptQL code debugging. A logging function must follow this layout:
+	```
+	func(
+		execInfo interpreter.TExecutionInfo,
+		inputs interpreter.TFunctionInputChannelTable,
+		internalGlobals interpreter.TGlobalVariablesTable,
+		externalGlobals interpreter.TGlobalVariablesTable,
+	) error
+	```
+	- `func (self *PromptQL) LoggerApis.UnregisterLogger(name string)` - unregisters a custom logger;
 
 ## Architecture
 
