@@ -9,7 +9,7 @@ import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/interpreter"
 )
 
-func setupFirstAgent() *interpreter.TPromptQL {
+func setupFirstAgent() *interpreter.PromptQL {
 	defaultGlobals := interpretercore.TGlobalVariablesTable{
 		"myRef111": "@myVar111",
 		"myVar111": "Hello, PromptQL!",
@@ -38,7 +38,7 @@ func setupFirstAgent() *interpreter.TPromptQL {
 	return agent
 }
 
-func setupSecondAgent() *interpreter.TPromptQL {
+func setupSecondAgent() *interpreter.PromptQL {
 	defaultGlobals := interpretercore.TGlobalVariablesTable{
 		"myVar222": "Hello, PromptQL!",
 		"myFunc222": func(args []interface{}) interface{} {
