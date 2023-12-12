@@ -104,8 +104,8 @@ func makeCmdTable(
 		"embed_exp": embedexpcmd.EmbedExpCmd,
 
 		// blob data commands
-		"blob_read_from_file": blobreadfromfilecmd.MakeBlobReadFromFileCmd(readFromFileTimeoutSec),
-		"blob_read_from_url": blobreadfromurlcmd.MakeBlobReadFromUrlCmd(readFromUrlTimeoutSec),
+		"blob_from_file": blobreadfromfilecmd.MakeBlobReadFromFileCmd(readFromFileTimeoutSec),
+		"blob_from_url": blobreadfromurlcmd.MakeBlobReadFromUrlCmd(readFromUrlTimeoutSec),
 
 		// debugging commands
 		"debug": debugcmd.MakeDebugCmd(loggerApis),

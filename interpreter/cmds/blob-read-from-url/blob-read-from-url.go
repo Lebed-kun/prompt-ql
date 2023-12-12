@@ -1,6 +1,7 @@
 package blobreadfromurlcmd
 
 import (
+	"fmt"
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
 )
 
@@ -16,7 +17,7 @@ func MakeBlobReadFromUrlCmd(
 
 	return func(
 		staticArgs interpreter.TFunctionArgumentsTable,
-		_inputs interpreter.TFunctionInputChannelTable,
+		inputs interpreter.TFunctionInputChannelTable,
 		_internalGlobals interpreter.TGlobalVariablesTable,
 		_externalGlobals interpreter.TGlobalVariablesTable,
 		execInfo interpreter.TExecutionInfo,
@@ -26,8 +27,25 @@ func MakeBlobReadFromUrlCmd(
 		if err != nil {
 			return err
 		}
+		methodVar, err := getMethodVar(staticArgs, execInfo)
+		if err != nil {
+			return err
+		}
+		
+		var bodyStr string
+		if methodVar != "GET" && methodVar != "OPTIONS" && inputs["data"] != nil {
+			bodyStr, err = inputs["data"].MergeIntoString()
+			if err != nil {
+				return fmt.Errorf(
+					"!error (line=%v, char=%v): %v",
+					execInfo.Line,
+					execInfo.CharPos,
+					err.Error(),
+				)
+			}
+		}
 	
-		response, err := readFromUrl(urlVar, timeoutSec, execInfo)
+		response, err := readFromUrl(urlVar, methodVar, bodyStr, timeoutSec, execInfo)
 		if err != nil {
 			return err
 		}

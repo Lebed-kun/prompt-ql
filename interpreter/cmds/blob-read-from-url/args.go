@@ -32,3 +32,26 @@ func getUrlVar(
 
 	return urlVar, nil
 }
+
+func getMethodVar(
+	staticArgs interpreter.TFunctionArgumentsTable,
+	execInfo interpreter.TExecutionInfo,
+) (string, error) {
+	var methodVar string
+	rawMethodVar, hasRawMethodVar := staticArgs["method"]
+	if !hasRawMethodVar {
+		return "GET", nil
+	}
+	var isMethodVarStr bool
+	methodVar, isMethodVarStr = rawMethodVar.(string)
+	if !isMethodVarStr || len(methodVar) == 0 {
+		return "", fmt.Errorf(
+			"!error (line=%v, char=%v): \"method\" parameter is \"%v\" which is not a valid string",
+			execInfo.Line,
+			execInfo.CharPos,
+			rawMethodVar,
+		)
+	}
+
+	return methodVar, nil
+}

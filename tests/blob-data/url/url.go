@@ -33,7 +33,7 @@ func BlobReadFromUrlTest() {
 			{~unsafe_preinit_vars /}
 			{~set to="_url"}https://bvnf.space/{/set}
 			{~call fn="_internal_fn"}
-				{~blob_read_from_url url=$_url /}
+				{~blob_from_url url=$_url /}
 			{/call}
 		`,
 	)

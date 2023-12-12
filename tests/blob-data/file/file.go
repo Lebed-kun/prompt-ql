@@ -36,7 +36,7 @@ func BlobReadFromFileTest() {
 		`
 			{~unsafe_preinit_vars /}
 			{~call fn="_internal_fn"}
-				{~blob_read_from_file path=$_file_path /}
+				{~blob_from_file path=$_file_path /}
 			{/call}
 		`,
 	)

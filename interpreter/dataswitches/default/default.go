@@ -28,9 +28,7 @@ func DefaultSwitch(
 
 		topCtx.InputChannels["data"] = append(
 			topCtx.InputChannels["data"],
-			// [BEGIN] TODO: include this patch in the v4.x branch
 			rawData,
-			// [END] TODO: include this patch in the v4.x branch
 		)
 	} else {
 		text := stringsutils.TrimWhitespace(

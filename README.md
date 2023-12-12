@@ -418,7 +418,11 @@ Embeddable can contain placeholders defined as a special literal with the `%` si
 	- Inline embedding. It's marked by the `inline` flag. And in this case the `name` parameter has no effect and thus can be omitted. Then embedding is passed as an input before the `<arg1=val1>...<argN=valN>` sequence of placeholder arguments;
 
 ### 5. Code debugging commands
- - `{~debug logger="logger_name"}<PromptQL code>{/debug}` - logs all channel inputs, current interpreter cursor, current internal globals and current external globals states. `logger` is an optional parameter. If not specified, then default console logger is used. For custom logger, you must register a logging function before
+ - `{~debug logger="logger_name"}<PromptQL code>{/debug}` - logs all channel inputs, current interpreter cursor, current internal globals and current external globals states. `logger` is an optional parameter. If not specified, then default console logger is used. For custom logger, you must register a logging function before;
+
+### 6, Blob data commands
+ - `{~blob_from_file path="path_to_file" /}` - reads byte slice from file specified by `path_to_file`. If you specify relative path, it is a path from src of your project;
+ - `{~blob_from_url url="url" [method]="GET|..." /}` - reads byte slice from HTTP response of request specified by `url`. Default `method` for request is `GET`. However, you can specify other request method. And you can also provide optional request body as an input data to the command;
 
 ## Additional features
  - References to entries in some global variables table are supported. You can use them by prefixing a name with the `$` sign like:

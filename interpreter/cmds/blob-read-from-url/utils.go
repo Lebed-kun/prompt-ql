@@ -5,12 +5,15 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+	"strings"
 
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
 )
 
 func readFromUrl(
 	url string,
+	method string,
+	bodyStr string,
 	timeoutSec uint,
 	execInfo interpreter.TExecutionInfo,
 ) ([]byte, error) {
@@ -19,11 +22,24 @@ func readFromUrl(
 
 	go func() {
 		client := http.Client{}
-		request, err := http.NewRequest(
-			"GET",
-			url,
-			nil,
-		)
+		var request *http.Request
+		var err error
+
+		if len(bodyStr) > 0 {
+			bodyReqReader := strings.NewReader(bodyStr)
+			request, err = http.NewRequest(
+				method,
+				url,
+				bodyReqReader,
+			)
+		} else {
+			request, err = http.NewRequest(
+				method,
+				url,
+				nil,
+			)
+		}
+		
 		if err != nil {
 			errChan <- fmt.Errorf(
 				"!error (line=%v, char=%v): %v",
