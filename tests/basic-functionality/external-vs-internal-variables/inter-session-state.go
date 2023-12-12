@@ -10,7 +10,7 @@ import (
 // 28-09-2023: Works +++
 func InternalVariableStateAfterSessionTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	result1 := interpreterInst.Instance.Execute(
@@ -54,7 +54,7 @@ func ExternalVariableStateAfterSessionTest() {
 		"myVar": "Hello, PromptQL!",
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 		},
 	)

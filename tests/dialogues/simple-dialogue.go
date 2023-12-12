@@ -14,7 +14,7 @@ func SimpleDialogTest(
 	openAiKey string,
 ) {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			OpenAiBaseUrl: openAiBaseUrl,
 			OpenAiKey: openAiKey,
 			OpenAiListenQueryTimeoutSec: 40,

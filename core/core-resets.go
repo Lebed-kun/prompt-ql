@@ -4,7 +4,7 @@ func (self *Interpreter) resetImpl() {
 	self.resetPosition()
 	self.mode = interpreterModePlainText
 	self.internalGlobals = make(TGlobalVariablesTable)
-	self.externalGlobals = initializeExternalGlobals(self.defaultExternalGlobals)
+	self.externalGlobals = initializeGlobals(self.defaultExternalGlobals)
 	self.execCtxStack = []*TExecutionStackFrame{
 		makeRootStackFrame(),
 	}

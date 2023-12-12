@@ -1,0 +1,101 @@
+package blobreadfromurlcmd
+
+import (
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"time"
+	"strings"
+
+	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
+)
+
+func readFromUrl(
+	url string,
+	method string,
+	bodyStr string,
+	timeoutSec uint,
+	execInfo interpreter.TExecutionInfo,
+) ([]byte, error) {
+	resChan := make(chan []byte)
+	errChan := make(chan error)
+
+	go func() {
+		client := http.Client{}
+		var request *http.Request
+		var err error
+
+		if len(bodyStr) > 0 {
+			bodyReqReader := strings.NewReader(bodyStr)
+			request, err = http.NewRequest(
+				method,
+				url,
+				bodyReqReader,
+			)
+		} else {
+			request, err = http.NewRequest(
+				method,
+				url,
+				nil,
+			)
+		}
+		
+		if err != nil {
+			errChan <- fmt.Errorf(
+				"!error (line=%v, char=%v): %v",
+				execInfo.Line,
+				execInfo.CharPos,
+				err.Error(),
+			)
+			return
+		}
+
+		response, err := client.Do(request)
+		if err != nil {
+			errChan <- fmt.Errorf(
+				"!error (line=%v, char=%v): %v",
+				execInfo.Line,
+				execInfo.CharPos,
+				err.Error(),
+			)
+			return
+		}
+
+		body, err := ioutil.ReadAll(response.Body)
+		if err != nil {
+			errChan <- fmt.Errorf(
+				"!error (line=%v, char=%v): %v",
+				execInfo.Line,
+				execInfo.CharPos,
+				err.Error(),
+			)
+			return
+		}
+
+		if response.StatusCode >= 400 {
+			errChan <- fmt.Errorf(
+				"!error (line=%v, char=%v): %v",
+				execInfo.Line,
+				execInfo.CharPos,
+				string(body),
+			)
+			return
+		}
+
+		resChan <- body
+	}()
+
+	timeout := time.NewTimer(time.Second * time.Duration(timeoutSec))
+	select {
+	case res := <- resChan:
+		return res, nil
+	case err := <- errChan:
+		return nil, err
+	case <- timeout.C:
+		return nil, fmt.Errorf(
+			"!error (line=%v, char=%v): url read timeout",
+			execInfo.Line,
+			execInfo.CharPos,
+		)
+	}
+}

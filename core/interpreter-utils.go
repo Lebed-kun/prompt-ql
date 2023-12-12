@@ -13,7 +13,7 @@ func makeRootStackFrame() *TExecutionStackFrame {
 	}
 }
 
-func initializeExternalGlobals(defaultGlobals TGlobalVariablesTable) TGlobalVariablesTable {
+func initializeGlobals(defaultGlobals TGlobalVariablesTable) TGlobalVariablesTable {
 	if defaultGlobals == nil {
 		return nil
 	}

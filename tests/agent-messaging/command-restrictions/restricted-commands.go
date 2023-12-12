@@ -11,7 +11,7 @@ import (
 // 10-12-2023: Regress +++
 func RestrictedCommandsTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			RestrictedCommands: interpretercore.TRestrictedCommands{
 				"unsafe_clear_stack": true,
 				"embed_def": true,

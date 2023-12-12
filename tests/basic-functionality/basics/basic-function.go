@@ -15,7 +15,7 @@ func BasicFunctionTest() {
 		"postprocess": postProcessFunctionTest,
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 		},
 	)

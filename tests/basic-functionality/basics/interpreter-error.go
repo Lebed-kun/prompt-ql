@@ -10,7 +10,7 @@ import (
 // 28-09-2023: Works on total regress +++
 func InterpreterErrorTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(

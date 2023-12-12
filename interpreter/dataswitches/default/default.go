@@ -28,7 +28,7 @@ func DefaultSwitch(
 
 		topCtx.InputChannels["data"] = append(
 			topCtx.InputChannels["data"],
-			err,
+			rawData,
 		)
 	} else {
 		text := stringsutils.TrimWhitespace(

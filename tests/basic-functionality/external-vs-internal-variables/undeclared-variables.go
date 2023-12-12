@@ -10,7 +10,7 @@ import (
 // 28-09-2023: Works +++
 func InternalUndeclaredVariableTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -45,7 +45,7 @@ func ExternalUndeclaredVariableTest() {
 		"myVar222": "Hello, PromptQL!",
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 		},
 	)

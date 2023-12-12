@@ -6,10 +6,11 @@ import (
 
 type Interpreter struct {
 	// Settings
-	execFnTable   TExecutedFunctionTable
-	dataSwitchFn  TDataSwitchFunction
-	defaultExternalGlobals TGlobalVariablesTable
+	execFnTable                TExecutedFunctionTable
+	dataSwitchFn               TDataSwitchFunction
+	defaultExternalGlobals     TGlobalVariablesTable
 	defaultExternalGlobalsMeta TExternalGlobalsMetaTable
+	preinitedInternalGlobals   TGlobalVariablesTable
 
 	// Internal interpreter state
 	mode          int
@@ -20,13 +21,13 @@ type Interpreter struct {
 	criticalError error
 	execCtxStack  TExecutionStack
 	sessionClosed bool
-	
+
 	// Current globals
-	internalGlobals       TGlobalVariablesTable
+	internalGlobals TGlobalVariablesTable
 	externalGlobals TGlobalVariablesTable
 
 	// Current embeddings
-	embeddings TEmbeddingsTable
+	embeddings     TEmbeddingsTable
 	embeddingsMeta TEmbeddingMetaInfoTable
 
 	// Current restrictions
@@ -36,32 +37,43 @@ type Interpreter struct {
 	cmdsMeta TCommandMetaInfoTable
 }
 
-func New(
-	execFnTable TExecutedFunctionTable,
-	dataSwitchFn TDataSwitchFunction,
-	defaultExternalVars TGlobalVariablesTable,
-	defaultExternalVarsMeta TExternalGlobalsMetaTable,
-	restrictedCommands TRestrictedCommands,
-	cmdsMeta TCommandMetaInfoTable,
-) *Interpreter {
+type InterpreterConfig struct {
+	ExecFnTable              TExecutedFunctionTable
+	DataSwitchFn             TDataSwitchFunction
+	DefaultExternalVars      TGlobalVariablesTable
+	DefaultExternalVarsMeta  TExternalGlobalsMetaTable
+	RestrictedCommands       TRestrictedCommands
+	CmdsMeta                 TCommandMetaInfoTable
+	PreinitedInternalGlobals TGlobalVariablesTable
+}
+
+func New(config InterpreterConfig) *Interpreter {
 	execCtxStack := []*TExecutionStackFrame{
 		makeRootStackFrame(),
 	}
 
-	if restrictedCommands == nil {
+	restrictedCommands := config.RestrictedCommands
+	if config.RestrictedCommands == nil {
 		restrictedCommands = make(TRestrictedCommands)
 	}
 
-	if cmdsMeta == nil {
+	cmdsMeta := config.CmdsMeta
+	if config.CmdsMeta == nil {
 		cmdsMeta = make(TCommandMetaInfoTable)
+	}
+
+	preinitedInternalGlobals := config.PreinitedInternalGlobals
+	if config.PreinitedInternalGlobals == nil {
+		preinitedInternalGlobals = make(TGlobalVariablesTable)
 	}
 
 	return &Interpreter{
 		// Settings
-		execFnTable:   execFnTable,
-		dataSwitchFn:  dataSwitchFn,
-		defaultExternalGlobals: defaultExternalVars,
-		defaultExternalGlobalsMeta: defaultExternalVarsMeta,
+		execFnTable:                config.ExecFnTable,
+		dataSwitchFn:               config.DataSwitchFn,
+		defaultExternalGlobals:     config.DefaultExternalVars,
+		defaultExternalGlobalsMeta: config.DefaultExternalVarsMeta,
+		preinitedInternalGlobals:   preinitedInternalGlobals,
 
 		// Internal interpreter state
 		mode:          interpreterModePlainText,
@@ -74,11 +86,11 @@ func New(
 		sessionClosed: true,
 
 		// Current globals
-		internalGlobals:       make(TGlobalVariablesTable),
-		externalGlobals: initializeExternalGlobals(defaultExternalVars),
+		internalGlobals: make(TGlobalVariablesTable),
+		externalGlobals: initializeGlobals(config.DefaultExternalVars),
 
 		// Current embeddings
-		embeddings: make(TEmbeddingsTable),
+		embeddings:     make(TEmbeddingsTable),
 		embeddingsMeta: make(TEmbeddingMetaInfoTable),
 
 		// Current restrictions
@@ -116,18 +128,18 @@ func (self *Interpreter) IsDirty() bool {
 func (self *Interpreter) SetExternalGlobals(globals TGlobalVariablesTable, globalsMeta TExternalGlobalsMetaTable) {
 	self.defaultExternalGlobals = globals
 	self.defaultExternalGlobalsMeta = globalsMeta
-	self.externalGlobals = initializeExternalGlobals(self.defaultExternalGlobals)
+	self.externalGlobals = initializeGlobals(self.defaultExternalGlobals)
 }
 
 func (self *Interpreter) SetExternalGlobalVar(name string, val interface{}, description string) {
 	if self.defaultExternalGlobals == nil {
 		self.defaultExternalGlobals = make(TGlobalVariablesTable)
-		self.externalGlobals = initializeExternalGlobals(self.defaultExternalGlobals)
+		self.externalGlobals = initializeGlobals(self.defaultExternalGlobals)
 	}
 	if self.defaultExternalGlobalsMeta == nil && len(description) > 0 {
 		self.defaultExternalGlobalsMeta = make(TExternalGlobalsMetaTable)
 	}
-	
+
 	self.defaultExternalGlobals[name] = val
 	self.externalGlobals[name] = val
 	if self.defaultExternalGlobalsMeta != nil && len(description) > 0 {
@@ -139,7 +151,7 @@ func (self *Interpreter) SetExternalGlobalVar(name string, val interface{}, desc
 
 func (self *Interpreter) GetExternalGlobalsList() map[string]string {
 	res := make(map[string]string, 0)
-	
+
 	if self.defaultExternalGlobalsMeta == nil {
 		for k := range self.defaultExternalGlobals {
 			res[k] = ""
@@ -175,7 +187,7 @@ func (self *Interpreter) IsSessionClosed() bool {
 
 func (self *Interpreter) GetEmbeddingsList() map[string]string {
 	res := make(map[string]string, 0)
-	
+
 	for k, v := range self.embeddingsMeta {
 		res[k] = v.Description
 	}
@@ -210,6 +222,10 @@ func (self *Interpreter) ExpandInlineEmbedding(embedding string, args TEmbedding
 // [END] Embeddings API
 
 // [BEGIN] Misc control flow API
+
+func (self *Interpreter) ControlFlowPreinitInternalVars() {
+	self.internalGlobals = initializeGlobals(self.preinitedInternalGlobals)
+}
 
 func (self *Interpreter) ControlFlowClearInternalVars() {
 	self.internalGlobals = make(TGlobalVariablesTable)

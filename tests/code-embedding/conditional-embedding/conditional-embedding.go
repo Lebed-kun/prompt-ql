@@ -21,7 +21,7 @@ func ConditionalEmbeddingTest() {
 		},
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 		},
 	)

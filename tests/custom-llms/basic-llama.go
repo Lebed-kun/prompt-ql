@@ -12,7 +12,7 @@ func BasicLlamaTest(
 	pathToLlamaModel string,
 ) {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			CustomApisListenQueryTimeoutSec: 400,
 		},
 	)

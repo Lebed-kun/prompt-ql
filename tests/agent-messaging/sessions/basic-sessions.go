@@ -8,7 +8,7 @@ import (
 // 07-10-2023: Works +++
 func BasicSessionTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	interpreterInst.Instance.Execute(
