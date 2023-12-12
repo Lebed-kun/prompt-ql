@@ -34,6 +34,10 @@ import (
 	embeddefcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/embed-def"
 	embedexpcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/embed-exp"
 
+	// blob data commands
+	blobreadfromfilecmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/blob-read-from-file"
+	blobreadfromurlcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/blob-read-from-url"
+
 	// debugging commands
 	debugcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/debug"
 )
@@ -63,6 +67,8 @@ func makeCmdTable(
 	gptApi *api.GptApi,
 	customApis *customapis.CustomModelsApis,
 	loggerApis *loggerapis.LoggerApis,
+	readFromFileTimeoutSec uint,
+	readFromUrlTimeoutSec uint,
 ) interpreter.TExecutedFunctionTable {
 	return interpreter.TExecutedFunctionTable{
 		// basic commands
@@ -96,6 +102,10 @@ func makeCmdTable(
 		"embed_if": embedifcmd.EmbedIfCmd,
 		"embed_def": embeddefcmd.EmbedDefCmd,
 		"embed_exp": embedexpcmd.EmbedExpCmd,
+
+		// blob data commands
+		"blob_read_from_file": blobreadfromfilecmd.MakeBlobReadFromFileCmd(readFromFileTimeoutSec),
+		"blob_read_from_url": blobreadfromurlcmd.MakeBlobReadFromUrlCmd(readFromUrlTimeoutSec),
 
 		// debugging commands
 		"debug": debugcmd.MakeDebugCmd(loggerApis),

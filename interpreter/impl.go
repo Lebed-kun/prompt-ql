@@ -22,6 +22,8 @@ type PromptQLOptions struct {
 	DefaultExternalGlobalsMeta interpreter.TExternalGlobalsMetaTable
 	PreinitializedInternalGlobals interpreter.TGlobalVariablesTable
 	RestrictedCommands interpreter.TRestrictedCommands
+	ReadFromFileTimeoutSec uint
+	ReadFromUrlTimeoutSec uint
 }
 
 func New(options PromptQLOptions) *PromptQL {
@@ -33,7 +35,13 @@ func New(options PromptQLOptions) *PromptQL {
 	customModelsApis := customapis.New(options.CustomApisListenQueryTimeoutSec)
 	loggerApis := loggerapis.New()
 
-	execFnTable := makeCmdTable(apiInst, customModelsApis, loggerApis)
+	execFnTable := makeCmdTable(
+		apiInst,
+		customModelsApis,
+		loggerApis,
+		options.ReadFromFileTimeoutSec,
+		options.ReadFromUrlTimeoutSec,
+	)
 	
 	interpreterOpts := interpreter.InterpreterConfig{
 		ExecFnTable: execFnTable,
