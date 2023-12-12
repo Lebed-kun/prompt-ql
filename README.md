@@ -23,7 +23,7 @@ func BasicQueryTest(
 	openAiKey string,
 ) {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			OpenAiBaseUrl: openAiBaseUrl,
 			OpenAiKey: openAiKey,
 		},
@@ -66,7 +66,7 @@ func NonBlockingQueriesTest(
 		"logtime": testutils.LogTimeForProgram,
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			OpenAiBaseUrl: openAiBaseUrl,
 			OpenAiKey: openAiKey,
 			DefaultExternalGlobals: defaultGlobals,
@@ -203,7 +203,7 @@ func QueryWithPostprocessFunctionTest(
 		"postprocess": postProcessFunctionTest,
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			OpenAiBaseUrl: openAiBaseUrl,
 			OpenAiKey: openAiKey,
 			DefaultExternalGlobals: defaultGlobals,
@@ -403,6 +403,7 @@ They are useful for controlling agent's execution flow at language level. They h
  - `{~session_begin /}` - opens a current execution session. After opening a session and execution of PromptQL chunk, a state of interpreter is saved (except its cursor pointing to program text). The command brings a basic management of execution flow to protocol/language level;
  - `{~session_end /}` - closes a current execution session. After closing a session and execution of PromptQL chunk, a full state of interpreter is lost. The command brings a basic management of execution flow to protocol/language level;
  - `{~unsafe_clear_vars /}` - clears internal variables state. It's useful for isolated execution of code on single "session" flow. Use it carefully!
+ - `{~unsafe_preinit_vars /}` - initializes internal variables state with predefined internal variables values. It's useful for isolated execution of code on single "session" flow. Use it carefully!
  - `{~unsafe_clear_stack /}` - clears execution context stack. The command is useful for isolated execution of code on single "session" flow, for preventing accumulation of results on root. Use it carefully!
 
 ### 4. Code embedding commands
@@ -434,15 +435,17 @@ For references to external variables:
 
 
 ## Interpreter API
- - `func New(options TPromptQLOptions) *PromptQL` - creates an instance of PromptQL with default "closed" state of session. 
+ - `func New(options PromptQLOptions) *PromptQL` - creates an instance of PromptQL with default "closed" state of session. 
 
- The function receives parameters from the `TPromptQLOptions` structure that contains:
+ The function receives parameters from the `PromptQLOptions` structure that contains:
  ```
  - "OpenAiBaseUrl" - is an URL to OpenAI compatible API. For example, "https://api.openai.com". But it can be any URL to API compatible with OpenAI's Chat API. It's a required parameter for OpenAI models use-cases. Otherwise it can be omitted;
  - "OpenAiKey" - is your OpenAI API key. You can set up it on "https://platform.openai.com/account/api-keys". It's a required parameter for OpenAI models use-cases. But for other OpenAI compatible APIs it's not always necessary. For user-defined model APIs it can be omitted;
  - "OpenAiListenQueryTimeoutSec" - is a timeout for listening prompting query from an OpenAI model. Default value is 30 seconds;
  - "CustomApisListenQueryTimeoutSec" - is a timeout for listening prompting query from a user-defined ML model. Default value is 30 seconds;
  - "DefaultExternalGlobals" - is a table of predefined external global variables. You can provide there custom functions, constants, services etc. Default value is *nil*;
+ - "DefaultExternalGlobalsMeta" - provides additional description etc. of external globals. Useful for descriptive meaning of them;
+ - "PreinitializedInternalGlobals" - is a table of predefined internal global variables that can be lazily initialized later;
  ```
 
  - PromptQL.Instance methods:

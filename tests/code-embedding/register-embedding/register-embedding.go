@@ -11,7 +11,7 @@ import (
 // 30-11-2023: random regression test +++
 func RegisterEmbeddingTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	// definitions

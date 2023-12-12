@@ -8,7 +8,7 @@ import (
 // 04-11-2023: Works +++
 func HeaderCommandTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(

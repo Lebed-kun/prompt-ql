@@ -12,7 +12,7 @@ import (
 // 30-11-2023: random regress +++
 func NestedWrappersTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(

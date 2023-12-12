@@ -8,7 +8,7 @@ import (
 // 07-10-2023: Works +++
 func OpenSessionErrorTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -34,7 +34,7 @@ func OpenSessionErrorTest() {
 // 07-10-2023: Works +++
 func CloseSessionErrorTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(

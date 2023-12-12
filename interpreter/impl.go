@@ -13,17 +13,18 @@ type PromptQL struct {
 	LoggerApis loggerapis.LoggersMainApi
 }
 
-type TPromptQLOptions struct {
+type PromptQLOptions struct {
 	OpenAiBaseUrl string
 	OpenAiKey string
 	OpenAiListenQueryTimeoutSec uint
 	CustomApisListenQueryTimeoutSec uint
 	DefaultExternalGlobals interpreter.TGlobalVariablesTable
 	DefaultExternalGlobalsMeta interpreter.TExternalGlobalsMetaTable
+	PreinitializedInternalGlobals interpreter.TGlobalVariablesTable
 	RestrictedCommands interpreter.TRestrictedCommands
 }
 
-func New(options TPromptQLOptions) *PromptQL {
+func New(options PromptQLOptions) *PromptQL {
 	apiInst := api.New(
 		options.OpenAiBaseUrl,
 		options.OpenAiKey,
@@ -34,14 +35,16 @@ func New(options TPromptQLOptions) *PromptQL {
 
 	execFnTable := makeCmdTable(apiInst, customModelsApis, loggerApis)
 	
-	interpreterInst := interpreter.New(
-		execFnTable,
-		rootDataSwitch,
-		options.DefaultExternalGlobals,
-		options.DefaultExternalGlobalsMeta,
-		options.RestrictedCommands,
-		cmdsMetaInfo,
-	)
+	interpreterOpts := interpreter.InterpreterConfig{
+		ExecFnTable: execFnTable,
+		DataSwitchFn: rootDataSwitch,
+		DefaultExternalVars: options.DefaultExternalGlobals,
+		DefaultExternalVarsMeta: options.DefaultExternalGlobalsMeta,
+		RestrictedCommands: options.RestrictedCommands,
+		CmdsMeta: cmdsMetaInfo,
+		PreinitedInternalGlobals: options.PreinitializedInternalGlobals,
+	}
+	interpreterInst := interpreter.New(interpreterOpts)
 	
 	return &PromptQL{
 		Instance: interpreterInst,

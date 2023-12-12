@@ -10,7 +10,7 @@ import (
 // 28-09-2023: Works +++
 func WriteToInternalVariableTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -45,7 +45,7 @@ func WriteToExternalVariableTest() {
 		"myVar": "!",
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 		},
 	)

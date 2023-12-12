@@ -9,7 +9,7 @@ import (
 // 12-11-2023: Works +++
 func ExpandInlineEmbeddingTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	// expansion

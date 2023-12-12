@@ -17,7 +17,7 @@ func BasicDebugTest() {
 		"myVar": "Just a global var",
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 		},
 	)

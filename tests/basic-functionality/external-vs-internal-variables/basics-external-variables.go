@@ -14,7 +14,7 @@ func ExternalVariableDereferenceTest() {
 		"myVar": "Hello, PromptQL!",
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 		},
 	)
@@ -51,7 +51,7 @@ func ExternalEmptyVariableDereferenceErrorTest() {
 		"myVar": "Hello, PromptQL!",
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 		},
 	)
@@ -84,7 +84,7 @@ func ExternalEmptyVariableDereferenceErrorTest() {
 // 28-09-2023: Works +++
 func ExternalVariableAtCharIsPartOfStringLiteralTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	result := interpreterInst.Instance.Execute(
@@ -136,7 +136,7 @@ func ExternalVariableSameLiteralRepresentationTest() {
 		"myVar": "Hello, PromptQL!",
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 		},
 	)

@@ -29,7 +29,7 @@ func AgentLayoutWithEmbeddingTest() {
 		},
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 			DefaultExternalGlobalsMeta: defaultGlobalsMeta,
 		},

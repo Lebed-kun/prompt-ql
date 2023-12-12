@@ -26,6 +26,7 @@ import (
 	opensessioncmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/open-session"
 	closesessioncmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/close-session"
 	unsafeclearvarscmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/unsafe-clear-vars"
+	unsafepreinitvarscmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/unsafe-preinit-vars"
 	unsafeclearstackcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/unsafe-clear-stack"
 
 	// code embedding commands
@@ -48,6 +49,9 @@ var cmdsMetaInfo = interpreter.TCommandMetaInfoTable{
 		IsErrorTolerant: true,
 	},
 	"unsafe_clear_vars": &interpreter.TCommandMetaInfo{
+		IsErrorTolerant: true,
+	},
+	"unsafe_preinit_vars": &interpreter.TCommandMetaInfo{
 		IsErrorTolerant: true,
 	},
 	"unsafe_clear_stack": &interpreter.TCommandMetaInfo{
@@ -85,6 +89,7 @@ func makeCmdTable(
 		"session_begin": opensessioncmd.OpenSessionCmd,
 		"session_end": closesessioncmd.CloseSessionCmd,
 		"unsafe_clear_vars": unsafeclearvarscmd.UnsafeClearVarsCmd,
+		"unsafe_preinit_vars": unsafepreinitvarscmd.UnsafePreinitVarsCmd,
 		"unsafe_clear_stack": unsafeclearstackcmd.UnsafeClearStackCmd,
 
 		// code embedding commands

@@ -28,7 +28,7 @@ func setupFirstAgent() *interpreter.PromptQL {
 		},
 	}
 	agent := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 			DefaultExternalGlobalsMeta: defaultGlobalsMeta,
 		},
@@ -65,7 +65,7 @@ func setupSecondAgent() *interpreter.PromptQL {
 		},
 	}
 	agent := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			DefaultExternalGlobals: defaultGlobals,
 			DefaultExternalGlobalsMeta: defaultGlobalsMeta,
 		},

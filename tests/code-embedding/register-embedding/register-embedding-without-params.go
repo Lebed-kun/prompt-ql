@@ -10,7 +10,7 @@ import (
 // 12-11-2023: regress +++
 func RegisterEmbeddingWithoutParamsTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{},
+		interpreter.PromptQLOptions{},
 	)
 
 	resultOnDefinition := interpreterInst.Instance.Execute(

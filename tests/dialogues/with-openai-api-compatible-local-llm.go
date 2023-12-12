@@ -9,7 +9,7 @@ import (
 // 07-12-2023: Works +++
 func WithOpenAiCompatibleLocalLLMTest() {
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			// see https://github.com/ggerganov/llama.cpp/tree/master/examples/server
 			OpenAiBaseUrl: "http://localhost:8080",
 			OpenAiKey: "",

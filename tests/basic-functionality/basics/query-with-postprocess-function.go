@@ -20,7 +20,7 @@ func QueryWithPostprocessFunctionTest(
 		"postprocess": postProcessFunctionTest,
 	}
 	interpreterInst := interpreter.New(
-		interpreter.TPromptQLOptions{
+		interpreter.PromptQLOptions{
 			OpenAiBaseUrl: openAiBaseUrl,
 			OpenAiKey: openAiKey,
 			DefaultExternalGlobals: defaultGlobals,
