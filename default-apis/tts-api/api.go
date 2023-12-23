@@ -1,4 +1,4 @@
-package chatapi
+package ttsapi
 
 import (
 	"bytes"
@@ -12,19 +12,19 @@ import (
 	errorsutils "gitlab.com/jbyte777/prompt-ql/v5/utils/errors"
 )
 
-type GptApi struct {
+type TtsApi struct {
 	openAiBaseUrl         string
 	openAiKey             string
 	listenQueryTimeoutSec uint
 }
 
-const defaultListenQueryTimeoutSec uint = 30
+const defaultListenQueryTimeoutSec uint = 50
 
 func New(
 	openAiBaseUrl string,
 	openAiKey string,
 	listenQueryTimeoutSec uint,
-) *GptApi {
+) *TtsApi {
 	if len(openAiBaseUrl) == 0 {
 		openAiBaseUrl = "https://api.openai.com"
 	}
@@ -33,31 +33,30 @@ func New(
 		listenQueryTimeoutSec = defaultListenQueryTimeoutSec
 	}
 
-	return &GptApi{
+	return &TtsApi{
 		openAiBaseUrl:         openAiBaseUrl,
 		openAiKey:             fmt.Sprintf("Bearer %v", openAiKey),
 		listenQueryTimeoutSec: listenQueryTimeoutSec,
 	}
 }
 
-func (self *GptApi) doQuery(
+func (self *TtsApi) doQuery(
 	model string,
-	temperature float64,
-	prompts []TMessage,
-) (*TGptApiResponse, error) {
+	input string,
+	voice string,
+) (*TTtsApiResponse, error) {
 	client := &http.Client{}
 
-	requestBody := TGptApiRequest{
+	requestBody := TTtsApiRequest{
 		Model:       model,
-		Messages:    prompts,
-		Temperature: temperature,
-		N:           1,
+		Input: input,
+		Voice: voice,
 	}
 	requestBodyBytes, _ := json.Marshal(requestBody)
 	requestBodyBuff := bytes.NewBuffer(requestBodyBytes)
 
 	reqUrl := fmt.Sprintf(
-		"%v/v1/chat/completions",
+		"%v/v1/audio/speech",
 		self.openAiBaseUrl,
 	)
 	request, _ := http.NewRequest(
@@ -71,7 +70,7 @@ func (self *GptApi) doQuery(
 	response, err := client.Do(request)
 	if err != nil {
 		return nil, errorsutils.LogError(
-			"GptApi",
+			"TtsApi",
 			"doQuery",
 			err,
 		)
@@ -80,30 +79,21 @@ func (self *GptApi) doQuery(
 		resBody, _ := ioutil.ReadAll(response.Body)
 
 		return nil, errorsutils.LogError(
-			"GptApi",
+			"TtsApi",
 			"doQuery",
 			errors.New(string(resBody)),
 		)
 	}
 
 	rawResBody, _ := ioutil.ReadAll(response.Body)
-	var resBody TGptApiResponse
-	err = json.Unmarshal(rawResBody, &resBody)
-	if err != nil {
-		return nil, errorsutils.LogError(
-			"GptApi",
-			"doQuery",
-			err,
-		)
-	}
-
+	resBody := TTtsApiResponse(rawResBody)
 	return &resBody, nil
 }
 
-func (self *GptApi) OpenQuery(
+func (self *TtsApi) OpenQuery(
 	model string,
-	temperature float64,
-	prompts []TMessage,
+	input string,
+	voice string,
 ) (*TQueryHandle, error) {
 	_, isModelSupported := supportedOpenAiModels[model]
 	if !isModelSupported {
@@ -113,14 +103,14 @@ func (self *GptApi) OpenQuery(
 		)
 	}
 
-	resChan := make(chan *TGptApiResponse)
+	resChan := make(chan *TTtsApiResponse)
 	errChan := make(chan error)
 
 	go func() {
 		res, err := self.doQuery(
 			model,
-			temperature,
-			prompts,
+			input,
+			voice,
 		)
 
 		if err != nil {
@@ -136,9 +126,9 @@ func (self *GptApi) OpenQuery(
 	}, nil
 }
 
-func (self *GptApi) ListenQuery(
+func (self *TtsApi) ListenQuery(
 	queryHandle *TQueryHandle,
-) (*TGptApiResponse, error) {
+) (*TTtsApiResponse, error) {
 	timer := time.NewTimer(
 		time.Second * time.Duration(self.listenQueryTimeoutSec),
 	)
@@ -150,19 +140,19 @@ func (self *GptApi) ListenQuery(
 		return nil, err
 	case <-timer.C:
 		return nil, errorsutils.LogError(
-			"GptApi",
+			"TtsApi",
 			"ListenQuery",
 			errors.New("Timeout for listening query"),
 		)
 	}
 }
 
-func (self *GptApi) IsModelSupported(model string) bool {
+func (self *TtsApi) IsModelSupported(model string) bool {
 	_, isModelSupported := supportedOpenAiModels[model]
 	return isModelSupported
 }
 
-func (self *GptApi) GetAllModelsList() map[string]string {
+func (self *TtsApi) GetAllModelsList() map[string]string {
 	res := make(map[string]string, 0)
 
 	for k, v := range supportedOpenAiModels {

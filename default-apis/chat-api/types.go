@@ -1,4 +1,4 @@
-package api
+package chatapi
 
 type TMessage struct {
 	Role    string `json:"role"`
@@ -24,5 +24,5 @@ type TGptApiRequest struct {
 
 type TQueryHandle struct {
 	ResultChan chan *TGptApiResponse
-	ErrChan chan error
+	ErrChan    chan error
 }

@@ -1,4 +1,4 @@
-package chatapi
+package ttiapi
 
 import (
 	"bytes"
@@ -12,19 +12,19 @@ import (
 	errorsutils "gitlab.com/jbyte777/prompt-ql/v5/utils/errors"
 )
 
-type GptApi struct {
+type TtiApi struct {
 	openAiBaseUrl         string
 	openAiKey             string
 	listenQueryTimeoutSec uint
 }
 
-const defaultListenQueryTimeoutSec uint = 30
+const defaultListenQueryTimeoutSec uint = 50
 
 func New(
 	openAiBaseUrl string,
 	openAiKey string,
 	listenQueryTimeoutSec uint,
-) *GptApi {
+) *TtiApi {
 	if len(openAiBaseUrl) == 0 {
 		openAiBaseUrl = "https://api.openai.com"
 	}
@@ -33,31 +33,34 @@ func New(
 		listenQueryTimeoutSec = defaultListenQueryTimeoutSec
 	}
 
-	return &GptApi{
+	return &TtiApi{
 		openAiBaseUrl:         openAiBaseUrl,
 		openAiKey:             fmt.Sprintf("Bearer %v", openAiKey),
 		listenQueryTimeoutSec: listenQueryTimeoutSec,
 	}
 }
 
-func (self *GptApi) doQuery(
+func (self *TtiApi) doQuery(
 	model string,
-	temperature float64,
-	prompts []TMessage,
-) (*TGptApiResponse, error) {
+	prompt string,
+	width uint,
+	height uint,
+	responseFormat string,
+) (*TTtiApiResponse, error) {
 	client := &http.Client{}
 
-	requestBody := TGptApiRequest{
-		Model:       model,
-		Messages:    prompts,
-		Temperature: temperature,
-		N:           1,
+	requestBody := TTtiApiRequest{
+		Model:          model,
+		Prompt:         prompt,
+		N:              1,
+		Size:           fmt.Sprintf("%vx%v", width, height),
+		ResponseFormat: responseFormat,
 	}
 	requestBodyBytes, _ := json.Marshal(requestBody)
 	requestBodyBuff := bytes.NewBuffer(requestBodyBytes)
 
 	reqUrl := fmt.Sprintf(
-		"%v/v1/chat/completions",
+		"%v/v1/audio/speech",
 		self.openAiBaseUrl,
 	)
 	request, _ := http.NewRequest(
@@ -71,7 +74,7 @@ func (self *GptApi) doQuery(
 	response, err := client.Do(request)
 	if err != nil {
 		return nil, errorsutils.LogError(
-			"GptApi",
+			"TtiApi",
 			"doQuery",
 			err,
 		)
@@ -80,18 +83,18 @@ func (self *GptApi) doQuery(
 		resBody, _ := ioutil.ReadAll(response.Body)
 
 		return nil, errorsutils.LogError(
-			"GptApi",
+			"TtiApi",
 			"doQuery",
 			errors.New(string(resBody)),
 		)
 	}
 
 	rawResBody, _ := ioutil.ReadAll(response.Body)
-	var resBody TGptApiResponse
+	var resBody TTtiApiResponse
 	err = json.Unmarshal(rawResBody, &resBody)
 	if err != nil {
 		return nil, errorsutils.LogError(
-			"GptApi",
+			"TtiApi",
 			"doQuery",
 			err,
 		)
@@ -100,10 +103,12 @@ func (self *GptApi) doQuery(
 	return &resBody, nil
 }
 
-func (self *GptApi) OpenQuery(
+func (self *TtiApi) OpenQuery(
 	model string,
-	temperature float64,
-	prompts []TMessage,
+	prompt string,
+	width uint,
+	height uint,
+	responseFormat string,
 ) (*TQueryHandle, error) {
 	_, isModelSupported := supportedOpenAiModels[model]
 	if !isModelSupported {
@@ -113,14 +118,16 @@ func (self *GptApi) OpenQuery(
 		)
 	}
 
-	resChan := make(chan *TGptApiResponse)
+	resChan := make(chan *TTtiApiResponse)
 	errChan := make(chan error)
 
 	go func() {
 		res, err := self.doQuery(
 			model,
-			temperature,
-			prompts,
+			prompt,
+			width,
+			height,
+			responseFormat,
 		)
 
 		if err != nil {
@@ -136,9 +143,9 @@ func (self *GptApi) OpenQuery(
 	}, nil
 }
 
-func (self *GptApi) ListenQuery(
+func (self *TtiApi) ListenQuery(
 	queryHandle *TQueryHandle,
-) (*TGptApiResponse, error) {
+) (*TTtiApiResponse, error) {
 	timer := time.NewTimer(
 		time.Second * time.Duration(self.listenQueryTimeoutSec),
 	)
@@ -150,19 +157,19 @@ func (self *GptApi) ListenQuery(
 		return nil, err
 	case <-timer.C:
 		return nil, errorsutils.LogError(
-			"GptApi",
+			"TtiApi",
 			"ListenQuery",
 			errors.New("Timeout for listening query"),
 		)
 	}
 }
 
-func (self *GptApi) IsModelSupported(model string) bool {
+func (self *TtiApi) IsModelSupported(model string) bool {
 	_, isModelSupported := supportedOpenAiModels[model]
 	return isModelSupported
 }
 
-func (self *GptApi) GetAllModelsList() map[string]string {
+func (self *TtiApi) GetAllModelsList() map[string]string {
 	res := make(map[string]string, 0)
 
 	for k, v := range supportedOpenAiModels {
