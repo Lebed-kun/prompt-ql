@@ -37,7 +37,7 @@ func getToVar(
 
 	if toVar[0] == '@' {
 		return "", fmt.Errorf(
-			"!error (line=%v, char=%v): \"to\" parameter is \"%v\" hich is a name of external variable. Query handles can't be stored in external variables",
+			"!error (line=%v, char=%v): \"to\" parameter is \"%v\" which is a name of external variable. Query handles can't be stored in external variables",
 			execInfo.Line,
 			execInfo.CharPos,
 			rawToVar,
