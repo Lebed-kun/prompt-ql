@@ -3,11 +3,16 @@ package interpreterimpl
 import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
 
-	openqueryswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/openquery"
+	// basic switches
 	defaultswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/default"
 	wrapperswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/wrapper"
 	rootswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/root"
 	debugswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/debug"
+
+	// query switches
+	openqueryswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/openquery"
+	openqueryttsswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/openquery_tts"
+	openqueryttiswitch "gitlab.com/jbyte777/prompt-ql/v5/interpreter/dataswitches/openquery_tti"
 )
 
 type TRootSwitchTable map[string]interpreter.TDataSwitchFunction
@@ -15,6 +20,8 @@ type TRootSwitchTable map[string]interpreter.TDataSwitchFunction
 var rootSwitchTable TRootSwitchTable = map[string]interpreter.TDataSwitchFunction{
 	"root": rootswitch.RootSwitch,
 	"open_query": openqueryswitch.OpenQuerySwitch,
+	"open_query_tts": openqueryttsswitch.OpenQueryTtsSwitch,
+	"open_query_tti": openqueryttiswitch.OpenQueryTtiSwitch,
 	"call": defaultswitch.DefaultSwitch,
 	"set": defaultswitch.DefaultSwitch,
 	"user": wrapperswitch.WrapperSwitch,
