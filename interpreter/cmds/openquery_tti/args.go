@@ -54,7 +54,7 @@ func getModel(
 	var model string
 	rawModel, hasModel := staticArgs["model"]
 	if !hasModel {
-		model = "tts-1"
+		model = "dall-e-2"
 	} else {
 		var isModelStr bool
 		model, isModelStr = rawModel.(string)
@@ -85,7 +85,7 @@ func getWidth(
 	width, isWidthStr = rawWidth.(string)
 	if !isWidthStr {
 		return 0, fmt.Errorf(
-			"!error (line=%v, char=%v): \"width\" should be a numeric string",
+			"!error (line=%v, char=%v): %v is not a valid width",
 			execInfo.Line,
 			execInfo.CharPos,
 			rawWidth,
@@ -119,7 +119,7 @@ func getHeight(
 	height, isHeightStr = rawHeight.(string)
 	if !isHeightStr {
 		return 0, fmt.Errorf(
-			"!error (line=%v, char=%v): \"height\" should be a numeric string",
+			"!error (line=%v, char=%v): %v is not a valid height",
 			execInfo.Line,
 			execInfo.CharPos,
 			rawHeight,
@@ -144,7 +144,7 @@ func getResponseFormat(
 	execInfo interpreter.TExecutionInfo,
 ) (string, error) {
 	var responseFormat string
-	rawResponseFormat, hasResponseFormat := staticArgs["responseFormat"]
+	rawResponseFormat, hasResponseFormat := staticArgs["response_format"]
 	if !hasResponseFormat {
 		responseFormat = "url"
 	} else {

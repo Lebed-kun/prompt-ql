@@ -290,32 +290,8 @@ result := interpreterInst.Execute(
 
 
 ## Supported PromptQL commands v5.x
-### 1. Basic query commands
+### 1. Basic commands
 They are basic building blocks of a query to ML models. They have been introduced since the v1.x version
-
- - `{~open_query user to="X" model="Y" temperature="Z"}<execution_text>{/open_query}` - sends prompt request for given ML model that's defined by `<execution_text>` . It doesn't block execution of query. The command doesn't return any data. `<execution_text>` defines an input data for the command as follows:
-```
- - "!user <text>", "!data <text>" -> USER input channel;
- - "!assistant <text>" -> ASSISTANT input channel;
- - "!system <text>" -> SYSTEM input channel;
- - "!error <text>" -> ERROR input channel;
-```
-
-Static arguments for the command are:
-```
- - "user" - is a flag. If it's set, it **forces** a `model` to match user-defined model. If it's not set, then `model` is assumed as an OpenAI model **by default**. In this case if `model` is not supported by OpenAI, then `model` is assumed as a user-defined model;
- - "sync" - is a flag. If it's set, then query is executed in a blocking manner and returns a text response like the `listen_query` command do. If it's not set, then query is executed in parallel and result is stored in the `to` handle;
- - "to" - is a name of variable to store a query handle. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "to" is a required parameter if query is **asynchronous** (i.e. no `sync` flag). It's not required if query is **synchronous** (i.e. `sync` flag is set);
- - "model" - is a name of chosen ML model. Default value is "gpt-3.5-turbo";
- - "temperature" - is a temperature of chosen ML model. Default value is 1.0;
-```
-
- - `{~listen_query from="X" /}` - waits for OpenAI ML model query from "X" variable to complete. The command doesn't receive any additional inputs. It returns a text with the `!assistant` tag if succeed, otherwise it returns an error with the `!error` tag;
- 
-Static arguments for the command are:
-```
- - "from" - is a name of variable from which result is fetched. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "from" is a required parameter;
-```
 
  - `{~call fn="F"}<execution_text>{/call}` - calls function from `fn` variable. Command returns error if `fn` variable doesn't exist or the variable doesn't contain function with the type `func([]interface{}) interface{}` . Otherwise the command returns a data from the execution of `fn`. `<execution_text>` defines an input data for the command as follows:
 ```
@@ -364,6 +340,78 @@ Static arguments for the command are:
 They receive all input data in the `DATA` channel;
  
  - `{~nop /}` - returns empty characters sequence `\x00` . It's a phantom command that can serve as an argument filler for other PromptQL commands;
+
+### 2. Query commands
+
+They are also basic building blocks of PromptQL program. Each `{~open_query* /}` command has its corresponding `{~listen_query* /}` command. As queries can be executed both in sync and async modes. **Sync mode** is when opening query **blocks execution** of PromptQL code, it is denoted with the `sync` flag. **Async mode** is when opening query **does not block execution** of PromptQL code, it's denoted with the `to` variable parameter (thus it allows run multiple queries in parallel). Here's the list of commands:
+
+- `{~open_query user [sync] [to]="X" model="Y" temperature="Z"}<execution_text>{/open_query}` - sends prompt request for given chat ML model that's defined by `<execution_text>` . `<execution_text>` defines an input data for the command as follows:
+```
+ - "!user <text>", "!data <text>" -> USER input channel;
+ - "!assistant <text>" -> ASSISTANT input channel;
+ - "!system <text>" -> SYSTEM input channel;
+ - "!error <text>" -> ERROR input channel;
+```
+
+Static arguments for the command are:
+```
+ - "user" - is a flag. If it's set, it **forces** a `model` to match user-defined model. If it's not set, then `model` is assumed as an OpenAI model **by default**. In this case if `model` is not supported by OpenAI, then `model` is assumed as a user-defined model;
+ - "sync" - is a flag. If it's set, then query is executed in a blocking manner and returns a text response like the `listen_query` command do. If it's not set, then query is executed in parallel and result is stored in the `to` handle;
+ - "to" - is a name of variable to store a query handle. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "to" is a required parameter if query is **asynchronous** (i.e. no `sync` flag). It's not required if query is **synchronous** (i.e. `sync` flag is set);
+ - "model" - is a name of chosen ML model. Default value is "gpt-3.5-turbo";
+ - "temperature" - is a temperature of chosen ML model. Default value is 1.0;
+```
+
+ - `{~listen_query from="X" /}` - waits for OpenAI ML model query from "X" variable to complete. The command doesn't receive any additional inputs. It returns a text with the `!assistant` tag if succeed, otherwise it returns an error with the `!error` tag;
+ 
+Static arguments for the command are:
+```
+ - "from" - is a name of variable from which result is fetched. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "from" is a required parameter;
+```
+
+- `{~open_query_tts [sync] [to]="X" model="Y" voice="voice_type"}<execution_text>{/open_query_tts}` - sends prompt request for given text-to-speech ML model that's defined by `<execution_text>` . `<execution_text>` defines an input data for the command as follows:
+```
+ - "!user <text>", "!data <text>", "!assistant <text>", "!system <text>" -> DATA input channel;
+ - "!error <text>" -> ERROR input channel;
+```
+
+Static arguments for the command are:
+```
+ - "sync" - is a flag. If it's set, then query is executed in a blocking manner and returns a byte slice response like the `listen_query_tts` command do. If it's not set, then query is executed in parallel and result is stored in the `to` handle;
+ - "to" - is a name of variable to store a query handle. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "to" is a required parameter if query is **asynchronous** (i.e. no `sync` flag). It's not required if query is **synchronous** (i.e. `sync` flag is set);
+ - "model" - is a name of chosen ML model. Default value is "tts-1";
+ - "voice" - is a voice type of chosen ML model. For more info, see https://platform.openai.com/docs/models/tts ;
+```
+
+ - `{~listen_query_tts from="X" /}` - waits for OpenAI ML text-to-speech model query from "X" variable to complete. The command doesn't receive any additional inputs. It returns a byte slice if succeed, otherwise it returns an error with the `!error` tag;
+ 
+Static arguments for the command are:
+```
+ - "from" - is a name of variable from which result is fetched. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "from" is a required parameter;
+```
+
+- `{~open_query_tti [sync] [to]="X" model="Y" [width]="640" [height]="640" [response_format]="url|b64_json"}<execution_text>{/open_query_tti}` - **experimental (!)** feature. Sends prompt request for given text-to-image ML model that's defined by `<execution_text>` . `<execution_text>` defines an input data for the command as follows:
+```
+ - "!user <text>", "!data <text>", "!assistant <text>", "!system <text>" -> DATA input channel;
+ - "!error <text>" -> ERROR input channel;
+```
+
+Static arguments for the command are:
+```
+ - "sync" - is a flag. If it's set, then query is executed in a blocking manner and returns a byte slice response like the `listen_query_tti` command do. If it's not set, then query is executed in parallel and result is stored in the `to` handle;
+ - "to" - is a name of variable to store a query handle. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "to" is a required parameter if query is **asynchronous** (i.e. no `sync` flag). It's not required if query is **synchronous** (i.e. `sync` flag is set);
+ - "model" - is a name of chosen ML model. Default value is "dall-e-2";
+ - "width" - is a width of generated image. Default value is 640;
+ - "height" - is a height of generated image. Default value is 640;
+ - "response_format" - is a response type by which command should retrieve image. Default value is `url`. However, if you want to save on network load, you can set `b64_json`;
+```
+
+ - `{~listen_query_tti from="X" /}` - **experimental (!)** feature. Waits for OpenAI ML text-to-image model query from "X" variable to complete. The command doesn't receive any additional inputs. It returns a byte slice if succeed, otherwise it returns an error with the `!error` tag;
+ 
+Static arguments for the command are:
+```
+ - "from" - is a name of variable from which result is fetched. Variable name prefixed with the "@" sign is a name of external variable, otherwise it's internal variable name. "from" is a required parameter;
+```
 
 ### 2. Agent messaging commands
 They are useful for communicating API of some called agent to calling agent. They have been introduced since the v2.x version
