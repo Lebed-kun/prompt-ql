@@ -10,6 +10,7 @@ import (
 // 07-10-2023: Works +++
 // 04-11-2023: Works with descriptions +++
 // 11-11-2023: Works on regress +++
+// 23-12-2023: Works on regress +++
 func HelloCommandTest() {
 	defaultGlobals := interpretercore.TGlobalVariablesTable{
 		"myRef": "@myVar",

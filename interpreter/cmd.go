@@ -101,7 +101,7 @@ func makeCmdTable(
 		"listen_query_tti": listenquerytticmd.MakeListenQueryTtiCmd(ttiApi),
 
 		// communication commands
-		"hello": hellocmd.MakeHelloCmd(gptApi, customApis),
+		"hello": hellocmd.MakeHelloCmd(gptApi, ttsApi, ttiApi, customApis),
 		"header": headercmd.HeaderCmd,
 		"msg_begin": msgbegincmd.MsgBeginCmd,
 		"msg_end": msgendcmd.MsgEndCmd,
