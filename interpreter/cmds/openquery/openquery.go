@@ -2,14 +2,14 @@ package openquerycmd
 
 import (
 	"fmt"
-	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	chatapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/chat-api"
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
 	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
 	utils "gitlab.com/jbyte777/prompt-ql/v5/interpreter/utils"
 )
 
 func MakeOpenQueryCmd(
-	gptApi *api.GptApi,
+	gptApi *chatapi.GptApi,
 	customApis *customapis.CustomModelsApis,
 ) interpreter.TExecutedFunction {
 	standardOpenQuery := func(

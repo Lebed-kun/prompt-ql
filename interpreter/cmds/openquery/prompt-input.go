@@ -3,15 +3,15 @@ package openquerycmd
 import (
 	"fmt"
 
-	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	chatapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/chat-api"
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
 )
 
 func getPrompts(
 	inputs interpreter.TFunctionInputChannelTable,
 	execInfo interpreter.TExecutionInfo,
-) ([]api.TMessage, error) {
-	res := make([]api.TMessage, 0)
+) ([]chatapi.TMessage, error) {
+	res := make([]chatapi.TMessage, 0)
 
 	userChan := inputs["user"]
 	assistantChan := inputs["assistant"]
@@ -19,7 +19,7 @@ func getPrompts(
 
 	ptr := 0
 	for {
-		var msg api.TMessage
+		var msg chatapi.TMessage
 		userChanMsg := ""
 		assistantChanMsg := ""
 		systemChanMsg := ""
@@ -39,17 +39,17 @@ func getPrompts(
 		}
 
 		if len(userChanMsg) > 0 {
-			msg = api.TMessage{
+			msg = chatapi.TMessage{
 				Role: "user",
 				Content: userChanMsg,
 			}
 		} else if len(assistantChanMsg) > 0 {
-			msg = api.TMessage{
+			msg = chatapi.TMessage{
 				Role: "assistant",
 				Content: assistantChanMsg,
 			}
 		} else if len(systemChanMsg) > 0 {
-			msg = api.TMessage{
+			msg = chatapi.TMessage{
 				Role: "system",
 				Content: systemChanMsg,
 			}

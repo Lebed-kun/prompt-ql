@@ -4,12 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
-	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	chatapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/chat-api"
+	ttsapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/tts-api"
+	ttiapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/tti-api"
 	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
 )
 
 func MakeHelloCmd(
-	gptApi *api.GptApi,
+	gptApi *chatapi.GptApi,
+	ttsApi *ttsapi.TtsApi,
+	ttiApi *ttiapi.TtiApi,
 	customApis *customapis.CustomModelsApis,
 ) interpreter.TExecutedFunction {
 	return func(
@@ -21,7 +25,17 @@ func MakeHelloCmd(
 		interpreter *interpreter.Interpreter,
 	) interface{} {
 		modelsList := gptApi.GetAllModelsList()
+		ttsModelsList := ttsApi.GetAllModelsList()
+		ttiModelsList := ttiApi.GetAllModelsList()
 		customModels := customApis.GetAllModelsList()
+
+		for name, desc := range ttsModelsList {
+			modelsList[name] = desc
+		}
+
+		for name, desc := range ttiModelsList {
+			modelsList[name] = desc
+		}
 
 		for name, desc := range customModels {
 			modelsList[name] = desc

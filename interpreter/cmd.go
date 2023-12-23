@@ -1,7 +1,9 @@
 package interpreterimpl
 
 import (
-	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	chatapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/chat-api"
+	ttsapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/tts-api"
+	ttiapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/tti-api"
 	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
 	loggerapis "gitlab.com/jbyte777/prompt-ql/v5/logger-apis"
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
@@ -9,12 +11,18 @@ import (
 	// basic commands
 	callcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/call"
 	getcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/get"
-	listenquerycmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/listenquery"
-	openquerycmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/openquery"
 	setcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/set"
 	wrappercmds "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/wrapper-cmds"
 	nopcmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/nop"
 	
+	// query commands
+	listenquerycmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/listenquery"
+	openquerycmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/openquery"
+	listenqueryttscmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/listenquery_tts"
+	openqueryttscmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/openquery_tts"
+	listenquerytticmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/listenquery_tti"
+	openquerytticmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/openquery_tti"
+
 	// communication commands
 	hellocmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/hello"
 	headercmd "gitlab.com/jbyte777/prompt-ql/v5/interpreter/cmds/header"
@@ -64,7 +72,9 @@ var cmdsMetaInfo = interpreter.TCommandMetaInfoTable{
 }
 
 func makeCmdTable(
-	gptApi *api.GptApi,
+	gptApi *chatapi.GptApi,
+	ttsApi *ttsapi.TtsApi,
+	ttiApi *ttiapi.TtiApi,
 	customApis *customapis.CustomModelsApis,
 	loggerApis *loggerapis.LoggerApis,
 	readFromFileTimeoutSec uint,
@@ -72,8 +82,6 @@ func makeCmdTable(
 ) interpreter.TExecutedFunctionTable {
 	return interpreter.TExecutedFunctionTable{
 		// basic commands
-		"open_query": openquerycmd.MakeOpenQueryCmd(gptApi, customApis),
-		"listen_query": listenquerycmd.MakeListenQueryCmd(gptApi, customApis),
 		"call": callcmd.CallCmd,
 		"get": getcmd.GetCmd,
 		"set": setcmd.SetCmd,
@@ -84,8 +92,16 @@ func makeCmdTable(
 		"error": wrappercmds.MakeWrapperCmd("error"),
 		"nop": nopcmd.NopCmd,
 
+		// query commands
+		"open_query": openquerycmd.MakeOpenQueryCmd(gptApi, customApis),
+		"listen_query": listenquerycmd.MakeListenQueryCmd(gptApi, customApis),
+		"open_query_tts": openqueryttscmd.MakeOpenQueryTtsCmd(ttsApi),
+		"listen_query_tts": listenqueryttscmd.MakeListenQueryTtsCmd(ttsApi),
+		"open_query_tti": openquerytticmd.MakeOpenQueryTtiCmd(ttiApi),
+		"listen_query_tti": listenquerytticmd.MakeListenQueryTtiCmd(ttiApi),
+
 		// communication commands
-		"hello": hellocmd.MakeHelloCmd(gptApi, customApis),
+		"hello": hellocmd.MakeHelloCmd(gptApi, ttsApi, ttiApi, customApis),
 		"header": headercmd.HeaderCmd,
 		"msg_begin": msgbegincmd.MsgBeginCmd,
 		"msg_end": msgendcmd.MsgEndCmd,

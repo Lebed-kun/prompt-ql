@@ -1,22 +1,19 @@
-package listenquerycmd
+package listenqueryttscmd
 
 import (
 	"fmt"
-	chatapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/chat-api"
+	ttsapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/tts-api"
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
-	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
-	utils "gitlab.com/jbyte777/prompt-ql/v5/interpreter/utils"
 )
 
-func MakeListenQueryCmd(
-	gptApi *chatapi.GptApi,
-	customApis *customapis.CustomModelsApis,
+func MakeListenQueryTtsCmd(
+	ttsApi *ttsapi.TtsApi,
 ) interpreter.TExecutedFunction {
 	standardListenQuery := func(
-		queryHandle *chatapi.TQueryHandle,
+		queryHandle *ttsapi.TQueryHandle,
 		execInfo interpreter.TExecutionInfo,
 	) interface{} {
-		gptResponse, err := gptApi.ListenQuery(queryHandle)
+		response, err := ttsApi.ListenQuery(queryHandle)
 		if err != nil {
 			return fmt.Errorf(
 				"!error (line=%v, char=%v): %v",
@@ -26,24 +23,7 @@ func MakeListenQueryCmd(
 			)
 		}
 
-		return utils.MergeGptApiChoices(gptResponse.Choices)
-	}
-
-	userListenQuery := func(
-		queryHandle *customapis.TCustomQueryHandle,
-		execInfo interpreter.TExecutionInfo,
-	) interface{} {
-		llmResponse, err := customApis.ListenQuery(queryHandle)
-		if err != nil {
-			return fmt.Errorf(
-				"!error (line=%v, char=%v): %v",
-				execInfo.Line,
-				execInfo.CharPos,
-				err.Error(),
-			)
-		}
-
-		return fmt.Sprintf("!assistant %v", llmResponse)
+		return []byte(*response)
 	}
 
 	return func(
@@ -69,12 +49,7 @@ func MakeListenQueryCmd(
 			)
 		}
 
-		customQueryHandle, isCustomQueryHandle := rawQueryHandle.(*customapis.TCustomQueryHandle)
-		if isCustomQueryHandle {
-			return userListenQuery(customQueryHandle, execInfo)
-		}
-
-		queryHandle, isQueryHandleValid := rawQueryHandle.(*chatapi.TQueryHandle)
+		queryHandle, isQueryHandleValid := rawQueryHandle.(*ttsapi.TQueryHandle)
 		if !isQueryHandleValid {
 			return fmt.Errorf(
 				"!error (line=%v, char=%v): query handle by name \"%v\" is not valid as it's %v",

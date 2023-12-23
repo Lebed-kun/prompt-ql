@@ -1,4 +1,4 @@
-package api
+package chatapi
 
 var supportedOpenAiModels map[string]string = map[string]string{
 	"gpt-4": "see https://platform.openai.com/docs/models/model-endpoint-compatibility",
