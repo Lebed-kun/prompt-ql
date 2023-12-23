@@ -3,6 +3,8 @@ package interpreterimpl
 import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
 	chatapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/chat-api"
+	ttsapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/tts-api"
+	ttiapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/tti-api"
 	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
 	loggerapis "gitlab.com/jbyte777/prompt-ql/v5/logger-apis"
 )
@@ -17,6 +19,8 @@ type PromptQLOptions struct {
 	OpenAiBaseUrl string
 	OpenAiKey string
 	OpenAiListenQueryTimeoutSec uint
+	OpenAiListenQueryTtsTimeoutSec uint
+	OpenAiListenQueryTtiTimeoutSec uint
 	CustomApisListenQueryTimeoutSec uint
 	DefaultExternalGlobals interpreter.TGlobalVariablesTable
 	DefaultExternalGlobalsMeta interpreter.TExternalGlobalsMetaTable
@@ -27,16 +31,28 @@ type PromptQLOptions struct {
 }
 
 func New(options PromptQLOptions) *PromptQL {
-	apiInst := chatapi.New(
+	gptApiInst := chatapi.New(
 		options.OpenAiBaseUrl,
 		options.OpenAiKey,
 		options.OpenAiListenQueryTimeoutSec,
+	)
+	ttsApiInst := ttsapi.New(
+		options.OpenAiBaseUrl,
+		options.OpenAiKey,
+		options.OpenAiListenQueryTtsTimeoutSec,
+	)
+	ttiApiInst := ttiapi.New(
+		options.OpenAiBaseUrl,
+		options.OpenAiKey,
+		options.OpenAiListenQueryTtiTimeoutSec,
 	)
 	customModelsApis := customapis.New(options.CustomApisListenQueryTimeoutSec)
 	loggerApis := loggerapis.New()
 
 	execFnTable := makeCmdTable(
-		apiInst,
+		gptApiInst,
+		ttsApiInst,
+		ttiApiInst,
 		customModelsApis,
 		loggerApis,
 		options.ReadFromFileTimeoutSec,

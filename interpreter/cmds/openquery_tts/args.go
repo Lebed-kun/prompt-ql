@@ -1,9 +1,7 @@
-package openquerycmd
+package openqueryttscmd
 
 import (
 	"fmt"
-	"strconv"
-
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
 )
 
@@ -37,7 +35,6 @@ func getToVar(
 
 	if toVar[0] == '@' {
 		return "", fmt.Errorf(
-			// TODO: fix typo in 4.x branch
 			"!error (line=%v, char=%v): \"to\" parameter is \"%v\" which is a name of external variable. Query handles can't be stored in external variables",
 			execInfo.Line,
 			execInfo.CharPos,
@@ -55,7 +52,7 @@ func getModel(
 	var model string
 	rawModel, hasModel := staticArgs["model"]
 	if !hasModel {
-		model = "gpt-3.5-turbo"
+		model = "tts-1"
 	} else {
 		var isModelStr bool
 		model, isModelStr = rawModel.(string)
@@ -72,46 +69,32 @@ func getModel(
 	return model, nil
 }
 
-func getTemperature(
+func getVoice(
 	staticArgs interpreter.TFunctionArgumentsTable,
 	execInfo interpreter.TExecutionInfo,
-) (float64, error) {
-	var temperature float64
-	rawTemperature, hasTemperature := staticArgs["temperature"]
-	if !hasTemperature {
-		temperature = 1.0
+) (string, error) {
+	var voice string
+	rawVoice, hasVoice := staticArgs["voice"]
+	if !hasVoice {
+		return "", fmt.Errorf(
+			"!error (line=%v, char=%v): \"voice\" parameter is required",
+			execInfo.Line,
+			execInfo.CharPos,
+		)
 	} else {
-		var isTemperatureStr bool
-		temperatureStr, isTemperatureStr := rawTemperature.(string)
-		if !isTemperatureStr {
-			return 0.0, fmt.Errorf(
-				"!error (line=%v, char=%v): \"%v\" is not valid temperature value",
+		var isVoiceStr bool
+		voice, isVoiceStr = rawVoice.(string)
+		if !isVoiceStr {
+			return "", fmt.Errorf(
+				"!error (line=%v, char=%v): \"%v\" is not valid voice name",
 				execInfo.Line,
 				execInfo.CharPos,
-				rawTemperature,
-			)
-		}
-
-		var err error
-		temperature, err = strconv.ParseFloat(temperatureStr, 64)
-		if err != nil {
-			return 0.0, fmt.Errorf(
-				"!error (line=%v, char=%v): %v",
-				execInfo.Line,
-				execInfo.CharPos,
-				err.Error(),
+				rawVoice,
 			)
 		}
 	}
 
-	return temperature, nil
-}
-
-func getUserFlag(
-	staticArgs interpreter.TFunctionArgumentsTable,
-) bool {
-	_, hasUser := staticArgs["user"]
-	return hasUser
+	return voice, nil
 }
 
 func getSyncFlag(
