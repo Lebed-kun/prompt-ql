@@ -2,7 +2,7 @@ package interpreterimpl
 
 import (
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
-	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	chatapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/chat-api"
 	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
 	loggerapis "gitlab.com/jbyte777/prompt-ql/v5/logger-apis"
 )
@@ -27,7 +27,7 @@ type PromptQLOptions struct {
 }
 
 func New(options PromptQLOptions) *PromptQL {
-	apiInst := api.New(
+	apiInst := chatapi.New(
 		options.OpenAiBaseUrl,
 		options.OpenAiKey,
 		options.OpenAiListenQueryTimeoutSec,

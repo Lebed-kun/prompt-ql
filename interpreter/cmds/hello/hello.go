@@ -4,12 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
-	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	chatapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/chat-api"
 	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
 )
 
 func MakeHelloCmd(
-	gptApi *api.GptApi,
+	gptApi *chatapi.GptApi,
 	customApis *customapis.CustomModelsApis,
 ) interpreter.TExecutedFunction {
 	return func(

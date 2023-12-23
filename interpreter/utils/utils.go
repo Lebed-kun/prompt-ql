@@ -3,10 +3,10 @@ package interpreterutils
 import (
 	"fmt"
 	"strings"
-	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	chatapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/chat-api"
 )
 
-func MergeGptApiChoices(choices []api.TGptApiResponseChoice) string {
+func MergeGptApiChoices(choices []chatapi.TGptApiResponseChoice) string {
 	strChoices := make([]string, 0)
 	for _, choice := range choices {
 		if choice.Message.Role != "assistant" {

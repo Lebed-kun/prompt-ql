@@ -2,18 +2,18 @@ package listenquerycmd
 
 import (
 	"fmt"
-	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	chatapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/chat-api"
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
 	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
 	utils "gitlab.com/jbyte777/prompt-ql/v5/interpreter/utils"
 )
 
 func MakeListenQueryCmd(
-	gptApi *api.GptApi,
+	gptApi *chatapi.GptApi,
 	customApis *customapis.CustomModelsApis,
 ) interpreter.TExecutedFunction {
 	standardListenQuery := func(
-		queryHandle *api.TQueryHandle,
+		queryHandle *chatapi.TQueryHandle,
 		execInfo interpreter.TExecutionInfo,
 	) interface{} {
 		gptResponse, err := gptApi.ListenQuery(queryHandle)
@@ -74,7 +74,7 @@ func MakeListenQueryCmd(
 			return userListenQuery(customQueryHandle, execInfo)
 		}
 
-		queryHandle, isQueryHandleValid := rawQueryHandle.(*api.TQueryHandle)
+		queryHandle, isQueryHandleValid := rawQueryHandle.(*chatapi.TQueryHandle)
 		if !isQueryHandleValid {
 			return fmt.Errorf(
 				"!error (line=%v, char=%v): query handle by name \"%v\" is not valid as it's %v",

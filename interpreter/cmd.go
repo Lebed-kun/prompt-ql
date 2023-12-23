@@ -1,7 +1,7 @@
 package interpreterimpl
 
 import (
-	api "gitlab.com/jbyte777/prompt-ql/v5/api"
+	chatapi "gitlab.com/jbyte777/prompt-ql/v5/default-apis/chat-api"
 	customapis "gitlab.com/jbyte777/prompt-ql/v5/custom-apis"
 	loggerapis "gitlab.com/jbyte777/prompt-ql/v5/logger-apis"
 	interpreter "gitlab.com/jbyte777/prompt-ql/v5/core"
@@ -64,7 +64,7 @@ var cmdsMetaInfo = interpreter.TCommandMetaInfoTable{
 }
 
 func makeCmdTable(
-	gptApi *api.GptApi,
+	gptApi *chatapi.GptApi,
 	customApis *customapis.CustomModelsApis,
 	loggerApis *loggerapis.LoggerApis,
 	readFromFileTimeoutSec uint,
